@@ -1,5 +1,5 @@
-import HomeShell from "@/components/HomeShell";
+import ScrollRevealExperience from "@/components/ScrollRevealExperience";
 
 export default function Home() {
-  return <HomeShell />;
+  return <ScrollRevealExperience />;
 }

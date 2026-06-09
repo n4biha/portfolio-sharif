@@ -4,7 +4,8 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Navbar from "./Navbar";
 import Hero from "./Hero";
-import ExperienceVinyl from "./ExperienceVinyl";
+// NOTE: ExperienceVinyl + RansomTitle (and the .vinyl-* CSS) are kept on purpose
+// — the record/vinyl concept is reserved for the future Projects section.
 
 // Coordinates the one-time intro: the navbar (and everything else) stays
 // hidden until the Hero's zoom-out has finished, then fades in.
@@ -27,7 +28,6 @@ export default function HomeShell() {
 
       <main>
         <Hero introDone={introDone} onIntroDone={() => setIntroDone(true)} />
-        <ExperienceVinyl />
       </main>
     </>
   );

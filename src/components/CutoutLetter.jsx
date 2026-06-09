@@ -11,6 +11,8 @@ import { motion } from "framer-motion";
 export default function CutoutLetter({
   src,
   char,
+  width,
+  height,
   rotation = 0,
   fallbackBg = "var(--mustard)",
   fallbackFg = "#2b2620",
@@ -33,6 +35,8 @@ export default function CutoutLetter({
         <img
           src={src}
           alt={char}
+          width={width}
+          height={height}
           onError={() => setFailed(true)}
           className="block h-20 w-auto select-none sm:h-28 md:h-36"
         />

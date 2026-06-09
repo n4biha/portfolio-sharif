@@ -13,6 +13,12 @@
   --pine: #2f7d77;
   --denim: #3a5a78;
   --burnt: #d2622e;
+
+  /* "Climb my journey" experience page — dark climbing-wall theme */
+  --climb-blue: #4da6ff; /* the one standout accent: route / hold colour */
+  --wall: #2c2b2d; /* charcoal pegboard wall */
+  --wall-deep: #232224; /* recessed hole / vignette */
+  --wall-ink: #e9e3d8; /* off-white text on the dark wall */
 }
 
 @theme inline {
@@ -22,7 +28,24 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* NB: no CSS `scroll-behavior: smooth` — it fights GSAP ScrollTrigger's scrubbed
+     scroll and makes the reveal stutter. Smooth scroll is handled by Lenis (JS). */
+  scroll-behavior: auto;
+}
+
+/* Lenis smooth-scroll (see ScrollRevealExperience) */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
 
 body {
@@ -572,9 +595,1208 @@ body {
   opacity: 0;
 }
 
+/* ---------------------------------------------------------------
+   "Climb my journey" — the dark climbing-wall (pegboard) background for the
+   Experience page. Charcoal field + an evenly spaced grid of recessed holes,
+   with a soft vignette so the centre reads brighter than the edges.
+--------------------------------------------------------------- */
+/* background-image layers (no inline comments inside the value — those make
+   Lightning CSS drop following rules): a vignette + the recessed pegboard holes. */
+.climb-wall {
+  background-color: var(--wall);
+  background-image:
+    radial-gradient(
+      120% 120% at 50% 42%,
+      rgba(0, 0, 0, 0) 50%,
+      rgba(0, 0, 0, 0.42) 100%
+    ),
+    radial-gradient(
+      circle at 50% 42%,
+      rgba(0, 0, 0, 0.6) 0 1.7px,
+      rgba(255, 255, 255, 0.045) 2.1px 2.8px,
+      rgba(0, 0, 0, 0) 3.1px
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)' opacity='0.09'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='460' height='460'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.016' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)' opacity='0.06'/%3E%3C/svg%3E");
+  background-size: 100% 100%, 30px 30px, 160px 160px, 460px 460px;
+  background-position: center, center, center, center;
+}
+
+/* ---------------------------------------------------------------
+   Scroll-reveal: scrapbook (top) peels up to reveal the climbing wall (bottom).
+   Outer wrapper gives the scroll distance; inner stage is the pinned full screen.
+--------------------------------------------------------------- */
+.scroll-reveal-experience {
+  position: relative;
+  height: 220vh;
+  isolation: isolate;
+}
+.scroll-reveal-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--paper);
+}
+.climbing-wall-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  isolation: isolate;
+  /* NB: do NOT GPU-promote this layer (translateZ/will-change). It contains the
+     rocks' SVG lighting filters (feTurbulence/feDiffuseLighting), which Chrome
+     fails to render once the element is forced onto its own compositing layer —
+     the colored scatter rocks disappear. Lenis already keeps the scroll smooth. */
+}
+.scrapbook-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background-color: var(--paper);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* ---------------------------------------------------------------
+   Climbing wall — holds ("rocks") + the dotted route trail. Holds are SVGs
+   (ClimbingHold); these rules handle placement, the cast shadow, the route
+   hover pop, and the little trail dots.
+--------------------------------------------------------------- */
+.climb-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+/* a positioned point; the hold is centred on it (translate -50%) + rotated */
+.climb-hold-pos {
+  position: absolute;
+}
+.climb-hold {
+  display: inline-block;
+  filter: drop-shadow(3px 11px 13px rgba(0, 0, 0, 0.5))
+    drop-shadow(1px 4px 5px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.25s ease;
+}
+.climb-hold svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.climb-hold--route {
+  cursor: pointer;
+}
+.climb-hold--route:hover {
+  transform: scale(1.12) translateY(-6%);
+  filter: drop-shadow(3px 9px 11px rgba(0, 0, 0, 0.5));
+}
+/* dotted blue route trail between the holds. Hidden by default; each dot pops in
+   on a per-dot delay (set inline in ClimbingWall) so the trail draws itself
+   sequentially from the start hold upward after the page loads. */
+.climb-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #e3eeff 0%, #9cc6ff 100%);
+  box-shadow: 0 0 6px rgba(77, 166, 255, 0.55);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.3);
+  animation: dot-pop 0.45s cubic-bezier(0.34, 1.45, 0.6, 1) both;
+}
+@keyframes dot-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* ---------------------------------------------------------------
+   Hand-drawn blue "pencil" circle that rings the active nav item. The SVG is
+   roughened by a turbulence filter; the stroke draws itself in on mount.
+--------------------------------------------------------------- */
+.sketch-circle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 150%;
+  height: 230%;
+  transform: translate(-50%, -50%) rotate(-4deg);
+  pointer-events: none;
+  overflow: visible;
+}
+.sketch-circle path {
+  fill: none;
+  stroke: var(--climb-blue);
+  stroke-width: 3;
+  stroke-linecap: round;
+  /* path carries pathLength="100", so dashes work on a 0–100 scale */
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: sketch-draw 0.7s cubic-bezier(0.6, 0, 0.3, 1) 0.15s forwards;
+}
+@keyframes sketch-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ===============================================================
+   Experience scene — clicking a hold pans the wall left and opens the
+   rustic journal on the right (one perspective space, no modal).
+   =============================================================== */
+.climb-scene {
+  position: absolute;
+  inset: 0;
+  perspective: 2000px;
+}
+.climb-scene-wall {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.7s cubic-bezier(0.5, 0, 0.2, 1);
+  will-change: transform;
+}
+.climb-scene.is-open .climb-scene-wall {
+  transform: translateX(-22%) scale(0.9);
+}
+/* clear the wall behind the board: fade the scattered (ambiance) holds while a
+   route is open — route holds + trail stay. */
+.climb-hold-pos {
+  transition: opacity 0.5s ease;
+}
+.climb-scene.is-open .climb-hold-pos:not(.climb-hold-btn) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* route holds are buttons now */
+.climb-hold-btn {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 5;
+}
+.climb-hold-btn:focus-visible {
+  outline: 2px solid var(--climb-blue);
+  outline-offset: 6px;
+  border-radius: 10px;
+}
+.climb-hold-btn:active .climb-hold {
+  transform: scale(0.88);
+}
+.climb-hold-btn.is-selected .climb-hold {
+  filter: drop-shadow(0 0 11px rgba(77, 166, 255, 0.7))
+    drop-shadow(2px 6px 7px rgba(0, 0, 0, 0.5));
+}
+
+/* chalk circle that stays around the selected hold */
+.hold-ring {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 6;
+  animation: ring-in 0.4s ease both;
+}
+.hold-ring .chalk-mark {
+  width: 100%;
+  height: 100%;
+}
+@keyframes ring-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.6) rotate(-14deg);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(0);
+  }
+}
+
+/* shared chalk-mark look */
+.chalk-mark {
+  opacity: 0.9;
+}
+
+/* chalk-dust burst on click */
+.chalk-dust {
+  position: absolute;
+  width: 0;
+  height: 0;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 7;
+}
+.chalk-particle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0));
+  animation: chalk-float 0.85s ease-out forwards;
+}
+@keyframes chalk-float {
+  0% {
+    opacity: 0.9;
+    transform: translate(0, 0) scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(1.3);
+  }
+}
+
+/* handwritten + chalk text drawn on the wall */
+.hand {
+  font-family: var(--font-hand), "Segoe Print", "Bradley Hand", cursive;
+}
+.wall-deco {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+.wall-deco .wall-title {
+  position: absolute;
+  left: 4%;
+  bottom: 13%;
+  margin: 0;
+  font-size: clamp(34px, 5vw, 62px);
+  line-height: 1;
+  color: #eef0ee;
+  transform: rotate(-4deg);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+}
+.wall-deco .wall-sub {
+  position: absolute;
+  left: 4.5%;
+  bottom: 7.5%;
+  margin: 0;
+  font-size: clamp(16px, 2vw, 25px);
+  color: var(--climb-blue);
+  transform: rotate(-3deg);
+}
+.chalk-note {
+  position: absolute;
+  font-size: clamp(13px, 1.55vw, 21px);
+  color: rgba(238, 238, 230, 0.82);
+}
+.note-a {
+  left: 63%;
+  top: 61%;
+  transform: rotate(-6deg);
+  color: var(--climb-blue);
+}
+.note-b {
+  left: 5%;
+  top: 28%;
+  transform: rotate(4deg);
+}
+.note-c {
+  left: 77%;
+  top: 80%;
+  transform: rotate(-8deg);
+}
+.note-d {
+  left: 80%;
+  top: 13%;
+  transform: rotate(-5deg);
+}
+.chalk-grade {
+  position: absolute;
+  font-size: clamp(17px, 1.9vw, 26px);
+  font-weight: 700;
+  color: rgba(238, 238, 230, 0.7);
+}
+.grade-a {
+  left: 36%;
+  top: 82%;
+  transform: rotate(-8deg);
+}
+.grade-b {
+  left: 35%;
+  top: 50%;
+  transform: rotate(6deg);
+}
+.grade-c {
+  left: 40%;
+  top: 15%;
+  transform: rotate(-5deg);
+  color: var(--climb-blue);
+}
+.deco {
+  position: absolute;
+  color: #f1ede4;
+  opacity: 0.85;
+}
+.deco-arrow1 {
+  left: 61%;
+  top: 43%;
+  transform: rotate(20deg);
+}
+.deco-star1 {
+  left: 25%;
+  top: 20%;
+}
+.deco-check1 {
+  left: 71%;
+  top: 28%;
+}
+.deco-x1 {
+  left: 20%;
+  top: 64%;
+}
+.deco-squig1 {
+  left: 26%;
+  top: 47%;
+}
+.deco-circ1 {
+  left: 85%;
+  top: 47%;
+}
+
+/* ===============================================================
+   The rustic journal that opens from the right.
+   =============================================================== */
+.notebook {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 42%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4vh 2.2vw;
+  z-index: 20;
+  pointer-events: none;
+}
+.notebook-page {
+  position: relative;
+  width: 100%;
+  max-width: 548px;
+  height: 88%;
+  padding: 6% 7%;
+  pointer-events: none;
+  transform-origin: left center;
+  transform: rotateY(-105deg);
+  opacity: 0;
+  transition: transform 0.7s cubic-bezier(0.33, 1, 0.68, 1) 0.18s,
+    opacity 0.25s ease 0.18s;
+  color: #342c20;
+  border-radius: 4px 13px 13px 4px;
+  background-color: #eee2c6;
+  background-image:
+    radial-gradient(135% 130% at 93% 96%, rgba(96, 66, 30, 0.27), rgba(96, 66, 30, 0) 52%),
+    radial-gradient(120% 110% at 6% 3%, rgba(255, 250, 235, 0.55), rgba(255, 250, 235, 0) 42%),
+    repeating-linear-gradient(92deg, rgba(150, 120, 72, 0) 0 8px, rgba(150, 120, 72, 0.022) 8px 9px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.05'/%3E%3C/svg%3E");
+  background-size: cover, cover, auto, 170px 170px;
+  box-shadow:
+    inset 0 0 60px rgba(120, 84, 38, 0.2),
+    inset 0 0 5px rgba(120, 84, 38, 0.18),
+    -16px 20px 34px rgba(0, 0, 0, 0.55),
+    -3px 0 6px rgba(0, 0, 0, 0.32);
+}
+.notebook-page::before {
+  content: "";
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  right: 12%;
+  top: 46%;
+  border-radius: 50%;
+  border: 7px solid rgba(120, 80, 40, 0.09);
+  box-shadow: inset 0 0 9px rgba(120, 80, 40, 0.06);
+  transform: rotate(12deg);
+  pointer-events: none;
+}
+.notebook.is-open .notebook-page {
+  transform: rotateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* spiral metal binding down the left edge, over punched holes */
+.nb-binding {
+  position: absolute;
+  left: -7px;
+  top: 3.5%;
+  bottom: 3.5%;
+  width: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 6;
+  pointer-events: none;
+}
+.nb-ring {
+  position: relative;
+  width: 30px;
+  height: 13px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #f1ece3 0%, #c3bdb1 38%, #6f6a60 58%, #a39d92 100%);
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.42);
+}
+.nb-ring::after {
+  content: "";
+  position: absolute;
+  inset: 3px 8px;
+  border-radius: 50%;
+  background: #241c12;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* blue washi tape (the only place blue tape appears) */
+.nb-washi {
+  position: absolute;
+  top: -9px;
+  width: 50px;
+  height: 19px;
+  z-index: 2;
+  background:
+    linear-gradient(110deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 45%),
+    linear-gradient(rgba(77, 166, 255, 0.5), rgba(56, 140, 225, 0.52));
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+}
+.nb-washi--l {
+  left: 0;
+  transform: rotate(-30deg);
+}
+.nb-washi--r {
+  right: 0;
+  transform: rotate(28deg);
+}
+.notebook-back {
+  position: absolute;
+  top: 18px;
+  right: 9%;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(15px, 1.5vw, 19px);
+  color: #7a5a36;
+  transition: opacity 0.2s ease;
+}
+.notebook-back:hover {
+  opacity: 0.65;
+}
+
+.notebook-body {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* top — taped polaroid + header */
+.nb-top {
+  display: flex;
+  gap: 5%;
+  align-items: flex-start;
+}
+.nb-polaroid {
+  position: relative;
+  flex: 0 0 40%;
+  padding: 6% 6% 14%;
+  background: linear-gradient(158deg, #fdfaf1, #e8dec8);
+  box-shadow: 2px 7px 14px rgba(40, 28, 12, 0.34);
+  transform: rotate(-3deg);
+}
+.nb-photo {
+  aspect-ratio: 1 / 0.9;
+  background:
+    radial-gradient(120% 90% at 50% 118%, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0) 60%),
+    linear-gradient(160deg, #b6a384 0%, #6a583f 60%, #3e3221 100%);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.45), inset 0 2px 3px rgba(0, 0, 0, 0.4);
+}
+.nb-caption {
+  display: block;
+  margin-top: 7%;
+  text-align: center;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(13px, 1.4vw, 17px);
+  color: #4a3d2c;
+}
+.nb-head {
+  position: relative;
+  flex: 1;
+  padding-top: 6px;
+}
+.nb-grade {
+  display: inline-block;
+  font-family: var(--font-courier), monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--climb-blue);
+  margin-bottom: 5px;
+}
+.nb-role {
+  margin: 0;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(23px, 2.9vw, 35px);
+  line-height: 1;
+  color: #2c2419;
+}
+.nb-company {
+  margin: 6px 0 0;
+  font-weight: 700;
+  font-size: clamp(13px, 1.35vw, 16px);
+  color: #463726;
+}
+.nb-date {
+  margin: 2px 0 0;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(14px, 1.5vw, 19px);
+  color: #8a6f48;
+}
+
+/* torn scrap — what I worked on */
+.nb-scrap {
+  position: relative;
+  width: 70%;
+  margin: 5% 0 0;
+  padding: 4% 7% 5%;
+  background: linear-gradient(160deg, #f7f1e0, #ebe1c8);
+  box-shadow: 2px 5px 12px rgba(40, 28, 12, 0.26);
+  transform: rotate(-0.8deg);
+  clip-path: polygon(
+    0 5%, 13% 0, 32% 4%, 54% 0, 75% 4%, 91% 0, 100% 5%, 99% 95%, 80% 100%,
+    56% 96%, 31% 100%, 11% 97%, 0 99%
+  );
+}
+.nb-scrap-title {
+  margin: 0 0 7px;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(18px, 2vw, 25px);
+  color: var(--climb-blue);
+}
+.nb-bullets {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nb-bullets li {
+  position: relative;
+  padding-left: 16px;
+  margin: 5px 0;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(14px, 1.55vw, 18px);
+  line-height: 1.22;
+  color: #3a3024;
+}
+.nb-bullets li::before {
+  content: "›";
+  position: absolute;
+  left: 3px;
+  color: #7a5a36;
+}
+
+/* favorite project sticky */
+.nb-sticky {
+  position: absolute;
+  right: -1%;
+  top: 38%;
+  width: 31%;
+  padding: 6% 6% 8%;
+  background: linear-gradient(170deg, #f7e487, #ecd05c);
+  box-shadow: 2px 5px 11px rgba(40, 28, 12, 0.3);
+  transform: rotate(4deg);
+  z-index: 3;
+}
+.nb-sticky-tape {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 44px;
+  height: 15px;
+  transform: translateX(-50%) rotate(-3deg);
+  background:
+    linear-gradient(110deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 45%),
+    linear-gradient(rgba(77, 166, 255, 0.5), rgba(56, 140, 225, 0.5));
+}
+.nb-sticky-label {
+  margin: 0;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(13px, 1.4vw, 16px);
+  color: #8a6a22;
+}
+.nb-sticky-text {
+  margin: 3px 0 0;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(15px, 1.6vw, 19px);
+  line-height: 1.08;
+  color: #4a3a14;
+}
+
+/* cut-out skill tags */
+.nb-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 9px;
+  margin-top: auto;
+  padding-top: 5%;
+  max-width: 66%;
+}
+.nb-tag {
+  padding: 4px 12px;
+  font-size: clamp(11px, 1.2vw, 13px);
+  font-weight: 600;
+  color: #3c2f1d;
+  background: linear-gradient(160deg, #e9dcbe, #d6c197);
+  box-shadow: 1px 2px 4px rgba(40, 28, 12, 0.28);
+  transform: rotate(var(--r, 0deg));
+  clip-path: polygon(2% 10%, 98% 0, 100% 86%, 3% 100%);
+}
+
+/* decorative doodles + margin notes (pencil; blue only on the named bits) */
+.nb-doodle {
+  position: absolute;
+  opacity: 0.7;
+  z-index: 4;
+}
+.nb-doodle--star {
+  right: -4px;
+  top: -4px;
+  opacity: 0.6;
+}
+.nb-doodle--arrow {
+  right: 5%;
+  bottom: 6%;
+  opacity: 0.65;
+}
+.nb-doodle--check {
+  left: 1%;
+  top: 41%;
+  opacity: 0.5;
+}
+.nb-doodle--circle {
+  left: 47%;
+  top: 60%;
+  opacity: 0.34;
+}
+.nb-finger {
+  position: absolute;
+  left: 5%;
+  top: 64%;
+  width: 24px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 70%);
+  opacity: 0.4;
+  filter: blur(1px);
+  z-index: 4;
+}
+.nb-route-grade {
+  position: absolute;
+  right: 6%;
+  top: 44%;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(18px, 2vw, 24px);
+  color: var(--climb-blue);
+  opacity: 0.8;
+  transform: rotate(-9deg);
+  z-index: 4;
+}
+.nb-note {
+  position: absolute;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(13px, 1.5vw, 18px);
+  color: #6a533a;
+  z-index: 4;
+}
+.nb-note--a {
+  left: 13%;
+  top: 59%;
+  transform: rotate(-7deg);
+  color: var(--climb-blue);
+}
+.nb-note--b {
+  left: 40%;
+  top: 70%;
+  transform: rotate(5deg);
+}
+.nb-note--c {
+  right: 3%;
+  bottom: 13%;
+  transform: rotate(-3deg);
+}
+
+/* ===============================================================
+   Route Beta Board — beta chalked directly onto the wall (transparent
+   container, no panel/card). Slides + fades in on the right when a hold opens.
+   =============================================================== */
+.beta-board {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 38%;
+  z-index: 20;
+  pointer-events: none;
+}
+.beta-inner {
+  position: relative;
+  height: 100%;
+  padding: 13% 6% 2.5%;
+  opacity: 0;
+  transform: translateX(34px);
+  transition: opacity 0.5s ease 0.15s,
+    transform 0.6s cubic-bezier(0.33, 1, 0.68, 1) 0.15s;
+  color: #eef0ee;
+  background: linear-gradient(180deg, #34343a 0%, #26262b 100%);
+  box-shadow: -16px 0 44px rgba(0, 0, 0, 0.5);
+}
+.beta-board.is-open .beta-inner {
+  opacity: 1;
+  transform: none;
+}
+.beta-inner::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8%;
+  bottom: 8%;
+  border-left: 1.5px dashed rgba(207, 230, 255, 0.22);
+}
+.beta-back {
+  position: absolute;
+  bottom: 1.5%;
+  right: 6%;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(13px, 1.3vw, 16px);
+  color: rgba(238, 240, 238, 0.55);
+  transition: color 0.2s ease;
+  z-index: 6;
+}
+.beta-back:hover {
+  color: #eef0ee;
+}
+
+/* header */
+.beta-route-beta {
+  display: inline-block;
+  margin: 8px 0 12px;
+  padding: 3px 14px;
+  border: 1.5px solid var(--climb-blue);
+  border-radius: 20px;
+  font-family: var(--font-hand), cursive;
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  color: var(--climb-blue);
+}
+.beta-title {
+  margin: 0;
+  max-width: 56%;
+  font-family: var(--font-hand), cursive;
+  font-weight: 700;
+  font-size: clamp(36px, 4.3vw, 54px);
+  line-height: 0.87;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #f6f8f5;
+  text-shadow: 0 3px 16px rgba(0, 0, 0, 0.6);
+}
+.beta-subtitle {
+  margin: 6px 0 0;
+  max-width: 60%;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(16px, 1.7vw, 20px);
+  line-height: 1.05;
+  color: var(--climb-blue);
+}
+
+/* taped polaroid */
+.beta-polaroid {
+  position: absolute;
+  top: 13%;
+  right: 0;
+  width: 40%;
+  padding: 6% 6% 15%;
+  background: #f2ede1;
+  box-shadow: 5px 12px 26px rgba(0, 0, 0, 0.6);
+  transform: rotate(7deg);
+  z-index: 3;
+}
+.beta-washi {
+  position: absolute;
+  height: 28px;
+  background:
+    linear-gradient(110deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0) 45%),
+    linear-gradient(rgba(77, 166, 255, 0.68), rgba(56, 140, 225, 0.68));
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.32);
+}
+.beta-washi--a {
+  top: -13px;
+  left: 6%;
+  width: 52%;
+  transform: rotate(-9deg);
+}
+.beta-washi--b {
+  bottom: 16%;
+  right: -7%;
+  width: 40%;
+  transform: rotate(-26deg);
+}
+.beta-photo {
+  aspect-ratio: 1 / 0.82;
+  background:
+    radial-gradient(120% 90% at 50% 120%, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0) 60%),
+    linear-gradient(160deg, #8a8f96 0%, #4a4f57 60%, #2b2f37 100%);
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.45);
+}
+.beta-caption {
+  display: block;
+  margin-top: 7%;
+  text-align: center;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(15px, 1.6vw, 20px);
+  color: #4a4438;
+}
+
+/* route info grid */
+.beta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 6%;
+  margin: 2.2% 0 0;
+  max-width: 58%;
+}
+.beta-cell {
+  position: relative;
+  padding-left: 25px;
+}
+.beta-cell:last-child {
+  grid-column: 1 / -1;
+}
+.beta-ico {
+  position: absolute;
+  left: 0;
+  top: 2px;
+}
+.beta-cell dt {
+  font-family: var(--font-hand), cursive;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: var(--climb-blue);
+  text-transform: uppercase;
+}
+.beta-cell dd {
+  margin: 1px 0 0;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(14px, 1.5vw, 16.5px);
+  line-height: 1.05;
+  color: #e9ece8;
+}
+.beta-grade {
+  font-size: clamp(27px, 3vw, 36px) !important;
+  line-height: 0.9 !important;
+  color: #fff !important;
+}
+
+/* labels + description */
+.beta-label {
+  position: relative;
+  display: inline-block;
+  margin: 1.1% 0 3px;
+  padding-bottom: 3px;
+  font-family: var(--font-hand), cursive;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  color: var(--climb-blue);
+}
+.beta-label::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.5px;
+  background: rgba(77, 166, 255, 0.45);
+}
+.beta-desc {
+  margin: 0;
+  max-width: 58%;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(13px, 1.4vw, 15px);
+  line-height: 1.28;
+  color: #d3d6d0;
+}
+
+/* hand-drawn route diagram — the centerpiece sketch */
+.beta-diagram {
+  position: absolute;
+  right: 0;
+  top: 52%;
+  width: 40%;
+}
+.beta-diagram-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.beta-diagram-label {
+  font-family: var(--font-hand), cursive;
+  font-size: 12px;
+  fill: #d6d9d3;
+}
+.beta-diagram-tag {
+  font-family: var(--font-hand), cursive;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  fill: var(--climb-blue);
+}
+
+/* technique tags — outlined chalk chips */
+.beta-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 7px;
+  margin: 7px 0 0;
+  padding: 0;
+  list-style: none;
+  max-width: 58%;
+}
+.beta-tags li {
+  padding: 4px 11px;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(13px, 1.4vw, 16px);
+  line-height: 1.1;
+  color: #eaede8;
+  border: 1.5px solid rgba(207, 230, 255, 0.42);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+/* climber notes — taped kraft scrap */
+.beta-notes {
+  position: relative;
+  margin: 5px 0 0;
+  width: 58%;
+  padding: 2.4% 5%;
+  background: linear-gradient(160deg, #caa978, #b08f5c);
+  box-shadow: 3px 7px 16px rgba(0, 0, 0, 0.5);
+  transform: rotate(-1.4deg);
+}
+.beta-notes-tape {
+  position: absolute;
+  top: -8px;
+  left: 16%;
+  width: 40px;
+  height: 15px;
+  transform: rotate(-6deg);
+  background:
+    linear-gradient(110deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 45%),
+    linear-gradient(rgba(77, 166, 255, 0.5), rgba(56, 140, 225, 0.5));
+}
+.beta-notes ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.beta-notes li {
+  position: relative;
+  padding-left: 14px;
+  margin: 2px 0;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(13px, 1.4vw, 15px);
+  line-height: 1.15;
+  color: #3a2f1d;
+}
+.beta-notes li::before {
+  content: "›";
+  position: absolute;
+  left: 2px;
+  color: #6a522e;
+}
+
+/* chalk annotations */
+.beta-anno {
+  position: absolute;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(15px, 1.6vw, 20px);
+  color: rgba(238, 240, 238, 0.62);
+  z-index: 4;
+}
+.anno-crux {
+  right: 38%;
+  top: 63%;
+  transform: rotate(-7deg);
+  color: var(--climb-blue);
+}
+.anno-growth {
+  right: 4%;
+  top: 59%;
+  transform: rotate(5deg);
+}
+.anno-fav {
+  right: 4%;
+  bottom: 6%;
+  transform: rotate(-4deg);
+  color: var(--climb-blue);
+}
+.anno-keep {
+  left: 6%;
+  bottom: 0;
+  transform: rotate(-3deg);
+}
+.anno-send {
+  right: 7%;
+  top: 20.5%;
+  transform: rotate(-7deg);
+}
+.anno-reach {
+  right: 40%;
+  top: 78%;
+  transform: rotate(4deg);
+}
+.anno-sticky {
+  left: 1%;
+  top: 68%;
+  transform: rotate(-8deg);
+}
+.anno-beta {
+  right: 2%;
+  bottom: 30%;
+  transform: rotate(3deg);
+  color: var(--climb-blue);
+}
+.beta-doodle {
+  position: absolute;
+  opacity: 0.55;
+  z-index: 4;
+}
+.doodle-star {
+  left: 2%;
+  top: 28%;
+}
+.doodle-star2 {
+  right: 9%;
+  top: 60%;
+}
+.doodle-arrow {
+  right: 45%;
+  top: 70%;
+}
+.doodle-arrow2 {
+  left: 1%;
+  top: 52%;
+}
+.doodle-circ {
+  right: 1%;
+  top: 61%;
+  opacity: 0.34;
+}
+.doodle-check {
+  left: 3%;
+  bottom: 22%;
+}
+.doodle-x {
+  right: 41%;
+  bottom: 11%;
+  opacity: 0.5;
+}
+.doodle-squig {
+  left: 1%;
+  bottom: 4%;
+  opacity: 0.45;
+}
+
+/* the route line illuminates blue while a route is open */
+.climb-scene.is-open .climb-dot {
+  background: radial-gradient(circle, #eaf3ff 0%, #4da6ff 100%);
+  box-shadow: 0 0 9px rgba(77, 166, 255, 0.9);
+}
+
+/* ===============================================================
+   Hanging climbing rope (decorative): two thin twisted strands lashed together
+   by wraps at intervals, with a frayed tip. Per strand: a cross gradient for the
+   cylinder + two diagonal repeating gradients for the laid-rope twist.
+   =============================================================== */
+.rope-rig {
+  position: absolute;
+  pointer-events: none;
+  z-index: 3;
+  width: 22px;
+  transform-origin: top center;
+  filter: drop-shadow(4px 5px 7px rgba(0, 0, 0, 0.5));
+}
+.rope-strand {
+  position: absolute;
+  top: 0;
+  bottom: 13px;
+  width: 8px;
+  border-radius: 5px;
+  background-image:
+    repeating-linear-gradient(126deg, rgba(30, 19, 7, 0) 0 3px, rgba(30, 19, 7, 0.5) 4px 5.5px, rgba(30, 19, 7, 0) 7px 9px),
+    repeating-linear-gradient(126deg, rgba(244, 232, 202, 0) 0 4px, rgba(244, 232, 202, 0.34) 5px 6px, rgba(244, 232, 202, 0) 7px 9px),
+    linear-gradient(90deg, #3f2f19 0%, #7a5f35 42%, #a3895a 55%, #3f2f19 100%);
+  background-size: auto, auto, 100% 100%;
+}
+.rope-strand--a {
+  left: 1px;
+  transform: rotate(2.5deg);
+}
+.rope-strand--b {
+  right: 1px;
+  transform: rotate(-2deg);
+}
+.rope-wrap {
+  position: absolute;
+  left: 50%;
+  width: 158%;
+  height: 12px;
+  transform: translateX(-50%) rotate(-6deg);
+  border-radius: 3px;
+  background-image:
+    repeating-linear-gradient(94deg, rgba(0, 0, 0, 0.33) 0 1.6px, rgba(0, 0, 0, 0) 1.6px 3.4px),
+    linear-gradient(90deg, #241a0c, #51391c 50%, #241a0c);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
+}
+.rope-wrap--top {
+  top: 3%;
+}
+.rope-fray {
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  width: 60%;
+  height: 15px;
+  transform: translateX(-50%);
+  background: repeating-linear-gradient(90deg, #93713f 0 1.6px, #67492a 1.6px 3.2px);
+  clip-path: polygon(
+    0 0, 100% 0, 90% 52%, 100% 100%, 80% 56%, 66% 100%, 52% 50%, 38% 100%,
+    24% 56%, 10% 100%, 0 54%
+  );
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  .climb-scene-wall,
+  .notebook-page {
+    transition: none;
+  }
+  .hold-ring,
+  .chalk-particle {
+    animation: none;
+  }
+  .chalk-particle {
+    opacity: 0;
   }
   /* no entrance for reduced-motion — just show everything in place
      (the `.tape--*` resting rotation is left untouched) */
@@ -593,5 +1815,14 @@ body {
   }
   .vinyl-disc-face {
     animation: none;
+  }
+  .sketch-circle path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .climb-dot {
+    animation: none;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
 }

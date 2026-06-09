@@ -16,13 +16,16 @@ import photoPortrait from "../../public/images/photo-portrait.jpg";
   Upload one PNG per letter into /public/images using these exact filenames.
   Until a file exists, a styled fallback letter shows in its place.
 */
+// width/height are the PNGs' intrinsic pixel sizes — passed to each <img> so the
+// browser reserves the right aspect-ratio box and the name doesn't collapse /
+// reflow while the images are still loading on first paint.
 const letters = [
-  { char: "N", src: "/images/letter-1-n.png", rotation: -6, fallbackBg: "var(--tomato)", fallbackFg: "#f3f0e7" },
-  { char: "a", src: "/images/letter-2-a.png", rotation: 4, fallbackBg: "var(--mustard)", fallbackFg: "#2b2620" },
-  { char: "b", src: "/images/letter-3-b.png", rotation: -3, fallbackBg: "var(--pine)", fallbackFg: "#f3f0e7" },
-  { char: "i", src: "/images/letter-4-i.png", rotation: 5, fallbackBg: "var(--denim)", fallbackFg: "#f3f0e7" },
-  { char: "h", src: "/images/letter-5-h.png", rotation: -4, fallbackBg: "var(--burnt)", fallbackFg: "#f3f0e7" },
-  { char: "a", src: "/images/letter-6-a.png", rotation: 3, fallbackBg: "var(--pine)", fallbackFg: "#f3f0e7" },
+  { char: "N", src: "/images/letter-1-n.png", width: 356, height: 342, rotation: -6, fallbackBg: "var(--tomato)", fallbackFg: "#f3f0e7" },
+  { char: "a", src: "/images/letter-2-a.png", width: 284, height: 324, rotation: 4, fallbackBg: "var(--mustard)", fallbackFg: "#2b2620" },
+  { char: "b", src: "/images/letter-3-b.png", width: 298, height: 326, rotation: -3, fallbackBg: "var(--pine)", fallbackFg: "#f3f0e7" },
+  { char: "i", src: "/images/letter-4-i.png", width: 196, height: 370, rotation: 5, fallbackBg: "var(--denim)", fallbackFg: "#f3f0e7" },
+  { char: "h", src: "/images/letter-5-h.png", width: 292, height: 334, rotation: -4, fallbackBg: "var(--burnt)", fallbackFg: "#f3f0e7" },
+  { char: "a", src: "/images/letter-6-a.png", width: 326, height: 298, rotation: 3, fallbackBg: "var(--pine)", fallbackFg: "#f3f0e7" },
 ];
 
 // Intro paragraph typed out next to the name once the photo is on.
@@ -60,8 +63,10 @@ export default function Hero({ onIntroDone, introDone = false }) {
   // Intro paragraph starts typing just after the photo lands.
   const [introTextIn, setIntroTextIn] = useState(false);
 
-  // 0 = fully zoomed in (inside one letter), 1 = settled into place.
-  const progress = useMotionValue(0);
+  // 0 = fully zoomed in (inside one letter), 1 = settled into place. When the
+  // zoom intro is disabled we START settled (progress 1) so the name never paints
+  // at the huge zoom scale for a frame before the effect snaps it down.
+  const progress = useMotionValue(ENABLE_INTRO ? 0 : 1);
   // Starting scale — set from the viewport before first paint (see below).
   const bigScale = useMotionValue(36);
 

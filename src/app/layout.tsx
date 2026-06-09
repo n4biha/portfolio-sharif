@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Nunito, Anton, Courier_Prime } from "next/font/google";
+import { Nunito, Anton, Courier_Prime, Caveat } from "next/font/google";
 import "./globals.css";
 
 // Body text — clean and readable
@@ -15,6 +15,9 @@ const courier = Courier_Prime({
   weight: ["400", "700"],
 });
 
+// Handwriting for journal annotations + chalk notes on the climbing wall
+const caveat = Caveat({ variable: "--font-hand", subsets: ["latin"] });
+
 export const metadata: Metadata = {
   title: "Nabiha — Portfolio",
   description:
@@ -29,7 +32,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${nunito.variable} ${anton.variable} ${courier.variable} h-full antialiased`}
+      className={`${nunito.variable} ${anton.variable} ${courier.variable} ${caveat.variable} h-full antialiased`}
     >
       <body className="min-h-full">{children}</body>
     </html>
