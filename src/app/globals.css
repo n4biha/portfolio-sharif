@@ -764,7 +764,10 @@ body {
   will-change: transform;
 }
 .climb-scene.is-open .climb-scene-wall {
-  transform: translateX(-22%) scale(0.9);
+  /* translate only (no scale): scaling the SVG-filtered rocks re-rasterizes them
+     and "pops" sharp at the end of the pan-back — a translate just slides the
+     existing layer, so the open/close stays perfectly smooth. */
+  transform: translateX(-24%);
 }
 /* clear the wall behind the board: fade the scattered (ambiance) holds while a
    route is open — route holds + trail stay. */
@@ -1350,8 +1353,9 @@ body {
   padding: 13% 6% 2.5%;
   opacity: 0;
   transform: translateX(34px);
-  transition: opacity 0.5s ease 0.15s,
-    transform 0.6s cubic-bezier(0.33, 1, 0.68, 1) 0.15s;
+  /* CLOSE transition: prompt + no delay, so the whole board (incl. the opaque
+     climber-notes scrap) leaves in step with the wall panning back — no lingering. */
+  transition: opacity 0.34s ease, transform 0.46s cubic-bezier(0.33, 1, 0.68, 1);
   color: #eef0ee;
   background: linear-gradient(180deg, #34343a 0%, #26262b 100%);
   box-shadow: -16px 0 44px rgba(0, 0, 0, 0.5);
@@ -1359,6 +1363,10 @@ body {
 .beta-board.is-open .beta-inner {
   opacity: 1;
   transform: none;
+  isolation: isolate;
+  /* OPEN transition: gentle + slightly delayed so it follows the wall panning in. */
+  transition: opacity 0.5s ease 0.15s,
+    transform 0.6s cubic-bezier(0.33, 1, 0.68, 1) 0.15s;
 }
 .beta-inner::before {
   content: "";

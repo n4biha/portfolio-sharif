@@ -7,13 +7,31 @@ import { motion } from "framer-motion";
   Renders one cut-out letter as your uploaded PNG (from /public/images).
   Until the image exists (or if it fails to load) it shows a styled
   ransom-note fallback so the layout always looks right.
+
+  Entrance is a "scatter in": the letter flies in from its own off-screen-ish
+  offset/angle (`enterFrom`) and springs into place, settling at its resting
+  tilt (`rotation`). The parent group drives the staggered timing via variants,
+  so these stay hidden until the group animates to "show".
 */
+const letterVariants = {
+  hidden: (c) => ({ opacity: 0, x: c.from.x, y: c.from.y, rotate: c.from.r, scale: 0.7 }),
+  show: (c) => ({
+    opacity: 1,
+    x: 0,
+    y: 0,
+    rotate: c.rot,
+    scale: 1,
+    transition: { type: "spring", stiffness: 260, damping: 18, mass: 0.9 },
+  }),
+};
+
 export default function CutoutLetter({
   src,
   char,
   width,
   height,
   rotation = 0,
+  enterFrom = { x: 0, y: -120, r: 0 },
   fallbackBg = "var(--mustard)",
   fallbackFg = "#2b2620",
 }) {
@@ -21,14 +39,12 @@ export default function CutoutLetter({
   const showImage = src && !failed;
 
   return (
-    // No entrance animation here — the parent group does the zoom-out intro,
-    // so each letter just rests at its rotation and reacts to hover. This keeps
-    // the zoom perfectly smooth (one transform instead of competing ones).
     <motion.span
+      custom={{ rot: rotation, from: enterFrom }}
+      variants={letterVariants}
       whileHover={{ rotate: 0, scale: 1.08 }}
       transition={{ type: "spring", stiffness: 200 }}
       className="inline-block"
-      style={{ rotate: `${rotation}deg` }}
     >
       {showImage ? (
         // eslint-disable-next-line @next/next/no-img-element

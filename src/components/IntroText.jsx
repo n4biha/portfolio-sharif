@@ -8,12 +8,24 @@ import { playTypeKey } from "@/lib/sfx";
   "|" caret that disappears the moment the message finishes. Sentence ends and
   line breaks get a slightly longer pause so it reads naturally. Honors
   prefers-reduced-motion by showing the full text immediately (no caret).
+
+  Typing (and its key-click sound) halts when `stop` is true or the tab is hidden
+  — e.g. the visitor scrolls off to the experience section or leaves the site
+  mid-intro — and resumes where it left off if they come back.
 */
-export default function IntroText({ text, start, speed = 55 }) {
+export default function IntroText({ text, start, speed = 25, stop = false }) {
   // Starts empty and fills in as it types. (Starting at 0 is the whole point —
   // initialising to text.length would make it render "finished" and never run.)
   const [count, setCount] = useState(0);
+  const [hidden, setHidden] = useState(false);
   const done = count >= text.length;
+
+  // Pause the moment the tab/window is hidden (navigated away from the site).
+  useEffect(() => {
+    const onVis = () => setHidden(document.hidden);
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
 
   useEffect(() => {
     if (!start) return;
@@ -21,11 +33,14 @@ export default function IntroText({ text, start, speed = 55 }) {
       setCount(text.length);
       return;
     }
-    if (count >= text.length) return;
+    // Paused (left the intro / tab hidden) or finished → schedule nothing, so no
+    // further characters type and no more key clicks play. The cleanup below also
+    // cancels any already-pending keystroke, so the sound stops immediately.
+    if (stop || hidden || count >= text.length) return;
     // Natural pauses: longer after line breaks and sentence punctuation.
     const justTyped = text[count - 1];
     const delay =
-      justTyped === "\n" ? 480 : ".!?".includes(justTyped) ? 320 : speed;
+      justTyped === "\n" ? 220 : ".!?".includes(justTyped) ? 150 : speed;
     const id = window.setTimeout(() => {
       // Click for the character that's about to appear (text[count]); skip
       // whitespace so spaces/newlines stay silent, like a real typewriter.
@@ -34,7 +49,7 @@ export default function IntroText({ text, start, speed = 55 }) {
       setCount((n) => n + 1);
     }, delay);
     return () => window.clearTimeout(id);
-  }, [start, count, text, speed]);
+  }, [start, stop, hidden, count, text, speed]);
 
   return (
     <p
