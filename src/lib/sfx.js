@@ -57,6 +57,38 @@ export function unlockAudio() {
   }
 }
 
+// Arm a one-shot audio unlock that fires on the FIRST interaction of *any* kind —
+// not just a click. Browsers won't let us autoplay with zero interaction, but a
+// mouse-move, scroll, key, or touch is enough in practice, so the visitor never has
+// to click anything. We keep listening until the context is actually `running`
+// (a pristine, never-touched tab is the only case that stays silent), then detach.
+// Returns a disposer. Safe to call repeatedly — it only arms once.
+let unlockArmed = false;
+export function armAudioUnlock() {
+  if (typeof window === "undefined" || unlockArmed) return () => {};
+  unlockArmed = true;
+  const events = [
+    "pointerdown",
+    "mousedown",
+    "keydown",
+    "touchstart",
+    "wheel",
+    "scroll",
+    "pointermove",
+  ];
+  const opts = { passive: true, capture: true };
+  const detach = () => {
+    events.forEach((e) => window.removeEventListener(e, onInteract, opts));
+    unlockArmed = false;
+  };
+  const onInteract = () => {
+    unlockAudio();
+    if (getCtx()?.state === "running") detach();
+  };
+  events.forEach((e) => window.addEventListener(e, onInteract, opts));
+  return detach;
+}
+
 // Soft typewriter key — a very short, quiet click played once per letter as
 // the intro text types out. A tiny band-passed noise "tick" with a fast decay
 // (the key strike) plus a faint low thunk (the key bottoming out). Kept light

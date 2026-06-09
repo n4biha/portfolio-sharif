@@ -5,11 +5,15 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import CutoutLetter from "./CutoutLetter";
 import IntroText from "./IntroText";
-import { unlockAudio, playPop } from "@/lib/sfx";
+import { armAudioUnlock, playPop } from "@/lib/sfx";
 // Static import lets next/image auto-detect the size and serve a
 // correctly-scaled version for each device (phone, tablet, desktop).
 import pageRipOut from "../../public/images/page-rip-out.png";
 import photoPortrait from "../../public/images/photo-portrait.jpg";
+import starsSticker from "../../public/images/stars-sticker.png";
+import exclaimSticker from "../../public/images/exclaim.png";
+import flowerSticker from "../../public/images/flower.png";
+import heartsSticker from "../../public/images/hearts.png";
 
 /*
   The "Nabiha" cut-out name.
@@ -50,7 +54,13 @@ export default function Hero({ onIntroDone, introDone = false, paused = false })
   const [photoIn, setPhotoIn] = useState(false);
   // Cut-out name scatters in AFTER the photo pops (hidden until then).
   const [lettersIn, setLettersIn] = useState(false);
-  // Intro paragraph starts typing just after the name has landed.
+  // Star stickers pop on (bottom-right of the paper) just after the name lands.
+  const [starsIn, setStarsIn] = useState(false);
+  // "!!" sticker pops on (top-left of the screen) with a fun bounce, alongside stars.
+  const [exclaimIn, setExclaimIn] = useState(false);
+  // Flower + hearts fade/drift onto the photo corners shortly after it lands.
+  const [decorIn, setDecorIn] = useState(false);
+  // Intro paragraph starts typing just after the stars pop.
   const [introTextIn, setIntroTextIn] = useState(false);
 
   // No click-to-enter zoom anymore — the scrapbook reveal just plays on mount.
@@ -59,17 +69,10 @@ export default function Hero({ onIntroDone, introDone = false, paused = false })
   // sounds can play once the browser allows it.
   useEffect(() => {
     onIntroDone?.();
-    const unlock = () => {
-      unlockAudio();
-      window.removeEventListener("pointerdown", unlock);
-      window.removeEventListener("keydown", unlock);
-    };
-    window.addEventListener("pointerdown", unlock);
-    window.addEventListener("keydown", unlock);
-    return () => {
-      window.removeEventListener("pointerdown", unlock);
-      window.removeEventListener("keydown", unlock);
-    };
+    // Unlock audio on the visitor's first interaction of ANY kind (move, scroll,
+    // key, touch — not just a click) so the intro sounds can play without them
+    // having to click anything.
+    return armAudioUnlock();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -84,7 +87,10 @@ export default function Hero({ onIntroDone, introDone = false, paused = false })
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setTapeStage(2);
       setPhotoIn(true);
+      setDecorIn(true);
       setLettersIn(true);
+      setStarsIn(true);
+      setExclaimIn(true);
       setIntroTextIn(true);
       return;
     }
@@ -118,10 +124,19 @@ export default function Hero({ onIntroDone, introDone = false, paused = false })
         }, PHOTO_AT)
       );
 
-      // Then the cut-out name scatters in (it was hidden until now), and only
-      // once it has landed does the intro paragraph start typing.
+      // The cut-out name scatters in (it was hidden until now).
       timers.push(window.setTimeout(() => setLettersIn(true), PHOTO_AT + 250));
-      timers.push(window.setTimeout(() => setIntroTextIn(true), PHOTO_AT + 1350));
+
+      // Then ALL the stickers (stars, "!!", flower, hearts) appear together once
+      // the name has landed, and finally the intro starts typing.
+      timers.push(
+        window.setTimeout(() => {
+          setStarsIn(true);
+          setExclaimIn(true);
+          setDecorIn(true);
+        }, PHOTO_AT + 1300)
+      );
+      timers.push(window.setTimeout(() => setIntroTextIn(true), PHOTO_AT + 1700));
     };
 
     timers.push(window.setTimeout(startSequence, PAPER_SETTLE));
@@ -145,6 +160,31 @@ export default function Hero({ onIntroDone, introDone = false, paused = false })
         {letters.map((l, i) => (
           <CutoutLetter key={i} {...l} />
         ))}
+      </motion.div>
+
+      {/* "!!" sticker — pops on at the top-left of the screen (left of the paper)
+          with a fun bouncy overshoot + a little wiggle, then settles at a tilt. */}
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-[27%] top-[43%] z-30 w-[6%]"
+        initial={{ scale: 0, opacity: 0, rotate: -25 }}
+        animate={
+          exclaimIn
+            ? { scale: 1, opacity: 1, rotate: [-25, 12, -8, -6] }
+            : { scale: 0, opacity: 0, rotate: -25 }
+        }
+        transition={{
+          scale: { type: "spring", stiffness: 520, damping: 11, mass: 0.5 },
+          rotate: { duration: 0.6, ease: "easeOut", times: [0, 0.4, 0.75, 1] },
+          opacity: { duration: 0.14 },
+        }}
+      >
+        <Image
+          src={exclaimSticker}
+          alt=""
+          sizes="(max-width: 1024px) 7vw, 90px"
+          className="block h-auto w-full select-none"
+        />
       </motion.div>
 
       {/* Torn-paper panel — once the zoom finishes it gets "placed" onto the
@@ -187,9 +227,8 @@ export default function Hero({ onIntroDone, introDone = false, paused = false })
             settles. Framed like a print (cream border + soft lifted shadow)
             and resting at a slight tilt, matching the pasted-on cut-out feel. */}
         <div
-          className={`absolute left-[15%] top-[18%] z-20 w-[26%] ${
-            photoIn ? "photo-pop" : "opacity-0"
-          }`}
+          className={`absolute left-[15%] top-[18%] z-20 w-[26%] ${photoIn ? "photo-pop" : "opacity-0"
+            }`}
         >
           <div className="bg-[#f8f4ea] p-[4%] shadow-[3px_5px_15px_rgba(43,38,32,0.33)]">
             <Image
@@ -200,6 +239,46 @@ export default function Hero({ onIntroDone, introDone = false, paused = false })
             />
           </div>
         </div>
+
+        {/* Hearts — bounce onto the photo's TOP-RIGHT corner (spring, like the name). */}
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-[34%] top-[10%] z-30 w-[12%]"
+          initial={{ opacity: 0, scale: 0.45, rotate: 8 }}
+          animate={
+            decorIn
+              ? { opacity: 1, scale: 1, rotate: 8 }
+              : { opacity: 0, scale: 0.45, rotate: 8 }
+          }
+          transition={{ type: "spring", stiffness: 300, damping: 14, mass: 0.8 }}
+        >
+          <Image
+            src={heartsSticker}
+            alt=""
+            sizes="(max-width: 1024px) 14vw, 170px"
+            className="block h-auto w-full select-none"
+          />
+        </motion.div>
+
+        {/* Flower — bounce onto the photo's BOTTOM-LEFT corner (spring, like the name). */}
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-[10%] top-[62%] z-30 w-[16%]"
+          initial={{ opacity: 0, scale: 0.45, rotate: -6 }}
+          animate={
+            decorIn
+              ? { opacity: 1, scale: 1, rotate: -6 }
+              : { opacity: 0, scale: 0.45, rotate: -6 }
+          }
+          transition={{ type: "spring", stiffness: 300, damping: 14, mass: 0.8 }}
+        >
+          <Image
+            src={flowerSticker}
+            alt=""
+            sizes="(max-width: 1024px) 16vw, 170px"
+            className="block h-auto w-full select-none"
+          />
+        </motion.div>
 
         {/* Intro paragraph — typed out next to the photo on the paper's right
             half once the photo has landed. Sits in the right-hand area of the
@@ -214,9 +293,8 @@ export default function Hero({ onIntroDone, introDone = false, paused = false })
         {/* Tape, top-right corner — flies in from the right edge of the screen. */}
         <div
           aria-hidden="true"
-          className={`pointer-events-none absolute left-[92.5%] top-[10.5%] z-30 ${
-            tapeStage >= 1 ? "tape-in-right" : "opacity-0"
-          }`}
+          className={`pointer-events-none absolute left-[92.5%] top-[10.5%] z-30 ${tapeStage >= 1 ? "tape-in-right" : "opacity-0"
+            }`}
         >
           <div className={tapeStage >= 1 ? "tape-bob" : undefined}>
             <div className="tape tape--tr" />
@@ -226,14 +304,34 @@ export default function Hero({ onIntroDone, introDone = false, paused = false })
         {/* Tape, bottom-left corner — flies in from the bottom-left of the screen. */}
         <div
           aria-hidden="true"
-          className={`pointer-events-none absolute left-[13.5%] top-[88%] z-30 ${
-            tapeStage >= 2 ? "tape-in-bl" : "opacity-0"
-          }`}
+          className={`pointer-events-none absolute left-[13.5%] top-[88%] z-30 ${tapeStage >= 2 ? "tape-in-bl" : "opacity-0"
+            }`}
         >
           <div className={tapeStage >= 2 ? "tape-bob" : undefined}>
             <div className="tape tape--bl" />
           </div>
         </div>
+
+        {/* Star stickers — pop on in the bottom-right corner of the paper (after
+            the name lands, before the typing) with a quick spring + a stuck tilt. */}
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-[78%] top-[68%] z-30 w-[25%]"
+          initial={{ scale: 0, opacity: 0, rotate: -16 }}
+          animate={
+            starsIn
+              ? { scale: 1, opacity: 1, rotate: 7 }
+              : { scale: 0, opacity: 0, rotate: -16 }
+          }
+          transition={{ type: "spring", stiffness: 650, damping: 13, mass: 0.55 }}
+        >
+          <Image
+            src={starsSticker}
+            alt=""
+            sizes="(max-width: 1024px) 20vw, 210px"
+            className="block h-auto w-full select-none"
+          />
+        </motion.div>
       </div>
     </section>
   );

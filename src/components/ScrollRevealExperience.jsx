@@ -88,11 +88,12 @@ export default function ScrollRevealExperience() {
           },
         },
       })
-        // the scrapbook eases up + gently recedes (slight scale) and dissolves
-        .to(book.current, { yPercent: -100, scale: 0.97, opacity: 0, ease: "power1.in", force3D: true, duration: 0.78 }, 0)
-        // the wall settles into focus behind it a touch earlier, so the two overlap
-        .to(wall.current, { opacity: 1, ease: "power2.out", duration: 0.62 }, 0)
-        .to(".scroll-reveal-stage", { backgroundColor: "#2c2b2d", ease: "power1.inOut", duration: 0.7 }, 0)
+        // the scrapbook slides STRAIGHT up at full size (no scale — scaling made the
+        // whole page appear to shrink/drift sideways) and fades; the wall fades in
+        // behind it. Linear (scrubbed) for a smooth, even feel.
+        .to(book.current, { yPercent: -100, opacity: 0, ease: "none", force3D: true, duration: 0.78 }, 0)
+        .to(wall.current, { opacity: 1, ease: "none", duration: 0.78 }, 0)
+        .to(".scroll-reveal-stage", { backgroundColor: "#2c2b2d", ease: "none", duration: 0.78 }, 0)
         .to("header a", { color: "#e9e3d8", ease: "none", duration: 0.78 }, 0)
         // small settle buffer so the wall is fully revealed before the scroll ends
         .to({}, { duration: 0.22 });
