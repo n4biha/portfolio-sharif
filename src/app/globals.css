@@ -1,0 +1,597 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------
+   Palette — flat warm cream + aged kraft, matching the mockup.
+--------------------------------------------------------------- */
+:root {
+  --paper: #f2ece0; /* flat warm cream background */
+  --ink: #2b2620; /* nav / text */
+
+  /* accents (used for the cut-out letter fallbacks) */
+  --tomato: #c23b2e;
+  --mustard: #d99a2b;
+  --pine: #2f7d77;
+  --denim: #3a5a78;
+  --burnt: #d2622e;
+}
+
+@theme inline {
+  --color-ink: var(--ink); /* powers bg-ink / text-ink in the navbar */
+  --font-sans: var(--font-nunito);
+  --font-anton: var(--font-anton);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: var(--ink);
+  background-color: var(--paper);
+  font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  /* very faint paper grain */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* ---- Torn paper edge (used by the cut-out letter fallback) ---- */
+.torn {
+  clip-path: polygon(
+    0 7px, 13% 1px, 28% 8px, 44% 2px, 60% 8px, 76% 2px, 92% 8px, 100% 2px,
+    100% calc(100% - 7px), 85% calc(100% - 2px), 69% calc(100% - 8px),
+    53% calc(100% - 2px), 37% calc(100% - 8px), 21% calc(100% - 2px),
+    6% calc(100% - 8px), 0 calc(100% - 2px)
+  );
+}
+
+/* hard offset shadow (sticker / cut-out look) */
+.shadow-hard {
+  box-shadow: 4px 4px 0 0 var(--ink);
+}
+
+/* ---------------------------------------------------------------
+   Stop-motion entrance — the image glides in from off-screen left and
+   bobs playfully up/down as it travels, then the bob damps out and it
+   comes to rest smoothly in the center.
+
+   The motion is split across TWO nested elements so the two concerns
+   never fight each other (which is what made the single-track version
+   choppy near the end):
+
+     .stop-motion-in   → horizontal glide + fade. One smooth ease-out
+                         curve: keeps full momentum at the start, then
+                         decelerates gently to a dead stop at center.
+     .stop-motion-bob  → vertical bob + slight rotate + scale-up. An
+                         even, rhythmic up/down whose amplitude shrinks
+                         each beat, so the bounce "calms down" and is
+                         already at rest by the time it lands. No steps,
+                         no overshoot wobble — fully cohesive.
+
+   Put `.stop-motion-bob` on a child of `.stop-motion-in`. Both run for
+   the same duration so they stay in sync. GPU-friendly: only `transform`
+   + `opacity`; travel/bob use %-of-own-size so it stays responsive.
+--------------------------------------------------------------- */
+@keyframes stop-motion-in {
+  0% {
+    opacity: 0;
+    transform: translate3d(-130%, 0, 0);
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes stop-motion-bob {
+  /* Quick, lively up/down beats (~every 9%) with a steadily shrinking
+     amplitude. The fast tempo gives the bouncy stop-motion feel; the
+     damping means the bounce has already calmed to stillness by the
+     time it reaches center, so the ending stays smooth. */
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.82) rotate(-12deg);
+  }
+  9% {
+    transform: translate3d(0, -12%, 0) scale(0.84) rotate(10deg);
+  }
+  18% {
+    transform: translate3d(0, 11%, 0) scale(0.86) rotate(-9deg);
+  }
+  27% {
+    transform: translate3d(0, -10%, 0) scale(0.88) rotate(8deg);
+  }
+  36% {
+    transform: translate3d(0, 8.5%, 0) scale(0.9) rotate(-6.5deg);
+  }
+  45% {
+    transform: translate3d(0, -7%, 0) scale(0.92) rotate(5deg);
+  }
+  54% {
+    transform: translate3d(0, 5.5%, 0) scale(0.94) rotate(-4deg);
+  }
+  63% {
+    transform: translate3d(0, -4%, 0) scale(0.96) rotate(3deg);
+  }
+  72% {
+    transform: translate3d(0, 2.8%, 0) scale(0.97) rotate(-2deg);
+  }
+  81% {
+    transform: translate3d(0, -1.6%, 0) scale(0.98) rotate(1.1deg);
+  }
+  90% {
+    transform: translate3d(0, 0.8%, 0) scale(0.99) rotate(-0.5deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0);
+  }
+}
+
+.stop-motion-in {
+  /* `both` so the 0% (hidden, off-screen) pose applies before the run
+     and the 100% (settled) pose sticks after it finishes.
+     A gentle ease-in-out: eases in softly (no jarring fast entrance),
+     carries through the middle, then decelerates smoothly to a stop. */
+  animation: stop-motion-in 1.95s cubic-bezier(0.42, 0, 0.2, 1) both;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.stop-motion-bob {
+  /* ease-in-out gives each up/down beat a smooth, sine-like arc so the
+     rhythm reads as cohesive rather than mechanical. */
+  animation: stop-motion-bob 1.95s ease-in-out both;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ---------------------------------------------------------------
+   Pure-CSS washi tape — two translucent strips that "tape" the torn
+   paper to the page. Each enters like the paper (glide + damped bob):
+   the top-right strip flies in from the right edge of the screen, the
+   bottom-left strip from the bottom-left corner. A small delay lands
+   them just after the paper, so they read as stuck on afterwards.
+
+   Markup: a directional-glide wrapper > a `.tape-bob` wrapper > the
+   visual `.tape` (which holds its own resting rotation). Splitting the
+   glide / bob / rotation across elements keeps them from fighting.
+--------------------------------------------------------------- */
+.tape {
+  width: clamp(98px, 11vw, 152px);
+  height: clamp(30px, 3.5vw, 46px);
+  /* semi-translucent cellophane body */
+  background-color: rgba(223, 160, 156, 0.8);
+  background-image:
+    /* faint fibrous weave */
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.06) 0 3px,
+      rgba(60, 30, 30, 0.02) 3px 6px
+    ),
+    /* diagonal glossy highlight streak */
+    linear-gradient(
+      118deg,
+      transparent 6%,
+      rgba(255, 255, 255, 0.5) 19%,
+      transparent 40%
+    ),
+    /* vertical shading to give the strip some thickness */
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.42),
+      rgba(255, 255, 255, 0.04) 45%,
+      rgba(92, 46, 46, 0.14)
+    );
+  /* inner edges for thickness (a regular box-shadow would be clipped by the
+     torn clip-path, so the soft outer shadow is done with drop-shadow below) */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -2px 5px rgba(110, 55, 55, 0.16);
+  /* rough, torn short ends */
+  clip-path: polygon(
+    0% 0%, 100% 0%,
+    97% 22%, 100% 44%, 97% 66%, 100% 88%, 98% 100%,
+    0% 100%,
+    3% 88%, 0% 66%, 3% 44%, 0% 22%
+  );
+  /* soft shadow that follows the torn outline (drop-shadow respects the
+     clip-path, and lives on the same element to avoid GPU layer artifacts) */
+  filter: drop-shadow(0 4px 7px rgba(43, 38, 32, 0.26));
+}
+/* Center each strip on the paper corner (translate -50%) and give it a
+   resting tilt. The bob/glide transforms live on ancestor elements, so this
+   static transform is never overwritten. */
+.tape--tr {
+  transform: translate(-50%, -50%) rotate(46deg);
+}
+.tape--bl {
+  transform: translate(-50%, -50%) rotate(50deg);
+}
+
+@keyframes tape-in-right {
+  0% {
+    opacity: 0;
+    transform: translate3d(85vw, 0, 0);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes tape-in-bottom-left {
+  0% {
+    opacity: 0;
+    transform: translate3d(-72vw, 72vh, 0);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.tape-in-right {
+  /* start time is controlled in JS (the class is added when the strip's turn
+     comes), so the two tapes can be sequenced one after the other */
+  animation: tape-in-right 1s cubic-bezier(0.42, 0, 0.2, 1) both;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+.tape-in-bl {
+  animation: tape-in-bottom-left 1s cubic-bezier(0.42, 0, 0.2, 1) both;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+.tape-bob {
+  /* same damped bob as the paper, synced to the glide */
+  animation: stop-motion-bob 1s ease-in-out both;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ---------------------------------------------------------------
+   Scrapbook photo — pops onto the torn paper with a playful little
+   overshoot, then settles at a slight tilt (matching the cut-out
+   letters' off-kilter, pasted-on feel). The delay lets the paper
+   finish gliding in first so the photo lands ON it, not in mid-air.
+--------------------------------------------------------------- */
+@keyframes photo-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-9deg);
+  }
+  /* visible + peak early so it lands on the "pop" sound */
+  32% {
+    opacity: 1;
+    transform: scale(1.1) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-2.5deg);
+  }
+}
+
+.photo-pop {
+  /* start time is controlled in JS (added once the tapes are on); kept short
+     so the visual pop coincides with the "pop" sound */
+  animation: photo-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-origin: center;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Blinking typing caret for the intro text. Hidden once typing finishes
+   (IntroText stops rendering the caret element when it's done). */
+@keyframes caret-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+.caret {
+  display: inline-block;
+  animation: caret-blink 1s step-end infinite;
+}
+
+/* ---------------------------------------------------------------
+   Experience "vinyl" — a record half-pulled from its square sleeve, built
+   entirely in CSS to match the reference: dusty-rose field, off-white sleeve
+   over a charcoal grooved disc with a pink centre label. Pulling the record
+   (`.is-out`) slides it further out to reveal the role write-up.
+--------------------------------------------------------------- */
+.vinyl-scene {
+  background-color: var(--paper); /* same warm cream as the opening page */
+}
+
+.vinyl {
+  --size: clamp(230px, 40vw, 360px); /* sleeve side length */
+  --disc: calc(var(--size) * 0.9); /* record diameter */
+  --pull: 0px; /* how far the record is currently pulled out */
+  position: relative;
+  width: calc(var(--size) * 1.55);
+  height: var(--size);
+}
+
+/* The record's positioning shell. Sits behind the sleeve (left half hidden) and
+   slides out via --pull. The spinning surface + the static reflection are
+   separate children so the gloss reads as a fixed light, not a rotating one. */
+.vinyl-disc {
+  position: absolute;
+  top: calc((var(--size) - var(--disc)) / 2);
+  /* centre sits just past the sleeve's right edge so the label clears it */
+  left: calc(var(--size) - var(--disc) * 0.34);
+  width: var(--disc);
+  height: var(--disc);
+  border-radius: 50%;
+  z-index: 1;
+  transform: translateX(var(--pull));
+  transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 20px 34px rgba(60, 30, 30, 0.3);
+}
+
+/* The grooved playing surface — this is what spins. Layers, top to bottom:
+   fine grooves, a coarser groove banding for roughness, two rotating sheen
+   lobes (the moving light that sells the spin), then the black disc body. */
+.vinyl-disc-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 255, 255, 0.055) 0 0.5px,
+      rgba(0, 0, 0, 0.5) 0.5px 1px,
+      rgba(0, 0, 0, 0) 1px 3.5px
+    ),
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 255, 255, 0.03) 0 6px,
+      rgba(0, 0, 0, 0) 6px 13px
+    ),
+    conic-gradient(
+      from 0deg,
+      rgba(255, 255, 255, 0.16) 0deg,
+      rgba(255, 255, 255, 0) 42deg,
+      rgba(255, 255, 255, 0.04) 120deg,
+      rgba(255, 255, 255, 0) 180deg,
+      rgba(255, 255, 255, 0.16) 200deg,
+      rgba(255, 255, 255, 0) 250deg,
+      rgba(255, 255, 255, 0.05) 320deg,
+      rgba(255, 255, 255, 0.16) 360deg
+    ),
+    radial-gradient(circle at 50% 50%, #36333a 0%, #2a272c 55%, #1d1b1f 100%);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.06),
+    inset 0 0 40px rgba(0, 0, 0, 0.5);
+  /* defined but paused; runs only while the record is "playing" */
+  animation: vinyl-spin 2.2s linear infinite paused;
+}
+.vinyl.is-out .vinyl-disc-face {
+  animation-play-state: running;
+}
+@keyframes vinyl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* A fixed diagonal reflection laid over the spinning surface (doesn't rotate). */
+.vinyl-gloss {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: linear-gradient(
+    122deg,
+    rgba(255, 255, 255, 0.13) 5%,
+    rgba(255, 255, 255, 0) 26%,
+    rgba(255, 255, 255, 0) 66%,
+    rgba(255, 255, 255, 0.08) 90%
+  );
+}
+
+/* Pink centre label with faint rings, a colourful accent ring + dot drawn from
+   the site's ransom-note palette (mustard ring, tomato dot), and a spindle hole.
+   The off-centre tomato dot makes the spin unmistakable. */
+.vinyl-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40%;
+  height: 40%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 255, 255, 0.16) 0 1px,
+      rgba(0, 0, 0, 0) 1px 7px
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      #ecccd6 0 30%,
+      #e0b3c6 31% 70%,
+      var(--mustard) 72% 77%,
+      #d8a9bf 79% 100%
+    );
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+.vinyl-label::before {
+  content: "";
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  width: 9%;
+  height: 9%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--tomato);
+}
+.vinyl-label::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7%;
+  height: 7%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #efe9dd; /* small spindle hole */
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+/* The square sleeve, layered in front of the record's left half. */
+.vinyl-sleeve {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--size);
+  height: var(--size);
+  z-index: 2;
+  background-color: #d8b0a3;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0) 80%, rgba(74, 40, 34, 0.16) 100%),
+    radial-gradient(
+      135% 120% at 20% 14%,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(255, 255, 255, 0) 52%
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)' opacity='0.06'/%3E%3C/svg%3E"),
+    linear-gradient(135deg, #e3c5ba 0%, #d4a99c 55%, #c89d90 100%);
+  background-size: cover, cover, 220px 220px, cover;
+  box-shadow:
+    0 16px 28px rgba(60, 30, 30, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 0 0 1px rgba(74, 40, 34, 0.08),
+    inset -8px 0 18px rgba(74, 40, 34, 0.05);
+}
+
+.vinyl {
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+.vinyl.is-out {
+  --pull: calc(var(--disc) * 0.6);
+}
+
+/* Liner notes printed on the sleeve — hidden until the record is pulled out. */
+.vinyl-sleeve {
+  overflow: hidden;
+}
+.vinyl-notes {
+  position: absolute;
+  inset: 0;
+  padding: 11% 10%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  color: #2b2620;
+  /* base size scales with the sleeve; children use em off this */
+  font-size: calc(var(--size) * 0.04);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.55s ease 0.3s, transform 0.55s ease 0.3s;
+}
+.vinyl.is-out .vinyl-notes {
+  opacity: 1;
+  transform: none;
+}
+.vinyl-notes .vn-eyebrow {
+  font-family: var(--font-courier), "Courier New", monospace;
+  font-size: 0.72em;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #b2542f;
+  margin-bottom: 1em;
+}
+.vinyl-notes .vn-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.55em;
+  font-weight: 700;
+  line-height: 1.12;
+  margin-bottom: 0.3em;
+}
+.vinyl-notes .vn-sub {
+  font-family: var(--font-courier), "Courier New", monospace;
+  font-size: 0.9em;
+  color: #6a635a;
+  margin-bottom: 1.2em;
+}
+.vinyl-notes .vn-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+}
+.vinyl-notes .vn-list li {
+  position: relative;
+  padding-left: 1.2em;
+  font-size: 0.92em;
+  line-height: 1.4;
+  color: #36312b;
+}
+.vinyl-notes .vn-list li::before {
+  content: "♪";
+  position: absolute;
+  left: 0;
+  top: -0.05em;
+  color: #c2843f;
+}
+
+/* "pull the record" hint — fades out once it's been pulled. */
+.vinyl-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2.2em;
+  text-align: center;
+  font-family: var(--font-courier), "Courier New", monospace;
+  font-size: clamp(9px, 1.4vw, 12px);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #9a8d82;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.vinyl.is-out .vinyl-hint {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  /* no entrance for reduced-motion — just show everything in place
+     (the `.tape--*` resting rotation is left untouched) */
+  .stop-motion-in,
+  .stop-motion-bob,
+  .tape-in-right,
+  .tape-in-bl,
+  .tape-bob,
+  .photo-pop {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .vinyl-disc {
+    transition: none;
+  }
+  .vinyl-disc-face {
+    animation: none;
+  }
+}
