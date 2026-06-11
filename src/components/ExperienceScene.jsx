@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ClimbingWall from "./ClimbingWall";
 import RouteBetaBoard from "./RouteBetaBoard";
 import ChalkMark, { ChalkDefs } from "./ChalkMark";
@@ -12,10 +12,23 @@ import { EXPERIENCES } from "@/lib/experiences";
   wall, not a floating panel. Esc / "back to the wall" / clicking the hold again
   closes it.
 */
-export default function ExperienceScene({ active = true }) {
+export default function ExperienceScene({ active = true, arrived = true }) {
   const [selectedId, setSelectedId] = useState(null);
   const open = selectedId != null;
   const experience = open ? EXPERIENCES[selectedId] : null;
+
+  // Trace the dotted route in ~1s AFTER landing on the wall (a beat to settle in
+  // first), then let the per-dot stagger draw it bottom → top. `arrived` flips
+  // true once the page glide finishes (or immediately on the standalone route).
+  const [tracing, setTracing] = useState(false);
+  useEffect(() => {
+    if (!arrived) {
+      setTracing(false);
+      return;
+    }
+    const t = setTimeout(() => setTracing(true), 1000);
+    return () => clearTimeout(t);
+  }, [arrived]);
 
   useEffect(() => {
     if (!open) return;
@@ -30,14 +43,28 @@ export default function ExperienceScene({ active = true }) {
     if (!active) setSelectedId(null);
   }, [active]);
 
-  const select = (id) => setSelectedId((cur) => (cur === id ? null : id));
+  const select = useCallback(
+    (id) => setSelectedId((cur) => (cur === id ? null : id)),
+    []
+  );
+
+  // The wall is ~25 filter-heavy SVG holds. The scroll reveal flips this
+  // component's `active` prop mid-transition (at progress 0.7), which would
+  // otherwise force React to reconcile that whole tree on the same frame as the
+  // scroll animation — a dropped frame that reads as a pause right at the switch.
+  // Memoising the wall on its only real input (selectedId, with a stable onSelect)
+  // means the `active` flip re-renders only the cheap deco text, never the holds.
+  const wall = useMemo(
+    () => <ClimbingWall selectedId={selectedId} onSelect={select} />,
+    [selectedId, select]
+  );
 
   return (
-    <div className={`climb-scene${open ? " is-open" : ""}`}>
+    <div className={`climb-scene${open ? " is-open" : ""}${tracing ? " is-tracing" : ""}`}>
       <ChalkDefs />
 
       <div className="climb-scene-wall">
-        <ClimbingWall selectedId={selectedId} onSelect={select} />
+        {wall}
 
         {/* handwritten messages + chalk doodles drawn on the wall */}
         <div className="wall-deco" aria-hidden="true">

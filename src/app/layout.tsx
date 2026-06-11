@@ -21,7 +21,7 @@ const caveat = Caveat({ variable: "--font-hand", subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Nabiha — Portfolio",
   description:
-    "The retro cut-out collage portfolio of Nabiha — about, experience, projects, and skills.",
+    "The retro cut-out collage portfolio of Nabiha — about, experience, and projects.",
 };
 
 export default function RootLayout({

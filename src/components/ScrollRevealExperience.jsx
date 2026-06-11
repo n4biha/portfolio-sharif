@@ -1,127 +1,207 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import Navbar from "./Navbar";
 import Hero from "./Hero";
 import ExperienceScene from "./ExperienceScene";
+import ProjectsScene from "./ProjectsScene";
 
 /*
-  One continuous scroll story. The cream scrapbook (Hero) sits on top; the dark
-  climbing wall (ExperienceScene) is already rendered underneath. Lenis smooth-scroll
-  interpolates the raw wheel input, and a GSAP ScrollTrigger timeline (scrubbed off
-  that smooth scroll) eases the scrapbook up + dissolves it while the wall settles in,
-  the stage darkens cream → charcoal, and the nav ink → white. No route change — it's
-  all one page. Outer 220vh wrapper gives scroll distance; inner sticky stage is the
-  pinned full screen.
+  Three full screens, navigated like pages: the cream scrapbook (Hero / "about")
+  is screen 0, the dark climbing wall (ExperienceScene) is screen 1, and the
+  polaroid gallery (ProjectsScene) is screen 2. Scrolling is locked to whole
+  screens — any wheel / swipe / arrow commits to a full-screen glide (eased via
+  Lenis.scrollTo with lock) and further input is ignored until it lands, so you
+  can never rest in the gap between screens. A ScrollTrigger over the wall flips
+  the fixed navbar to cream ink while you're on the (dark) experience; the nav
+  ring follows whichever screen you're heading to.
 */
-export default function ScrollRevealExperience() {
-  const wrap = useRef(null);
-  const wall = useRef(null);
-  const book = useRef(null);
-  const lenisRef = useRef(null);
-  // ring "Experience" in the nav + keep the wall interactive once we're on it
-  const [revealed, setRevealed] = useState(false);
-  const revealedRef = useRef(false);
-  // once the visitor starts scrolling off the intro, pause the hero's typewriter
-  const [leftIntro, setLeftIntro] = useState(false);
-  const leftIntroRef = useRef(false);
+const PAGE_DURATION = 1.1;
+const PAGE_EASE = (t) => 1 - Math.pow(1 - t, 3);
+const LAST = 2;
 
-  // In-page nav: "Experience" scrolls down to the revealed wall; everything else
-  // (About / Projects / Skills / Fun / the wordmark) scrolls back up to the top.
+export default function ScrollRevealExperience() {
+  const router = useRouter();
+  const exp = useRef(null);
+  const proj = useRef(null);
+  // imperative page-changer, wired up in the effect; used by the navbar too
+  const goToRef = useRef(null);
+  // which screen we're on/heading to (rings the matching nav item)
+  const [section, setSection] = useState(0);
+  // true once a glide to the experience screen has fully settled (drives the
+  // delayed dot-trail trace, so it only starts after you've actually landed)
+  const [arrivedExp, setArrivedExp] = useState(false);
+  // dark nav theme only while the dark wall sits behind the navbar
+  const [onWall, setOnWall] = useState(false);
+  const onWallRef = useRef(false);
+
+  // "Experience" → screen 1, "Projects" → screen 2, "About"/"Fun"/wordmark →
+  // screen 0. (Projects lives on this page now, so no route change.)
   const handleNav = (id) => {
-    const el = wrap.current;
-    const lenis = lenisRef.current;
-    const target =
-      id === "experience" && el
-        ? el.offsetTop + el.offsetHeight - window.innerHeight
-        : 0;
-    const duration = id === "experience" ? 1.4 : 1.2;
-    if (lenis) lenis.scrollTo(target, { duration });
-    else window.scrollTo({ top: target, behavior: "smooth" });
+    const target = id === "experience" ? 1 : id === "projects" ? 2 : 0;
+    goToRef.current?.(target);
   };
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+    // start at the top every load — paging owns the scroll position
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
 
-    // Lenis smooth scroll → buttery, frame-synced scroll position. Driven from
-    // GSAP's ticker and kept in lockstep with ScrollTrigger so the scrub never steps.
+    // Lenis drives the eased page-to-page glide via scrollTo. Its free
+    // wheel/touch scrolling is OFF so the only way to move is our locked paging.
     const lenis = new Lenis({
-      duration: 1.15,
-      easing: (t) => 1 - Math.pow(1 - t, 3),
-      smoothWheel: true,
+      duration: PAGE_DURATION,
+      easing: PAGE_EASE,
+      smoothWheel: false,
+      smoothTouch: false,
     });
-    lenisRef.current = lenis;
     lenis.on("scroll", ScrollTrigger.update);
     const raf = (time) => lenis.raf(time * 1000);
     gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
 
-    const ctx = gsap.context(() => {
-      gsap.set(wall.current, { opacity: 0 });
+    // --- locked section paging ---------------------------------------------
+    const indexRef = { current: 0 };
+    const animatingRef = { current: false };
+    const targetFor = (i) => (i === 0 ? 0 : i === 1 ? exp.current : proj.current);
 
-      gsap.timeline({
-        scrollTrigger: {
-          trigger: wrap.current,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 0.6,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            // the reveal completes ~78% in; treat >0.7 as "arrived on the wall":
-            // ring the nav item, allow hold clicks, and keep the board open
-            const onWall = self.progress > 0.7;
-            wall.current.style.pointerEvents = onWall ? "auto" : "none";
-            book.current.style.pointerEvents = self.progress > 0.5 ? "none" : "auto";
-            if (onWall !== revealedRef.current) {
-              revealedRef.current = onWall;
-              setRevealed(onWall);
-            }
-            // any meaningful scroll away from the intro silences the typewriter
-            const left = self.progress > 0.12;
-            if (left !== leftIntroRef.current) {
-              leftIntroRef.current = left;
-              setLeftIntro(left);
-            }
-          },
+    const goTo = (i) => {
+      const next = i < 0 ? 0 : i > LAST ? LAST : i;
+      if (next === indexRef.current || animatingRef.current) return;
+      indexRef.current = next;
+      startTransition(() => {
+        setSection(next);
+        // leaving the wall (or never on it) → reset so the trace re-arms
+        if (next !== 1) setArrivedExp(false);
+      });
+      animatingRef.current = true;
+      lenis.scrollTo(targetFor(next), {
+        duration: PAGE_DURATION,
+        easing: PAGE_EASE,
+        lock: true, // ignore user scroll input during the glide
+        force: true,
+        onComplete: () => {
+          animatingRef.current = false;
+          // we've settled on the wall — arm the delayed dot-trail trace
+          if (next === 1) startTransition(() => setArrivedExp(true));
         },
-      })
-        // the scrapbook slides STRAIGHT up at full size (no scale — scaling made the
-        // whole page appear to shrink/drift sideways) and fades; the wall fades in
-        // behind it. Linear (scrubbed) for a smooth, even feel.
-        .to(book.current, { yPercent: -100, opacity: 0, ease: "none", force3D: true, duration: 0.78 }, 0)
-        .to(wall.current, { opacity: 1, ease: "none", duration: 0.78 }, 0)
-        .to(".scroll-reveal-stage", { backgroundColor: "#2c2b2d", ease: "none", duration: 0.78 }, 0)
-        .to("header a", { color: "#e9e3d8", ease: "none", duration: 0.78 }, 0)
-        // small settle buffer so the wall is fully revealed before the scroll ends
-        .to({}, { duration: 0.22 });
+      });
+    };
+    goToRef.current = goTo;
+
+    // let an open detail panel scroll natively; only page when it's at its edge
+    const scrollablePanel = (target, dir) => {
+      const panel = target?.closest?.(".pc-inner, .beta-inner");
+      if (!panel) return false;
+      if (dir > 0) return panel.scrollTop + panel.clientHeight < panel.scrollHeight - 1;
+      if (dir < 0) return panel.scrollTop > 0;
+      return panel.scrollHeight > panel.clientHeight + 1;
+    };
+
+    const onWheel = (e) => {
+      if (scrollablePanel(e.target, e.deltaY)) return; // let the panel scroll
+      e.preventDefault(); // block all native/free page scrolling
+      if (animatingRef.current) return;
+      if (e.deltaY > 6) goTo(indexRef.current + 1);
+      else if (e.deltaY < -6) goTo(indexRef.current - 1);
+    };
+
+    let touchStartY = null;
+    let touchPanel = null;
+    const onTouchStart = (e) => {
+      touchStartY = e.touches[0]?.clientY ?? null;
+      touchPanel = e.target?.closest?.(".pc-inner, .beta-inner") ?? null;
+    };
+    const onTouchMove = (e) => {
+      if (touchPanel && touchPanel.scrollHeight > touchPanel.clientHeight + 1) return;
+      e.preventDefault(); // block native touch scroll
+    };
+    const onTouchEnd = (e) => {
+      const startedInPanel = touchPanel;
+      touchPanel = null;
+      if (startedInPanel || touchStartY == null || animatingRef.current) return;
+      const dy = touchStartY - (e.changedTouches[0]?.clientY ?? touchStartY);
+      if (dy > 40) goTo(indexRef.current + 1);
+      else if (dy < -40) goTo(indexRef.current - 1);
+      touchStartY = null;
+    };
+
+    const onKey = (e) => {
+      if (animatingRef.current) return;
+      if (["ArrowDown", "PageDown"].includes(e.key) || e.key === " ") {
+        e.preventDefault();
+        goTo(indexRef.current + 1);
+      } else if (["ArrowUp", "PageUp"].includes(e.key)) {
+        e.preventDefault();
+        goTo(indexRef.current - 1);
+      }
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    window.addEventListener("keydown", onKey);
+
+    const ctx = gsap.context(() => {
+      // Cream nav ink while the dark wall is the screen behind the navbar (from
+      // when its top passes the upper 15% until its bottom does). setState runs
+      // as a non-urgent transition so React reconciles it off the scroll frame.
+      ScrollTrigger.create({
+        trigger: exp.current,
+        start: "top 15%",
+        end: "bottom 15%",
+        onToggle: (self) => {
+          if (self.isActive !== onWallRef.current) {
+            onWallRef.current = self.isActive;
+            startTransition(() => setOnWall(self.isActive));
+          }
+        },
+      });
 
       ScrollTrigger.refresh();
-    }, wrap);
+    });
 
     return () => {
       ctx.revert();
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("keydown", onKey);
+      goToRef.current = null;
       gsap.ticker.remove(raf);
       lenis.destroy();
-      lenisRef.current = null;
     };
   }, []);
 
   return (
-    <div ref={wrap} className="scroll-reveal-experience">
-      <div className="scroll-reveal-stage">
-        <Navbar onNav={handleNav} active={revealed ? "experience" : null} />
+    <div className="home-flow">
+      <Navbar
+        fixed
+        theme={onWall ? "dark" : "light"}
+        active={section === 1 ? "experience" : section === 2 ? "projects" : null}
+        onNav={handleNav}
+      />
 
-        <div ref={wall} className="climbing-wall-layer climb-wall">
-          <ExperienceScene active={revealed} />
-        </div>
+      {/* screen 0 — the scrapbook "about" (Hero is its own h-screen section) */}
+      <Hero introDone onIntroDone={() => {}} paused={section !== 0} />
 
-        <div ref={book} className="scrapbook-layer">
-          <Hero introDone onIntroDone={() => {}} paused={leftIntro} />
-        </div>
-      </div>
+      {/* screen 1 — the climbing wall */}
+      <section ref={exp} className="experience-section climb-wall">
+        <ExperienceScene active={section === 1} arrived={arrivedExp} />
+      </section>
+
+      {/* screen 2 — the polaroid gallery (just the wall, no cover) */}
+      <section ref={proj} className="projects-section">
+        <ProjectsScene active={section === 2} />
+      </section>
     </div>
   );
 }
