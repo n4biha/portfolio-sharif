@@ -1,0 +1,97 @@
+"use client";
+
+import { motion } from "framer-motion";
+
+/*
+  One album cover on the shelf. The art is CSS/SVG-generated from the project's
+  `coverStyle` (bg + ink + accent + motif) until a real `coverImage` is dropped in.
+  Hover lifts it with a warm glow + a handwritten "play this one" note; the selected
+  album gets a "now playing" sticker and sits slightly forward.
+*/
+
+// little per-project cover illustration, tinted with the cover's accent/ink
+function Motif({ motif, ink, accent }) {
+  const s = { stroke: ink, fill: "none", strokeWidth: 2.4, strokeLinecap: "round", strokeLinejoin: "round" };
+  switch (motif) {
+    case "transit": // a weaving train line with stops
+      return (
+        <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">
+          <path d="M8 46 C30 46 30 18 52 18 C74 18 74 40 92 40" {...s} stroke={accent} strokeDasharray="2 7" />
+          {[[8,46],[30,32],[52,18],[74,26],[92,40]].map(([x,y],i)=>(
+            <circle key={i} cx={x} cy={y} r="4" fill={accent} stroke={ink} strokeWidth="1.5" />
+          ))}
+        </svg>
+      );
+    case "moon": // crescent + stars
+      return (
+        <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">
+          <path d="M62 12 A20 20 0 1 0 62 50 A15 15 0 1 1 62 12 Z" fill={accent} />
+          {[[20,18],[30,40],[16,46]].map(([x,y],i)=>(
+            <path key={i} d={`M${x} ${y-4} L${x+1.4} ${y-1} L${x+4} ${y} L${x+1.4} ${y+1} L${x} ${y+4} L${x-1.4} ${y+1} L${x-4} ${y} L${x-1.4} ${y-1} Z`} fill={ink} />
+          ))}
+        </svg>
+      );
+    case "leaf":
+      return (
+        <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">
+          <path d="M50 54 C50 30 36 16 22 12 C30 34 38 44 50 54 Z" fill={accent} />
+          <path d="M50 54 C50 30 64 16 78 12 C70 34 62 44 50 54 Z" fill={accent} opacity="0.7" />
+          <path d="M50 54 V20" {...s} />
+        </svg>
+      );
+    case "shelf":
+      return (
+        <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">
+          {[14,34].map((y)=>(<line key={y} x1="14" y1={y+14} x2="86" y2={y+14} {...s} stroke={ink} />))}
+          {[[20,16],[30,14],[40,18],[58,34],[68,32],[78,36]].map(([x,h],i)=>(
+            <rect key={i} x={x} y={(i<3?14:34)+14-h} width="8" height={h} fill={accent} opacity={0.5+0.1*(i%3)} />
+          ))}
+        </svg>
+      );
+    case "book":
+    default:
+      return (
+        <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">
+          <path d="M50 16 C40 10 24 10 16 14 V46 C24 42 40 42 50 48 Z" fill={accent} />
+          <path d="M50 16 C60 10 76 10 84 14 V46 C76 42 60 42 50 48 Z" fill={accent} opacity="0.75" />
+          <path d="M50 16 V48" {...s} stroke={ink} />
+        </svg>
+      );
+  }
+}
+
+export default function AlbumCover({ project, selected = false, onSelect }) {
+  const { bg, ink, accent, motif } = project.coverStyle;
+  return (
+    <motion.button
+      type="button"
+      className={`album-cover${selected ? " is-playing" : ""}`}
+      style={{ background: bg, color: ink, "--cover-accent": accent }}
+      onClick={() => onSelect?.(project.id)}
+      aria-label={`Play ${project.title}`}
+      aria-pressed={selected}
+      initial={false}
+      whileHover={{ y: -14, rotate: -1.5, transition: { type: "spring", stiffness: 320, damping: 18 } }}
+      whileTap={{ scale: 0.97 }}
+    >
+      {project.coverImage ? (
+        // real art later: object-fit cover fills the sleeve
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={project.coverImage} alt={project.title} className="cover-photo" />
+      ) : (
+        <span className="cover-art" aria-hidden="true">
+          <span className="cover-band" style={{ background: accent }} />
+          <Motif motif={motif} ink={ink} accent={accent} />
+        </span>
+      )}
+
+      <span className="cover-meta">
+        <span className="cover-title">{project.title}</span>
+        <span className="cover-cat">{project.category} · {project.year}</span>
+      </span>
+
+      {/* now-playing sticker on the selected album */}
+      {selected && <span className="cover-sticker hand" aria-hidden="true">now playing</span>}
+    </motion.button>
+  );
+}

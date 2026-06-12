@@ -23,6 +23,9 @@ import ProjectsScene from "./ProjectsScene";
 const PAGE_DURATION = 1.1;
 const PAGE_EASE = (t) => 1 - Math.pow(1 - t, 3);
 const LAST = 2;
+// section index → URL hash (0 = About = no hash). Lets a reload stay on the same
+// screen with the correct nav instead of snapping back to About.
+const SECTION_HASH = ["", "experience", "projects"];
 
 export default function ScrollRevealExperience() {
   const router = useRouter();
@@ -38,6 +41,8 @@ export default function ScrollRevealExperience() {
   // dark nav theme only while the dark wall sits behind the navbar
   const [onWall, setOnWall] = useState(false);
   const onWallRef = useRef(false);
+  // when a reload lands us on a non-About screen, keep Hero's intro silent + static
+  const [silentIntro, setSilentIntro] = useState(false);
 
   // "Experience" → screen 1, "Projects" → screen 2, "About"/"Fun"/wordmark →
   // screen 0. (Projects lives on this page now, so no route change.)
@@ -75,6 +80,13 @@ export default function ScrollRevealExperience() {
       const next = i < 0 ? 0 : i > LAST ? LAST : i;
       if (next === indexRef.current || animatingRef.current) return;
       indexRef.current = next;
+      // reflect the screen in the URL so a reload restores it (no new history entry)
+      const hash = SECTION_HASH[next];
+      window.history.replaceState(
+        null,
+        "",
+        hash ? `#${hash}` : window.location.pathname + window.location.search
+      );
       startTransition(() => {
         setSection(next);
         // leaving the wall (or never on it) → reset so the trace re-arms
@@ -95,9 +107,25 @@ export default function ScrollRevealExperience() {
     };
     goToRef.current = goTo;
 
+    // Restore the screen from the URL hash on (re)load: if we reloaded onto
+    // experience/projects, set the nav state + keep About silent, then jump the
+    // scroll there (done after ScrollTrigger.refresh below).
+    const startIndex = SECTION_HASH.indexOf(window.location.hash.replace("#", ""));
+    const start = startIndex > 0 ? startIndex : 0;
+    if (start > 0) {
+      indexRef.current = start;
+      onWallRef.current = start === 1;
+      setSection(start);
+      setSilentIntro(true);
+      if (start === 1) {
+        setOnWall(true);
+        setArrivedExp(true);
+      }
+    }
+
     // let an open detail panel scroll natively; only page when it's at its edge
     const scrollablePanel = (target, dir) => {
-      const panel = target?.closest?.(".pc-inner, .beta-inner");
+      const panel = target?.closest?.(".pc-inner, .beta-inner, .liner-sheet, .record-room");
       if (!panel) return false;
       if (dir > 0) return panel.scrollTop + panel.clientHeight < panel.scrollHeight - 1;
       if (dir < 0) return panel.scrollTop > 0;
@@ -166,6 +194,11 @@ export default function ScrollRevealExperience() {
       });
 
       ScrollTrigger.refresh();
+
+      // jump to the restored screen instantly (no glide) once positions are known
+      if (start > 0) {
+        lenis.scrollTo(targetFor(start), { immediate: true, force: true });
+      }
     });
 
     return () => {
@@ -185,13 +218,13 @@ export default function ScrollRevealExperience() {
     <div className="home-flow">
       <Navbar
         fixed
-        theme={onWall ? "dark" : "light"}
+        theme={onWall || section === 2 ? "dark" : "light"}
         active={section === 1 ? "experience" : section === 2 ? "projects" : null}
         onNav={handleNav}
       />
 
       {/* screen 0 — the scrapbook "about" (Hero is its own h-screen section) */}
-      <Hero introDone onIntroDone={() => {}} paused={section !== 0} />
+      <Hero introDone onIntroDone={() => {}} paused={section !== 0} play={!silentIntro} />
 
       {/* screen 1 — the climbing wall */}
       <section ref={exp} className="experience-section climb-wall">

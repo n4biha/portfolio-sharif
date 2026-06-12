@@ -1,51 +1,60 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import GalleryWall from "./GalleryWall";
-import ProjectCard from "./ProjectCard";
+import { useEffect, useMemo, useState } from "react";
+import RecordShelf from "./RecordShelf";
+import RecordPlayer from "./RecordPlayer";
+import LinerNotes from "./LinerNotes";
+import LivePreview from "./LivePreview";
 import { PROJECTS } from "@/lib/projects";
 
 /*
-  Holds the selection state for the gallery. Clicking a polaroid pans the wall
-  slightly left (it stays visible) and slides the Project Card in on the right.
-  Esc / "back to the wall" / clicking the polaroid again closes it. Mirrors
-  ExperienceScene so the two pages behave identically.
+  "Projects on Repeat" — a cozy vintage listening room. Browse project albums on
+  the shelf; click one to "play" it (Now Playing turntable + liner-notes sheet +
+  laptop live preview). `active` is false when this isn't the on-screen section of
+  the home flow, which rests the spinning vinyl.
 */
 export default function ProjectsScene({ active = true }) {
-  const [selectedId, setSelectedId] = useState(null);
-  const open = selectedId != null;
-  const project = open ? PROJECTS[selectedId] : null;
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e) => e.key === "Escape" && setSelectedId(null);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
-
-  // When we scroll away from the wall (no longer "on the page"), close any open
-  // card so it isn't left lingering.
-  useEffect(() => {
-    if (!active) setSelectedId(null);
-  }, [active]);
-
-  const select = useCallback(
-    (id) => setSelectedId((cur) => (cur === id ? null : id)),
-    []
+  const [category, setCategory] = useState("All");
+  // default to the first project so the player/sheet/laptop are populated on load
+  const [selectedId, setSelectedId] = useState(PROJECTS[0]?.id ?? null);
+  const shelf = useMemo(
+    () => (category === "All" ? PROJECTS : PROJECTS.filter((p) => p.category === category)),
+    [category]
   );
 
-  // Memoise the wall on its only real input (selectedId, with a stable onSelect)
-  // so the scroll reveal flipping `active` mid-transition re-renders only the
-  // cheap deco, never the polaroids — same trick ExperienceScene uses.
-  const wall = useMemo(
-    () => <GalleryWall selectedId={selectedId} onSelect={select} />,
-    [selectedId, select]
-  );
+  const selected =
+    PROJECTS.find((p) => p.id === selectedId) ?? PROJECTS[0] ?? null;
+
+  // when switching crates, keep the current pick if it's still on the shelf;
+  // otherwise drop the needle on the first record of the new crate.
+  useEffect(() => {
+    if (shelf.length && !shelf.some((p) => p.id === selectedId)) {
+      setSelectedId(shelf[0].id);
+    }
+  }, [shelf, selectedId]);
 
   return (
-    <div className={`gallery-scene${open ? " is-open" : ""}`}>
-      <div className="gallery-scene-wall">{wall}</div>
-      <ProjectCard project={project} onClose={() => setSelectedId(null)} />
+    <div className="record-room">
+      <header className="record-room-head">
+        <h1 className="record-room-title hand">Projects on Repeat</h1>
+        <p className="record-room-sub">
+          Favorite builds, experiments, and ideas I keep coming back to.
+        </p>
+      </header>
+
+      <RecordShelf
+        projects={shelf}
+        selectedId={selectedId}
+        onSelect={setSelectedId}
+        category={category}
+        onCategory={setCategory}
+      />
+
+      <div className="record-stage">
+        <RecordPlayer project={selected} spinning={active} />
+        <LinerNotes project={selected} />
+        <LivePreview project={selected} />
+      </div>
     </div>
   );
 }

@@ -46,7 +46,7 @@ I am a student studying Data Science and Cognitive Science at UC Berkeley. I am 
 
 Explore this website to learn more about me!`;
 
-export default function Hero({ onIntroDone, introDone = false, paused = false }) {
+export default function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
   // Tape sequence stage: 0 = none placed, 1 = first (top-right) placed,
   // 2 = both placed.
   const [tapeStage, setTapeStage] = useState(0);
@@ -82,6 +82,20 @@ export default function Hero({ onIntroDone, introDone = false, paused = false })
   // photo pops on (with a "pop"). Audio was unlocked by the intro click.
   useEffect(() => {
     if (!introDone || typeof window === "undefined") return;
+
+    // Reloaded straight onto another section (experience/projects): show the whole
+    // scrapbook in its final state with NO timed reveal and NO audio, so About
+    // doesn't animate/play offscreen.
+    if (!play) {
+      setTapeStage(2);
+      setPhotoIn(true);
+      setDecorIn(true);
+      setLettersIn(true);
+      setStarsIn(true);
+      setExclaimIn(true);
+      setIntroTextIn(true);
+      return;
+    }
 
     // Reduced motion: show both tapes + photo + text immediately, no sound.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -142,7 +156,7 @@ export default function Hero({ onIntroDone, introDone = false, paused = false })
     timers.push(window.setTimeout(startSequence, PAPER_SETTLE));
 
     return () => timers.forEach(window.clearTimeout);
-  }, [introDone]);
+  }, [introDone, play]);
 
   return (
     <section
@@ -287,7 +301,7 @@ export default function Hero({ onIntroDone, introDone = false, paused = false })
             height cap above keeps the whole block on-screen so the typed text
             stays inside the paper and never spills into a torn corner. */}
         <div className="absolute left-[46%] top-[30%] z-20 w-[46%] leading-[1.6] text-[12px] sm:text-[13px] md:text-[14px]">
-          <IntroText text={INTRO_TEXT} start={introTextIn} stop={paused} />
+          <IntroText text={INTRO_TEXT} start={introTextIn} stop={paused} instant={!play} />
         </div>
 
         {/* Tape, top-right corner — flies in from the right edge of the screen. */}

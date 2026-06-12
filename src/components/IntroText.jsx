@@ -13,7 +13,7 @@ import { playTypeKey } from "@/lib/sfx";
   — e.g. the visitor scrolls off to the experience section or leaves the site
   mid-intro — and resumes where it left off if they come back.
 */
-export default function IntroText({ text, start, speed = 25, stop = false }) {
+export default function IntroText({ text, start, speed = 25, stop = false, instant = false }) {
   // Starts empty and fills in as it types. (Starting at 0 is the whole point —
   // initialising to text.length would make it render "finished" and never run.)
   const [count, setCount] = useState(0);
@@ -29,7 +29,9 @@ export default function IntroText({ text, start, speed = 25, stop = false }) {
 
   useEffect(() => {
     if (!start) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    // instant: show the whole message at once with no typing + no sound (used when
+    // the page is reloaded straight onto another section, so About stays silent).
+    if (instant || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setCount(text.length);
       return;
     }
@@ -49,7 +51,7 @@ export default function IntroText({ text, start, speed = 25, stop = false }) {
       setCount((n) => n + 1);
     }, delay);
     return () => window.clearTimeout(id);
-  }, [start, stop, hidden, count, text, speed]);
+  }, [start, stop, hidden, count, text, speed, instant]);
 
   return (
     <p

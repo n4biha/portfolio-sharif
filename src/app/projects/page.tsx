@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function ProjectsPage() {
   return (
     <>
-      <Navbar theme="light" active="projects" />
+      <Navbar theme="dark" active="projects" />
       <main className="projects-section">
         <ProjectsScene />
       </main>
