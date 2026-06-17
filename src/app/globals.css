@@ -16,8 +16,8 @@
 
   /* "Climb my journey" experience page — dark climbing-wall theme */
   --climb-blue: #4da6ff; /* the one standout accent: route / hold colour */
-  --wall: #2c2b2d; /* charcoal pegboard wall */
-  --wall-deep: #232224; /* recessed hole / vignette */
+  --wall: #243650; /* indigo-slate climbing wall */
+  --wall-deep: #131d2e; /* deep-indigo recessed hole / vignette */
   --wall-ink: #e9e3d8; /* off-white text on the dark wall */
 }
 
@@ -54,6 +54,23 @@ body {
   font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
   /* very faint paper grain */
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* About page (Hero) — aged-parchment texture: warm map blotches + a fine grain
+   over the cream paper, so it reads like a vintage travel journal. Scoped to #home
+   so Experience/Projects keep their own backgrounds. */
+#home {
+  background-color: var(--paper);
+  background-image:
+    /* aged warmth toward the edges */
+    radial-gradient(130% 130% at 50% 42%, transparent 66%, rgba(150, 120, 70, 0.08) 100%),
+    /* fine grid squares every 24px */
+    repeating-linear-gradient(0deg, rgba(110, 88, 52, 0.06) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(90deg, rgba(110, 88, 52, 0.06) 0 1px, transparent 1px 24px),
+    /* faint paper grain */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.05'/%3E%3C/svg%3E");
+  background-size: 100% 100%, 24px 24px, 24px 24px, 200px 200px;
+  background-repeat: no-repeat, repeat, repeat, repeat;
 }
 
 /* ---- Torn paper edge (used by the cut-out letter fallback) ---- */
@@ -603,6 +620,11 @@ body {
 /* background-image layers (no inline comments inside the value — those make
    Lightning CSS drop following rules): a vignette + the recessed pegboard holes. */
 .climb-wall {
+  /* Re-point the handwriting variable for the whole climbing-wall subtree (wall
+     deco + route popup) to Bricolage Grotesque — simple but distinctive. Shared by
+     the home experience screen and the standalone /experience route. Elsewhere the
+     root --font-hand (Caveat) is untouched. */
+  --font-hand: var(--font-climb), "Segoe Print", "Bradley Hand", cursive;
   background-color: var(--wall);
   background-image:
     radial-gradient(
@@ -856,6 +878,26 @@ body {
   position: absolute;
   inset: 0;
   perspective: 2000px;
+}
+/* soft shading on the wall behind the floating beta card (fades in with it), so
+   the card reads as a raised panel and integrates smoothly with the scene. */
+.climb-scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  background: radial-gradient(
+    115% 95% at 86% 50%,
+    rgba(8, 12, 20, 0.5) 0%,
+    rgba(8, 12, 20, 0.26) 40%,
+    rgba(8, 12, 20, 0) 68%
+  );
+}
+.climb-scene.is-open::after {
+  opacity: 1;
 }
 .climb-scene-wall {
   position: absolute;
@@ -1419,26 +1461,83 @@ body {
    container, no panel/card). Slides + fades in on the right when a hold opens.
    =============================================================== */
 .beta-board {
+  /* a floating, inset card on the right — padded off the top (clears the fixed
+     navbar), right and bottom edges so the wall shows through all around it. */
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 38%;
+  top: clamp(80px, 9vh, 104px);
+  right: clamp(18px, 2.4vw, 40px);
+  bottom: clamp(16px, 3vh, 34px);
+  width: 31%;
   z-index: 20;
   pointer-events: none;
 }
 .beta-inner {
   position: relative;
   height: 100%;
-  padding: 13% 6% 2.5%;
+  padding: 7% 6% 3%;
+  /* scroll if a route's content runs tall in the shorter floating card; the
+     scrollbar is hidden so the card stays a clean rectangle (paging treats
+     .beta-inner as a scrollable panel, so wheel input scrolls it here). */
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  border-radius: 20px;
   opacity: 0;
   transform: translateX(34px);
   /* CLOSE transition: prompt + no delay, so the whole board (incl. the opaque
      climber-notes scrap) leaves in step with the wall panning back — no lingering. */
   transition: opacity 0.34s ease, transform 0.46s cubic-bezier(0.33, 1, 0.68, 1);
   color: #eef0ee;
-  background: linear-gradient(180deg, #34343a 0%, #26262b 100%);
-  box-shadow: -16px 0 44px rgba(0, 0, 0, 0.5);
+  /* a warm espresso card — its warmth pops against the cool indigo wall (and makes
+     the blue chalk accents inside pop in turn). Slightly translucent + soft blur so
+     a hint of the wall texture shows through and it stays part of the scene. */
+  background: linear-gradient(
+    162deg,
+    rgba(54, 44, 36, 0.94) 0%,
+    rgba(38, 30, 24, 0.95) 55%,
+    rgba(27, 21, 16, 0.96) 100%
+  );
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(232, 196, 140, 0.18);
+  box-shadow:
+    0 28px 70px -16px rgba(0, 0, 0, 0.7),
+    0 10px 28px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 225, 180, 0.08);
+}
+.beta-inner::-webkit-scrollbar {
+  display: none;
+}
+/* translucent X in the top-right corner — closes the route, same as the back link */
+.beta-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(238, 240, 238, 0.7);
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 7;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.beta-close svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+.beta-close:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.32);
+  color: #fff;
 }
 .beta-board.is-open .beta-inner {
   opacity: 1;

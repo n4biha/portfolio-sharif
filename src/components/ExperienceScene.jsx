@@ -66,20 +66,8 @@ export default function ExperienceScene({ active = true, arrived = true }) {
       <div className="climb-scene-wall">
         {wall}
 
-        {/* handwritten messages + chalk doodles drawn on the wall */}
+        {/* chalk doodles drawn on the wall (text removed — drawings only) */}
         <div className="wall-deco" aria-hidden="true">
-          <p className="wall-title hand">Climb the wall.</p>
-          <p className="wall-sub hand">Every hold unlocks a chapter of my journey.</p>
-
-          <span className="chalk-note note-a hand">Find your next move →</span>
-          <span className="chalk-note note-b hand">Route in progress.</span>
-          <span className="chalk-note note-c hand">Keep climbing.</span>
-          <span className="chalk-note note-d hand">On belay.</span>
-
-          <span className="chalk-grade grade-a hand">V1</span>
-          <span className="chalk-grade grade-b hand">V3</span>
-          <span className="chalk-grade grade-c hand">V5</span>
-
           <ChalkMark type="arrowUp" size={52} className="deco deco-arrow1" strokeWidth={3.2} />
           <ChalkMark type="star" size={32} className="deco deco-star1" strokeWidth={3.2} />
           <ChalkMark type="check" size={38} className="deco deco-check1" strokeWidth={3.4} />

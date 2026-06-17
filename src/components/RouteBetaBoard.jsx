@@ -95,6 +95,12 @@ export default function RouteBetaBoard({ experience, onClose }) {
     <div className={`beta-board${open ? " is-open" : ""}`} aria-hidden={!open}>
       {exp && (
         <div className="beta-inner">
+          <button className="beta-close" type="button" onClick={onClose} aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6 L18 18 M18 6 L6 18" />
+            </svg>
+          </button>
+
           <button className="beta-back" type="button" onClick={onClose}>
             ← back to the wall
           </button>

@@ -39,6 +39,56 @@ const nameContainer = {
   show: { transition: { staggerChildren: 0.085, delayChildren: 0.04 } },
 };
 
+// Contact sticker-icons under the paper: pop in left-to-right with a springy
+// overshoot (like the other scrapbook stickers). Each badge keeps a resting tilt.
+const contactContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12 } },
+};
+const contactItem = {
+  hidden: { scale: 0, opacity: 0 },
+  // `custom` carries each badge's resting tilt so rotate is handled by framer-motion
+  // (keeping it off Tailwind's transform, which would otherwise clash with hover).
+  show: (tilt) => ({
+    scale: 1,
+    opacity: 1,
+    rotate: tilt,
+    transition: { type: "spring", stiffness: 600, damping: 13, mass: 0.55 },
+  }),
+};
+
+// LinkedIn / GitHub / Email — cream "sticker" links, ink glyphs, slight scrapbook
+// tilt + a hover pop. Inline SVGs so there are no extra assets/deps.
+const CONTACTS = [
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/nabihasharif/",
+    external: true,
+    tilt: -6,
+    icon: (
+      <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm6 0h3.8v1.64h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.5 4.78 5.76V21h-4v-5.78c0-1.38-.03-3.15-1.97-3.15-1.97 0-2.27 1.5-2.27 3.05V21H9V9Z" />
+    ),
+  },
+  {
+    label: "GitHub",
+    href: "https://github.com/n4biha",
+    external: true,
+    tilt: 4,
+    icon: (
+      <path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.21-3.37-1.21-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z" />
+    ),
+  },
+  {
+    label: "Email",
+    href: "mailto:nabihasharif@berkeley.edu",
+    external: false,
+    tilt: -3,
+    icon: (
+      <path d="M3 5.5h18c.55 0 1 .45 1 1V17.5c0 .55-.45 1-1 1H3c-.55 0-1-.45-1-1V6.5c0-.55.45-1 1-1Zm.9 2L12 12.7 20.1 7.5H3.9ZM20 9.55l-7.46 4.79a1 1 0 0 1-1.08 0L4 9.55V16.5h16V9.55Z" />
+    ),
+  },
+];
+
 // Intro paragraph typed out next to the name once the photo is on.
 const INTRO_TEXT = `Hi, I'm Nabiha!
 
@@ -62,6 +112,8 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
   const [decorIn, setDecorIn] = useState(false);
   // Intro paragraph starts typing just after the stars pop.
   const [introTextIn, setIntroTextIn] = useState(false);
+  // Contact sticker-icons pop on last, under the torn paper.
+  const [contactIn, setContactIn] = useState(false);
 
   // No click-to-enter zoom anymore — the scrapbook reveal just plays on mount.
   // Signal "done" right away (shows the navbar + kicks off the reveal sequence
@@ -94,6 +146,7 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
       setStarsIn(true);
       setExclaimIn(true);
       setIntroTextIn(true);
+      setContactIn(true);
       return;
     }
 
@@ -106,6 +159,7 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
       setStarsIn(true);
       setExclaimIn(true);
       setIntroTextIn(true);
+      setContactIn(true);
       return;
     }
 
@@ -151,6 +205,9 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
         }, PHOTO_AT + 1300)
       );
       timers.push(window.setTimeout(() => setIntroTextIn(true), PHOTO_AT + 1700));
+
+      // Contact sticker-icons pop on under the paper, rounding out the reveal.
+      timers.push(window.setTimeout(() => setContactIn(true), PHOTO_AT + 1900));
     };
 
     timers.push(window.setTimeout(startSequence, PAPER_SETTLE));
@@ -345,6 +402,35 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
             sizes="(max-width: 1024px) 20vw, 210px"
             className="block h-auto w-full select-none"
           />
+        </motion.div>
+
+        {/* Contact sticker-icons — anchored to the torn paper (its wrapper is the
+            centering reference), hanging just below it. Absolute so it doesn't
+            change the paper's height / disturb its % layout. Bigger cream badges
+            with a slight scrapbook tilt, spaced out, that pop in + lift on hover. */}
+        <motion.div
+          variants={contactContainer}
+          initial="hidden"
+          animate={contactIn ? "show" : "hidden"}
+          className="absolute left-[2%] top-1/2 z-20 flex -translate-y-1/2 flex-col items-center justify-center gap-11"
+        >
+          {CONTACTS.map((c) => (
+            <motion.a
+              key={c.label}
+              variants={contactItem}
+              custom={c.tilt}
+              href={c.href}
+              aria-label={c.label}
+              {...(c.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              whileHover={{ y: -5, scale: 1.12 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex h-13 w-13 items-center justify-center rounded-full bg-[#B76E52] text-[#F4E7D6] shadow-[2px_4px_13px_rgba(43,38,32,0.30)] ring-1 ring-[#3B3127]/15 transition-colors duration-200 hover:bg-[#A05B41]"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
+                {c.icon}
+              </svg>
+            </motion.a>
+          ))}
         </motion.div>
       </div>
     </section>
