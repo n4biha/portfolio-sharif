@@ -24,8 +24,6 @@ const SCATTER = [
   { x: 12, y: 17, size: 36, c: "kraft", v: 0, rot: 12 },
   { x: 25, y: 31, size: 30, c: "pine", v: 1, rot: -18 },
   { x: 14, y: 53, size: 42, c: "denim", v: 2, rot: 8 },
-  { x: 9, y: 75, size: 30, c: "mustard", v: 0, rot: -10 },
-  { x: 27, y: 89, size: 34, c: "charcoal", v: 1, rot: 20 },
   { x: 33, y: 13, size: 28, c: "tomato", v: 2, rot: 6 },
   { x: 70, y: 13, size: 38, c: "pine", v: 0, rot: -12 },
   { x: 83, y: 25, size: 30, c: "mustard", v: 1, rot: 14 },
@@ -34,12 +32,10 @@ const SCATTER = [
   { x: 74, y: 69, size: 36, c: "charcoal", v: 1, rot: -16 },
   { x: 88, y: 81, size: 32, c: "tomato", v: 2, rot: 8 },
   { x: 66, y: 87, size: 30, c: "pine", v: 0, rot: -6 },
-  { x: 37, y: 75, size: 26, c: "mustard", v: 1, rot: 18 },
   { x: 63, y: 55, size: 26, c: "kraft", v: 2, rot: -14 },
   { x: 39, y: 40, size: 24, c: "denim", v: 0, rot: 10 },
   { x: 20, y: 43, size: 26, c: "tomato", v: 1, rot: -8 },
   { x: 81, y: 37, size: 24, c: "charcoal", v: 2, rot: 12 },
-  { x: 30, y: 63, size: 28, c: "pine", v: 0, rot: -20 },
   { x: 85, y: 14, size: 24, c: "kraft", v: 1, rot: 6 },
 ];
 
@@ -72,7 +68,7 @@ const DOTS = ROUTE.slice(0, -1).flatMap((a, i) => dotsBetween(a, ROUTE[i + 1], i
 // Modest, viewport-responsive sizing: base is the px from the data, gently scaled.
 const px = (base) => `clamp(${base * 0.62}px, ${base * 0.13}vw + ${base * 0.5}px, ${base * 1.15}px)`;
 
-export default function ClimbingWall({ selectedId = null, onSelect }) {
+export default function ClimbingWall({ selectedId = null, onSelect, hint = false }) {
   const sel = ROUTE.find((h) => h.id === selectedId);
   return (
     <div className="climb-stage">
@@ -114,6 +110,18 @@ export default function ClimbingWall({ selectedId = null, onSelect }) {
           aria-label={`Open the ${h.id.replace(/-/g, " ")} chapter`}
         >
           <ClimbingHold color="blue" variant={i % 3} size={px(h.size)} route />
+          {/* one-time sparkle hint on the bottom (first) hold — "start here" */}
+          {i === 0 && hint && (
+            <span className="climb-hint" aria-hidden="true">
+              <span className="hint-ring" />
+              <span className="hint-ring r2" />
+              <span className="spark s1" />
+              <span className="spark s2" />
+              <span className="spark s3" />
+              <span className="spark s4" />
+              <span className="spark s5" />
+            </span>
+          )}
         </button>
       ))}
 

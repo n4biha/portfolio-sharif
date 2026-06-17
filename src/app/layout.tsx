@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Nunito, Anton, Courier_Prime, Caveat, Bungee, Bricolage_Grotesque } from "next/font/google";
+import { Nunito, Anton, Courier_Prime, Caveat, Bungee, Bricolage_Grotesque, Oswald } from "next/font/google";
 import "./globals.css";
 
 // Body text — clean and readable
@@ -24,6 +24,9 @@ const bungee = Bungee({ variable: "--font-retro", subsets: ["latin"], weight: "4
 // Climbing-wall + route-popup face (scoped to .experience-section via --font-hand)
 const bricolage = Bricolage_Grotesque({ variable: "--font-climb", subsets: ["latin"] });
 
+// Tall condensed display face for the Experience-page "EXPERIENCE" wordmark
+const oswald = Oswald({ variable: "--font-condensed", subsets: ["latin"], weight: ["300", "400", "500"] });
+
 export const metadata: Metadata = {
   title: "Nabiha — Portfolio",
   description:
@@ -38,7 +41,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${nunito.variable} ${anton.variable} ${courier.variable} ${caveat.variable} ${bungee.variable} ${bricolage.variable} h-full antialiased`}
+      className={`${nunito.variable} ${anton.variable} ${courier.variable} ${caveat.variable} ${bungee.variable} ${bricolage.variable} ${oswald.variable} h-full antialiased`}
     >
       <body className="min-h-full">{children}</body>
     </html>

@@ -111,7 +111,7 @@ export const PROJECTS = [
     id: "between-pages",
     title: "Between Pages",
     subtitle: "Reading Tracker",
-    category: "Exploration",
+    category: "Research",
     year: "2023",
     coverImage: null,
     coverStyle: { bg: "#3a2230", ink: "#fce9f0", accent: "#f29bb5", motif: "book" },

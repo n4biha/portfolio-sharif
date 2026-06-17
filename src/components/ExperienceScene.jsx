@@ -43,10 +43,15 @@ export default function ExperienceScene({ active = true, arrived = true }) {
     if (!active) setSelectedId(null);
   }, [active]);
 
-  const select = useCallback(
-    (id) => setSelectedId((cur) => (cur === id ? null : id)),
-    []
-  );
+  // One-time "click here first" sparkle on the bottom hold: shows once the route
+  // has traced in, then disappears for good the moment any hold is clicked.
+  const [hintDone, setHintDone] = useState(false);
+  const hint = active && arrived && tracing && !open && !hintDone;
+
+  const select = useCallback((id) => {
+    setHintDone(true);
+    setSelectedId((cur) => (cur === id ? null : id));
+  }, []);
 
   // The wall is ~25 filter-heavy SVG holds. The scroll reveal flips this
   // component's `active` prop mid-transition (at progress 0.7), which would
@@ -55,8 +60,8 @@ export default function ExperienceScene({ active = true, arrived = true }) {
   // Memoising the wall on its only real input (selectedId, with a stable onSelect)
   // means the `active` flip re-renders only the cheap deco text, never the holds.
   const wall = useMemo(
-    () => <ClimbingWall selectedId={selectedId} onSelect={select} />,
-    [selectedId, select]
+    () => <ClimbingWall selectedId={selectedId} onSelect={select} hint={hint} />,
+    [selectedId, select, hint]
   );
 
   return (
@@ -74,6 +79,26 @@ export default function ExperienceScene({ active = true, arrived = true }) {
           <ChalkMark type="x" size={26} className="deco deco-x1" strokeWidth={3.2} />
           <ChalkMark type="squiggle" size={58} className="deco deco-squig1" strokeWidth={2.6} />
           <ChalkMark type="circle" size={30} className="deco deco-circ1" strokeWidth={2.8} />
+        </div>
+      </div>
+
+      {/* page title, chalked bottom-left of the wall; fades out while a route is
+          open so it doesn't clash with the Route Beta Board */}
+      <div className="wall-title-block">
+        <svg
+          className="wall-title-marker"
+          viewBox="0 0 26 240"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <circle cx="13" cy="14" r="6" fill="none" stroke="currentColor" strokeWidth="2" />
+          <line x1="13" y1="20" x2="13" y2="218" stroke="currentColor" strokeWidth="2" />
+          <line x1="7" y1="222" x2="19" y2="234" stroke="currentColor" strokeWidth="2" />
+          <line x1="19" y1="222" x2="7" y2="234" stroke="currentColor" strokeWidth="2" />
+        </svg>
+        <div>
+          <h1 className="wall-title">EXPERIENCE</h1>
+          <p className="wall-sub">Climb the rocks to learn about my experience.</p>
         </div>
       </div>
 
