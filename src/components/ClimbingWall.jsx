@@ -20,23 +20,25 @@ const ROUTE = [
 ];
 
 // Muted scattered holds — mostly off to the sides of the route for ambiance.
+// `hideSm` holds are dropped on phones (see .climb-amb-extra in globals.css) so
+// the narrow portrait wall isn't crowded; the larger corner holds stay.
 const SCATTER = [
   { x: 12, y: 17, size: 36, c: "kraft", v: 0, rot: 12 },
-  { x: 25, y: 31, size: 30, c: "pine", v: 1, rot: -18 },
+  { x: 25, y: 31, size: 30, c: "pine", v: 1, rot: -18, hideSm: true },
   { x: 14, y: 53, size: 42, c: "denim", v: 2, rot: 8 },
-  { x: 33, y: 13, size: 28, c: "tomato", v: 2, rot: 6 },
+  { x: 33, y: 13, size: 28, c: "tomato", v: 2, rot: 6, hideSm: true },
   { x: 70, y: 13, size: 38, c: "pine", v: 0, rot: -12 },
-  { x: 83, y: 25, size: 30, c: "mustard", v: 1, rot: 14 },
+  { x: 83, y: 25, size: 30, c: "mustard", v: 1, rot: 14, hideSm: true },
   { x: 72, y: 43, size: 44, c: "kraft", v: 2, rot: -8 },
-  { x: 87, y: 55, size: 30, c: "denim", v: 0, rot: 10 },
+  { x: 87, y: 55, size: 30, c: "denim", v: 0, rot: 10, hideSm: true },
   { x: 74, y: 69, size: 36, c: "charcoal", v: 1, rot: -16 },
-  { x: 88, y: 81, size: 32, c: "tomato", v: 2, rot: 8 },
+  { x: 88, y: 81, size: 32, c: "tomato", v: 2, rot: 8, hideSm: true },
   { x: 66, y: 87, size: 30, c: "pine", v: 0, rot: -6 },
-  { x: 63, y: 55, size: 26, c: "kraft", v: 2, rot: -14 },
-  { x: 39, y: 40, size: 24, c: "denim", v: 0, rot: 10 },
-  { x: 20, y: 43, size: 26, c: "tomato", v: 1, rot: -8 },
-  { x: 81, y: 37, size: 24, c: "charcoal", v: 2, rot: 12 },
-  { x: 85, y: 14, size: 24, c: "kraft", v: 1, rot: 6 },
+  { x: 63, y: 55, size: 26, c: "kraft", v: 2, rot: -14, hideSm: true },
+  { x: 39, y: 40, size: 24, c: "denim", v: 0, rot: 10, hideSm: true },
+  { x: 20, y: 43, size: 26, c: "tomato", v: 1, rot: -8, hideSm: true },
+  { x: 81, y: 37, size: 24, c: "charcoal", v: 2, rot: 12, hideSm: true },
+  { x: 85, y: 14, size: 24, c: "kraft", v: 1, rot: 6, hideSm: true },
 ];
 
 // Sample dots along a gentle curve between two route holds (quadratic bezier with
@@ -78,7 +80,7 @@ export default function ClimbingWall({ selectedId = null, onSelect, hint = false
       {SCATTER.map((h, i) => (
         <div
           key={`s${i}`}
-          className="climb-hold-pos"
+          className={`climb-hold-pos${h.hideSm ? " climb-amb-extra" : ""}`}
           style={{ left: `${h.x}%`, top: `${h.y}%`, transform: `translate(-50%, -50%) rotate(${h.rot}deg)` }}
         >
           <ClimbingHold color={h.c} variant={h.v} size={px(h.size)} />

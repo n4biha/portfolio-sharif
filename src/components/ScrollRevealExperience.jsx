@@ -9,6 +9,8 @@ import Navbar from "./Navbar";
 import Hero from "./Hero";
 import ExperienceScene from "./ExperienceScene";
 import ProjectsScene from "./ProjectsScene";
+import HomeMobile from "./HomeMobile";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 /*
   Three full screens, navigated like pages: the cream scrapbook (Hero / "about")
@@ -20,14 +22,28 @@ import ProjectsScene from "./ProjectsScene";
   the fixed navbar to cream ink while you're on the (dark) experience; the nav
   ring follows whichever screen you're heading to.
 */
-const PAGE_DURATION = 1.1;
-const PAGE_EASE = (t) => 1 - Math.pow(1 - t, 3);
+const PAGE_DURATION = 1.4;
+// easeInOutCubic — eases gently in AND out (vs. the old ease-out that started
+// abruptly fast), so each page glide feels smooth from rest to rest.
+const PAGE_EASE = (t) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 const LAST = 2;
+// stable no-op so Hero's memo isn't broken by a fresh inline fn each render
+const NOOP = () => {};
 // section index → URL hash (0 = About = no hash). Lets a reload stay on the same
 // screen with the correct nav instead of snapping back to About.
 const SECTION_HASH = ["", "experience", "projects"];
 
+// On phones, swap the whole locked-paging desktop flow for the simple mobile
+// stack. HomeDesktop only mounts on desktop, so Lenis/ScrollTrigger never run on
+// mobile. Desktop renders on SSR/first paint (no hydration mismatch).
 export default function ScrollRevealExperience() {
+  const { isMobile, mounted } = useIsMobile();
+  if (mounted && isMobile) return <HomeMobile />;
+  return <HomeDesktop />;
+}
+
+function HomeDesktop() {
   const router = useRouter();
   const exp = useRef(null);
   const proj = useRef(null);
@@ -127,6 +143,9 @@ export default function ScrollRevealExperience() {
     const scrollablePanel = (target, dir) => {
       const panel = target?.closest?.(".pc-inner, .beta-inner, .liner-sheet, .record-room");
       if (!panel) return false;
+      // The experience card captures wheel whenever it's scrollable, so hitting
+      // its top/bottom edge never pages to the next screen (matches touch).
+      if (panel.classList.contains("beta-inner")) return panel.scrollHeight > panel.clientHeight + 1;
       if (dir > 0) return panel.scrollTop + panel.clientHeight < panel.scrollHeight - 1;
       if (dir < 0) return panel.scrollTop > 0;
       return panel.scrollHeight > panel.clientHeight + 1;
@@ -220,11 +239,12 @@ export default function ScrollRevealExperience() {
         fixed
         theme={onWall || section === 2 ? "dark" : "light"}
         active={section === 1 ? "experience" : section === 2 ? "projects" : null}
+        arrived={arrivedExp}
         onNav={handleNav}
       />
 
       {/* screen 0 — the scrapbook "about" (Hero is its own h-screen section) */}
-      <Hero introDone onIntroDone={() => {}} paused={section !== 0} play={!silentIntro} />
+      <Hero introDone onIntroDone={NOOP} paused={section !== 0} play={!silentIntro} />
 
       {/* screen 1 — the climbing wall */}
       <section ref={exp} className="experience-section climb-wall">

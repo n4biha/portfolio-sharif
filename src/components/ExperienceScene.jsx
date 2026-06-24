@@ -1,18 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import ClimbingWall from "./ClimbingWall";
 import RouteBetaBoard from "./RouteBetaBoard";
 import ChalkMark, { ChalkDefs } from "./ChalkMark";
+import ExperienceMobile from "./ExperienceMobile";
 import { EXPERIENCES } from "@/lib/experiences";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
-/*
-  Holds the selection state. Clicking a hold pans the wall slightly left (it stays
-  visible) and chalks in the Route Beta Board on the right — drawn onto the same
-  wall, not a floating panel. Esc / "back to the wall" / clicking the hold again
-  closes it.
-*/
-export default function ExperienceScene({ active = true, arrived = true }) {
+function ExperienceScene({ active = true, arrived = true }) {
   const [selectedId, setSelectedId] = useState(null);
   const open = selectedId != null;
   const experience = open ? EXPERIENCES[selectedId] : null;
@@ -26,7 +22,7 @@ export default function ExperienceScene({ active = true, arrived = true }) {
       setTracing(false);
       return;
     }
-    const t = setTimeout(() => setTracing(true), 1000);
+    const t = setTimeout(() => setTracing(true), 650);
     return () => clearTimeout(t);
   }, [arrived]);
 
@@ -53,12 +49,6 @@ export default function ExperienceScene({ active = true, arrived = true }) {
     setSelectedId((cur) => (cur === id ? null : id));
   }, []);
 
-  // The wall is ~25 filter-heavy SVG holds. The scroll reveal flips this
-  // component's `active` prop mid-transition (at progress 0.7), which would
-  // otherwise force React to reconcile that whole tree on the same frame as the
-  // scroll animation — a dropped frame that reads as a pause right at the switch.
-  // Memoising the wall on its only real input (selectedId, with a stable onSelect)
-  // means the `active` flip re-renders only the cheap deco text, never the holds.
   const wall = useMemo(
     () => <ClimbingWall selectedId={selectedId} onSelect={select} hint={hint} />,
     [selectedId, select, hint]
@@ -105,4 +95,17 @@ export default function ExperienceScene({ active = true, arrived = true }) {
       <RouteBetaBoard experience={experience} onClose={() => setSelectedId(null)} />
     </div>
   );
+}
+
+// Memoised so the home flow's mid-scroll state updates (section / nav theme)
+// don't re-reconcile the climbing wall during the page glide. Re-renders only
+// when `active` or `arrived` change.
+const ExperienceSceneDesktop = memo(ExperienceScene);
+
+// On phones (incl. the standalone /experience route) render the simple mobile
+// list instead of the interactive climbing wall.
+export default function ExperienceSceneSwitch(props) {
+  const { isMobile, mounted } = useIsMobile();
+  if (mounted && isMobile) return <ExperienceMobile />;
+  return <ExperienceSceneDesktop {...props} />;
 }

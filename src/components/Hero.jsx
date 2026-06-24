@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import CutoutLetter from "./CutoutLetter";
@@ -11,7 +11,6 @@ import { armAudioUnlock, playPop } from "@/lib/sfx";
 import pageRipOut from "../../public/images/page-rip-out.png";
 import photoPortrait from "../../public/images/photo-portrait.jpg";
 import starsSticker from "../../public/images/stars-sticker.png";
-import exclaimSticker from "../../public/images/exclaim.png";
 import flowerSticker from "../../public/images/flower.png";
 import heartsSticker from "../../public/images/hearts.png";
 
@@ -90,13 +89,15 @@ const CONTACTS = [
 ];
 
 // Intro paragraph typed out next to the name once the photo is on.
-const INTRO_TEXT = `Hi, I'm Nabiha!
+const INTRO_TEXT = `Hey, I'm Nabiha!
 
-I am a student studying Data Science and Cognitive Science at UC Berkeley. I am interested in Data Science + Engineering, Product Management, and AI/ML roles. I am currently a Product Management intern at Dabble Health.
+I’m studying Data Science and Cognitive Science at UC Berkeley. I’m always learning something new, and I care a lot about turning what I learn into something I can teach others. 
+
+Interested in Product Management, Data Science, and AI/ML roles. 
 
 Explore this website to learn more about me!`;
 
-export default function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
+function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
   // Tape sequence stage: 0 = none placed, 1 = first (top-right) placed,
   // 2 = both placed.
   const [tapeStage, setTapeStage] = useState(0);
@@ -107,7 +108,6 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
   // Star stickers pop on (bottom-right of the paper) just after the name lands.
   const [starsIn, setStarsIn] = useState(false);
   // "!!" sticker pops on (top-left of the screen) with a fun bounce, alongside stars.
-  const [exclaimIn, setExclaimIn] = useState(false);
   // Flower + hearts fade/drift onto the photo corners shortly after it lands.
   const [decorIn, setDecorIn] = useState(false);
   // Intro paragraph starts typing just after the stars pop.
@@ -144,7 +144,6 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
       setDecorIn(true);
       setLettersIn(true);
       setStarsIn(true);
-      setExclaimIn(true);
       setIntroTextIn(true);
       setContactIn(true);
       return;
@@ -157,7 +156,6 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
       setDecorIn(true);
       setLettersIn(true);
       setStarsIn(true);
-      setExclaimIn(true);
       setIntroTextIn(true);
       setContactIn(true);
       return;
@@ -168,7 +166,7 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
     // ms for the paper's glide-to-center (`stop-motion-in`) to finish — the
     // tape/photo reveal waits for this so nothing lands on empty space.
     // (Matches the .stop-motion-in CSS duration.)
-    const PAPER_SETTLE = 1950;
+    const PAPER_SETTLE = 1600;
     // ms between the first tape starting and the second tape starting.
     const SECOND_AT = 1200;
     // ms after the second tape starts to when the photo pops on (after it sets).
@@ -200,7 +198,6 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
       timers.push(
         window.setTimeout(() => {
           setStarsIn(true);
-          setExclaimIn(true);
           setDecorIn(true);
         }, PHOTO_AT + 1300)
       );
@@ -218,7 +215,8 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
   return (
     <section
       id="home"
-      className="relative flex h-screen flex-col items-center justify-center overflow-hidden px-6"
+      // transform-gpu: own compositor layer so the page-glide moves a cached texture
+      className="relative flex h-screen flex-col items-center justify-center overflow-hidden px-6 transform-gpu"
     >
       {/* Cut-out name — hidden until the photo pops, then the letters scatter in
           one-by-one (staggered) and spring into their resting tilts. */}
@@ -226,37 +224,13 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
         variants={nameContainer}
         initial="hidden"
         animate={lettersIn ? "show" : "hidden"}
-        className="relative z-10 mt-2 flex flex-wrap items-center justify-center gap-4 sm:gap-6"
+        className="relative z-10 mt-2 flex flex-wrap items-center justify-center gap-2 sm:gap-6"
       >
         {letters.map((l, i) => (
           <CutoutLetter key={i} {...l} />
         ))}
       </motion.div>
 
-      {/* "!!" sticker — pops on at the top-left of the screen (left of the paper)
-          with a fun bouncy overshoot + a little wiggle, then settles at a tilt. */}
-      <motion.div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-[27%] top-[43%] z-30 w-[6%]"
-        initial={{ scale: 0, opacity: 0, rotate: -25 }}
-        animate={
-          exclaimIn
-            ? { scale: 1, opacity: 1, rotate: [-25, 12, -8, -6] }
-            : { scale: 0, opacity: 0, rotate: -25 }
-        }
-        transition={{
-          scale: { type: "spring", stiffness: 520, damping: 11, mass: 0.5 },
-          rotate: { duration: 0.6, ease: "easeOut", times: [0, 0.4, 0.75, 1] },
-          opacity: { duration: 0.14 },
-        }}
-      >
-        <Image
-          src={exclaimSticker}
-          alt=""
-          sizes="(max-width: 1024px) 7vw, 90px"
-          className="block h-auto w-full select-none"
-        />
-      </motion.div>
 
       {/* Torn-paper panel — once the zoom finishes it gets "placed" onto the
           page like a scrapbook piece via the pure-CSS `.stop-motion-in` class:
@@ -275,7 +249,11 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
           photo / text / tapes scale together with the paper. */}
       <div
         className="relative z-10 mx-auto mt-4 w-full max-w-5xl"
-        style={{ width: "min(64rem, 92vw, calc((100svh - 210px) * 1.69))" }}
+        style={{
+          width: "min(64rem, 92vw, calc((100svh - 210px) * 1.69))",
+          // query container so the on-paper text scales with the paper, not the viewport
+          containerType: "inline-size",
+        }}
       >
         {/* The torn-paper panel — glides in from the left. Its inner element
             carries the bob (Y + rotate + scale) so it composes with — instead
@@ -357,7 +335,7 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
             queries — those broke positioning in some browsers); the paper's
             height cap above keeps the whole block on-screen so the typed text
             stays inside the paper and never spills into a torn corner. */}
-        <div className="absolute left-[46%] top-[30%] z-20 w-[46%] leading-[1.6] text-[12px] sm:text-[13px] md:text-[14px]">
+        <div className="absolute left-[46%] top-[29%] z-20 w-[48%] leading-[1.45] text-[clamp(7.5px,1.37cqw,14px)] sm:leading-[1.6]">
           <IntroText text={INTRO_TEXT} start={introTextIn} stop={paused} instant={!play} />
         </div>
 
@@ -412,7 +390,7 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
           variants={contactContainer}
           initial="hidden"
           animate={contactIn ? "show" : "hidden"}
-          className="absolute left-[2%] top-1/2 z-20 flex -translate-y-1/2 flex-col items-center justify-center gap-11"
+          className="absolute left-[2%] top-1/2 z-20 flex -translate-y-1/2 flex-col items-center justify-center gap-[clamp(13px,4.5cqw,44px)]"
         >
           {CONTACTS.map((c) => (
             <motion.a
@@ -424,9 +402,9 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
               {...(c.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               whileHover={{ y: -5, scale: 1.12 }}
               whileTap={{ scale: 0.95 }}
-              className="flex h-13 w-13 items-center justify-center rounded-full bg-[#B76E52] text-[#F4E7D6] shadow-[2px_4px_13px_rgba(43,38,32,0.30)] ring-1 ring-[#3B3127]/15 transition-colors duration-200 hover:bg-[#A05B41]"
+              className="flex h-[clamp(30px,5cqw,52px)] w-[clamp(30px,5cqw,52px)] items-center justify-center rounded-full bg-[#B76E52] text-[#F4E7D6] shadow-[2px_4px_13px_rgba(43,38,32,0.30)] ring-1 ring-[#3B3127]/15 transition-colors duration-200 hover:bg-[#A05B41]"
             >
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="h-[clamp(15px,2.6cqw,24px)] w-[clamp(15px,2.6cqw,24px)]">
                 {c.icon}
               </svg>
             </motion.a>
@@ -436,3 +414,8 @@ export default function Hero({ onIntroDone, introDone = false, paused = false, p
     </section>
   );
 }
+
+// Memoised so the home flow's mid-scroll re-renders (section index, nav theme)
+// don't reconcile the whole scrapbook + its framer-motion tree during the page
+// glide. Re-renders only when paused/play/introDone change (stable props).
+export default memo(Hero);

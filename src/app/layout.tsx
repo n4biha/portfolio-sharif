@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { Nunito, Anton, Courier_Prime, Caveat, Bungee, Bricolage_Grotesque, Oswald } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Nunito, Anton, Courier_Prime, Caveat, Bungee, Bricolage_Grotesque, Oswald, Bebas_Neue, Inter } from "next/font/google";
 import "./globals.css";
 
 // Body text — clean and readable
@@ -25,12 +25,23 @@ const bungee = Bungee({ variable: "--font-retro", subsets: ["latin"], weight: "4
 const bricolage = Bricolage_Grotesque({ variable: "--font-climb", subsets: ["latin"] });
 
 // Tall condensed display face for the Experience-page "EXPERIENCE" wordmark
-const oswald = Oswald({ variable: "--font-condensed", subsets: ["latin"], weight: ["300", "400", "500"] });
+const oswald = Oswald({ variable: "--font-condensed", subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] });
+
+// Editorial typography for the experience route popup: Bebas Neue for the company
+// title only, Inter for everything else (labels, body, metadata, pills).
+const bebas = Bebas_Neue({ variable: "--font-display", subsets: ["latin"], weight: "400" });
+const inter = Inter({ variable: "--font-body", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Nabiha — Portfolio",
   description:
     "The retro cut-out collage portfolio of Nabiha — about, experience, and projects.",
+};
+
+// `viewport-fit=cover` populates env(safe-area-inset-*), letting the nav pad
+// itself below the browser chrome / notch instead of being covered by it.
+export const viewport: Viewport = {
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -41,7 +52,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${nunito.variable} ${anton.variable} ${courier.variable} ${caveat.variable} ${bungee.variable} ${bricolage.variable} ${oswald.variable} h-full antialiased`}
+      className={`${nunito.variable} ${anton.variable} ${courier.variable} ${caveat.variable} ${bungee.variable} ${bricolage.variable} ${oswald.variable} ${bebas.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full">{children}</body>
     </html>

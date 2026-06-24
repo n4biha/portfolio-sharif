@@ -7,12 +7,12 @@
   it reads as drawn by hand, and it draws itself in on mount (see `.sketch-circle`
   in globals.css).
 
-  NB: no SVG roughen filter here on purpose. This circle mounts mid-scroll (when
-  "Experience" becomes the active nav item, ~70% through the reveal) and draws
-  itself in over 0.7s. A feTurbulence/feDisplacementMap filter on the path would
-  be re-rasterised every frame of that stroke animation — a per-frame cost landing
-  right in the transition that showed up as a hitch. The wonky path + tilt already
-  read as hand-drawn without it, so the stroke animates GPU-cheap instead.
+  NB: no SVG roughen filter here on purpose. This circle mounts once the glide to
+  the wall has landed (Navbar only renders it when `arrived`), then draws itself in
+  over 0.7s after a short delay. A feTurbulence/feDisplacementMap filter on the path
+  would be re-rasterised every frame of that stroke animation — a per-frame cost
+  that showed up as a hitch. The wonky path + tilt already read as hand-drawn
+  without it, so the stroke animates GPU-cheap instead.
 */
 export default function SketchCircle() {
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { memo, useId } from "react";
 
 /*
   One realistic climbing hold (a moulded resin/rock hold), drawn as inline SVG.
@@ -31,7 +31,7 @@ const SHAPES = [
   "M48 14 C61 11 70 20 73 32 C77 47 86 55 84 67 C82 80 66 84 52 83 C40 82 29 87 21 79 C12 70 18 60 19 49 C20 36 31 17 48 14 Z",
 ];
 
-export default function ClimbingHold({
+function ClimbingHold({
   color = "blue",
   size = 64,
   variant = 0,
@@ -67,10 +67,12 @@ export default function ClimbingHold({
           <path d={shape} fill={`url(#${gId})`} />
 
           <g clipPath={`url(#${clip})`}>
-            {/* bumpy lit granite, blended so it textures without washing colour */}
-            <rect x="0" y="0" width="100" height="100" filter="url(#rockBump)" opacity="0.6" style={{ mixBlendMode: "soft-light" }} />
-            {/* a second, coarser grit pass for rough rock */}
-            <rect x="0" y="0" width="100" height="100" filter="url(#rockGrit)" opacity="0.4" style={{ mixBlendMode: "soft-light" }} />
+            {/* bumpy lit granite, blended so it textures without washing colour.
+                (A second, coarser "grit" filter pass used to sit here but was
+                dropped — running a second turbulence+lighting chain per hold made
+                the wall expensive to rasterize as it scrolled into view. The
+                single bump pass below carries the texture.) */}
+            <rect x="0" y="0" width="100" height="100" filter="url(#rockBump)" opacity="0.68" style={{ mixBlendMode: "soft-light" }} />
             {/* deeper core shadow toward the bottom-right */}
             <rect x="0" y="0" width="100" height="100" fill="url(#holdAO)" />
             {/* top rim light */}
@@ -90,6 +92,8 @@ export default function ClimbingHold({
     </span>
   );
 }
+
+export default memo(ClimbingHold);
 
 /*
   Shared SVG <defs> rendered ONCE on the wall: colour-independent gradients + the
@@ -121,30 +125,20 @@ export function ClimbingWallDefs() {
           <stop offset="100%" stopColor="#0f0f11" />
         </radialGradient>
 
-        {/* bumpy granite as a grey lit texture (height-map -> diffuse + specular) */}
+        {/* bumpy granite as a grey lit texture (height-map -> diffuse light).
+            Kept to a single diffuse-lighting pass (no extra specular pass) and
+            fewer octaves so 25 holds rasterize cheaply when scrolled into view;
+            the glossy highlight is supplied separately by the holdSheen ellipse. */}
         <filter id="rockBump" x="-6%" y="-6%" width="112%" height="112%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="6" result="noise" />
-          <feDiffuseLighting in="noise" surfaceScale="4" diffuseConstant="0.62" lightingColor="#ffffff" result="diffuse">
+          <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="2" seed="6" result="noise" />
+          <feDiffuseLighting in="noise" surfaceScale="4" diffuseConstant="0.66" lightingColor="#ffffff" result="diffuse">
             <feDistantLight azimuth="235" elevation="55" />
           </feDiffuseLighting>
-          <feSpecularLighting in="noise" surfaceScale="4" specularConstant="0.5" specularExponent="24" lightingColor="#ffffff" result="spec">
-            <feDistantLight azimuth="235" elevation="55" />
-          </feSpecularLighting>
-          <feComposite in="spec" in2="diffuse" operator="over" />
-        </filter>
-
-        {/* coarser pitted grit — bigger lumps for rough rock */}
-        <filter id="rockGrit" x="-6%" y="-6%" width="112%" height="112%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.055" numOctaves="3" seed="11" result="noise" />
-          <feDiffuseLighting in="noise" surfaceScale="3" diffuseConstant="0.6" lightingColor="#ffffff" result="d">
-            <feDistantLight azimuth="235" elevation="52" />
-          </feDiffuseLighting>
-          <feComposite in="d" in2="d" operator="over" />
         </filter>
 
         {/* roughen the whole hold's silhouette into irregular rock */}
         <filter id="rockEdge" x="-14%" y="-14%" width="128%" height="128%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="3" seed="8" result="n" />
+          <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="8" result="n" />
           <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" />
         </filter>
       </defs>

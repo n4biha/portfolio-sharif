@@ -54,7 +54,7 @@ export default function CutoutLetter({
           width={width}
           height={height}
           onError={() => setFailed(true)}
-          className="block h-20 w-auto select-none sm:h-28 md:h-36"
+          className="block h-12 w-auto select-none sm:h-28 md:h-36"
         />
       ) : (
         <span

@@ -24,7 +24,7 @@ const serif = { fontFamily: "Georgia, 'Times New Roman', serif" };
  *
  * @param {{ theme?: "light" | "dark", active?: string | null, onNav?: (id: string) => void, fixed?: boolean }} props
  */
-export default function Navbar({ theme = "light", active = null, onNav, fixed = false }) {
+export default function Navbar({ theme = "light", active = null, onNav, fixed = false, arrived = true }) {
   const [open, setOpen] = useState(false);
   const dark = theme === "dark";
   const textColor = dark ? "text-[var(--wall-ink)]" : "text-ink";
@@ -39,7 +39,10 @@ export default function Navbar({ theme = "light", active = null, onNav, fixed = 
     return (
       <span className={`relative inline-block${underlined ? " nav-underlined" : ""}`}>
         {link.label}
-        {isActive && link.id === "experience" && <SketchCircle />}
+        {/* `arrived` holds the ring back until the glide to the wall has fully
+            landed, so its stroke never starts drawing (and never shows its
+            round-cap dot) mid-scroll. */}
+        {isActive && link.id === "experience" && arrived && <SketchCircle />}
         {underlined && <DoodleUnderline />}
       </span>
     );
@@ -58,7 +61,13 @@ export default function Navbar({ theme = "light", active = null, onNav, fixed = 
 
   return (
     <header className={`${fixed ? "fixed" : "absolute"} inset-x-0 top-0 z-50`}>
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+      {/* paddingTop clears the browser's tab/URL bar (or a device notch) in
+          full-screen/standalone modes by honouring the safe-area inset, while
+          never dropping below the 1.5rem baseline. */}
+      <nav
+        className="mx-auto flex max-w-6xl items-center justify-between px-6 pb-6"
+        style={{ paddingTop: "max(1.5rem, calc(env(safe-area-inset-top, 0px) + 0.75rem))" }}
+      >
         {/* Wordmark / home link */}
         <Link
           href="/"
@@ -84,36 +93,43 @@ export default function Navbar({ theme = "light", active = null, onNav, fixed = 
           ))}
         </ul>
 
-        {/* Mobile toggle */}
+        {/* Mobile toggle — circular outline button (mobile only) */}
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          aria-label="Toggle menu"
+          aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
-          className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 md:hidden"
+          className={`flex h-10 w-10 flex-col items-center justify-center gap-[5px] rounded-full border ${
+            dark ? "border-[var(--wall-ink)]/45" : "border-ink/35"
+          } md:hidden`}
         >
-          <span className={`h-0.5 w-6 ${barColor} transition-colors duration-300`} />
-          <span className={`h-0.5 w-6 ${barColor} transition-colors duration-300`} />
-          <span className={`h-0.5 w-6 ${barColor} transition-colors duration-300`} />
+          <span className={`h-[2px] w-5 origin-center rounded ${barColor} transition-all duration-300 ${open ? "translate-y-[7px] rotate-45" : ""}`} />
+          <span className={`h-[2px] w-5 rounded ${barColor} transition-all duration-300 ${open ? "opacity-0" : ""}`} />
+          <span className={`h-[2px] w-5 origin-center rounded ${barColor} transition-all duration-300 ${open ? "-translate-y-[7px] -rotate-45" : ""}`} />
         </button>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — clean slide-down panel, themed to the page (mobile only) */}
       {open && (
-        <ul className="flex flex-col items-end gap-2 px-6 pb-4 md:hidden">
-          {links.map((link) => (
-            <li key={link.id}>
-              <Link
-                href={link.href}
-                onClick={(e) => handleClick(link.id, e)}
-                style={serif}
-                className={`text-lg uppercase tracking-wide ${textColor}`}
-              >
-                {label(link)}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <nav
+          className={`m-menu md:hidden ${dark ? "m-menu--dark" : "m-menu--light"}`}
+          aria-label="Mobile"
+        >
+          <ul>
+            {links.map((link) => (
+              <li key={link.id}>
+                <Link
+                  href={link.href}
+                  onClick={(e) => handleClick(link.id, e)}
+                  style={serif}
+                  className={`m-menu-link ${textColor}`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       )}
     </header>
   );

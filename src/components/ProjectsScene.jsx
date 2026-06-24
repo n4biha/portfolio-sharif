@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import RecordShelf from "./RecordShelf";
 import RecordPlayer from "./RecordPlayer";
 import LinerNotes from "./LinerNotes";
 import LivePreview from "./LivePreview";
+import ProjectsMobile from "./ProjectsMobile";
 import { PROJECTS } from "@/lib/projects";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 /*
   "Projects on Repeat" — a cozy vintage listening room. Browse project albums on
@@ -13,7 +15,7 @@ import { PROJECTS } from "@/lib/projects";
   laptop live preview). `active` is false when this isn't the on-screen section of
   the home flow, which rests the spinning vinyl.
 */
-export default function ProjectsScene({ active = true }) {
+function ProjectsScene({ active = true }) {
   const [category, setCategory] = useState("All");
   // default to the first project so the player/sheet/laptop are populated on load
   const [selectedId, setSelectedId] = useState(PROJECTS[0]?.id ?? null);
@@ -57,4 +59,18 @@ export default function ProjectsScene({ active = true }) {
       </div>
     </div>
   );
+}
+
+// Memoised: the home flow re-renders on every section / nav-theme change (some of
+// them mid-scroll). Without this, those updates re-reconcile this whole scene
+// during the page glide — a per-frame hitch. It only needs to re-render when its
+// `active` prop actually changes.
+const ProjectsSceneDesktop = memo(ProjectsScene);
+
+// On phones (incl. the standalone /projects route) render the simple mobile list
+// instead of the record-room scene.
+export default function ProjectsSceneSwitch(props) {
+  const { isMobile, mounted } = useIsMobile();
+  if (mounted && isMobile) return <ProjectsMobile />;
+  return <ProjectsSceneDesktop {...props} />;
 }
