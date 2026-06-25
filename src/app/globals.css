@@ -2060,10 +2060,10 @@ body {
 .record-stage {
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.05fr) minmax(0, 1.05fr);
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.28fr) minmax(0, 1fr);
   gap: clamp(12px, 2vw, 30px);
   align-items: center;
-  width: min(1120px, 100%);
+  width: min(1200px, 100%);
   min-height: 0;
 }
 
@@ -2317,11 +2317,10 @@ body {
   color: #3a2e1f;
   border: 1px solid rgba(120, 78, 40, 0.18);
   border-radius: 3px;
-  padding: clamp(14px, 1.6vw, 22px);
+  padding: clamp(16px, 1.8vw, 26px);
   box-shadow: 0 18px 34px rgba(120, 78, 40, 0.3);
   transform: rotate(-0.6deg);
-  max-height: min(46vh, 100%);
-  overflow-y: auto;
+  overflow: visible;
 }
 
 .liner-tape {
@@ -2344,9 +2343,35 @@ body {
 }
 
 .liner-subtitle {
-  margin: 3px 0 8px;
+  margin: 3px 0 12px;
   font-size: clamp(12px, 1.4vw, 16px);
   color: #8a6534;
+}
+
+.liner-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.liner-field-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid rgba(120, 78, 40, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  font-family: var(--font-body), sans-serif;
+  font-size: 12.5px;
+  color: #3a2e1f;
+  white-space: nowrap;
+}
+.liner-field-tag svg {
+  width: 14px;
+  height: 14px;
+  color: #7c6a4a;
+  flex: none;
 }
 
 .liner-label {
@@ -2366,11 +2391,6 @@ body {
   color: #4a3a26;
 }
 
-.liner-text--tight {
-  font-size: 12px;
-  line-height: 1.4;
-}
-
 .liner-tools {
   display: flex;
   flex-wrap: wrap;
@@ -2388,15 +2408,9 @@ body {
   color: #6b4f2c;
 }
 
-.liner-cols {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 4px;
-}
-
 .liner-buttons {
   display: flex;
+  justify-content: center;
   gap: 10px;
   margin-top: 14px;
 }
@@ -3135,7 +3149,32 @@ body {
   font-family: var(--font-courier), monospace;
   font-size: 12.5px;
   color: #7c6f57;
-  margin: 2px 0 10px;
+  margin: 2px 0 12px;
+}
+.m-proj-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0 0 14px;
+}
+.m-proj-field-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border: 1px solid rgba(43, 38, 32, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.45);
+  font-family: var(--font-body), sans-serif;
+  font-size: 12px;
+  color: #2b2620;
+  white-space: nowrap;
+}
+.m-proj-field-tag svg {
+  width: 14px;
+  height: 14px;
+  color: #6f6450;
+  flex: none;
 }
 .m-proj-detail-text {
   font-family: var(--font-body), sans-serif;

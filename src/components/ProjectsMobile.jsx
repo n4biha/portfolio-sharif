@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { PROJECTS, CATEGORIES } from "@/lib/projects";
+import FieldIcon from "./FieldIcon";
 
 /*
   Mobile Projects screen — keeps the "Projects on Repeat" vinyl vibe (deep green
@@ -91,11 +92,19 @@ export default function ProjectsMobile() {
         <article className="m-proj-detail">
           <h2 className="m-proj-detail-title">{selected.title}</h2>
           {selected.subtitle && <p className="m-proj-detail-sub">{selected.subtitle}</p>}
+          <div className="m-proj-fields">
+            {(selected.fields ?? (selected.category ? [selected.category] : [])).map((f) => (
+              <span key={f} className="m-proj-field-tag">
+                <FieldIcon label={f} />
+                {f}
+              </span>
+            ))}
+          </div>
           <p className="m-proj-detail-text">{selected.linerNotes}</p>
 
           {selected.tools?.length > 0 && (
             <ul className="m-chips m-proj-tools">
-              {selected.tools.slice(0, 6).map((t, i) => (
+              {selected.tools.map((t, i) => (
                 <li key={i} className="m-chip m-chip-tool">{t}</li>
               ))}
             </ul>

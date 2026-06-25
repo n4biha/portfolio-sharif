@@ -13,6 +13,36 @@ import { motion } from "framer-motion";
 function Motif({ motif, ink, accent }) {
   const s = { stroke: ink, fill: "none", strokeWidth: 2.4, strokeLinecap: "round", strokeLinejoin: "round" };
   switch (motif) {
+    case "brain": // a brain-shaped neural network
+      return (
+        <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">
+          <path
+            d="M50 8 C34 4 20 12 20 24 C10 28 12 42 22 44 C24 54 40 56 50 50 C60 56 76 54 78 44 C88 42 90 28 80 24 C80 12 66 4 50 8 Z"
+            fill={accent}
+            fillOpacity="0.18"
+            stroke={accent}
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+          <g stroke={ink} strokeWidth="1.4" opacity="0.85">
+            <line x1="34" y1="20" x2="50" y2="30" />
+            <line x1="66" y1="20" x2="50" y2="30" />
+            <line x1="28" y1="38" x2="50" y2="30" />
+            <line x1="72" y1="38" x2="50" y2="30" />
+            <line x1="34" y1="20" x2="28" y2="38" />
+            <line x1="66" y1="20" x2="72" y2="38" />
+            <line x1="44" y1="46" x2="50" y2="30" />
+          </g>
+          <g fill={ink}>
+            <circle cx="34" cy="20" r="3.2" />
+            <circle cx="66" cy="20" r="3.2" />
+            <circle cx="28" cy="38" r="3.2" />
+            <circle cx="72" cy="38" r="3.2" />
+            <circle cx="44" cy="46" r="3.2" />
+          </g>
+          <circle cx="50" cy="30" r="4.2" fill="#ffd66e" />
+        </svg>
+      );
     case "transit": // a weaving train line with stops
       return (
         <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">

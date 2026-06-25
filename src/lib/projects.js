@@ -10,32 +10,32 @@
   Schema per project:
     id, title, subtitle, category, year,
     coverImage (null for now), coverStyle { bg, ink, accent, motif },
-    linerNotes, tools[], role, favoriteFeature,
+    linerNotes, tools[], technicalHighlights,
     demoPreview { title, tagline, accent, kind }, liveDemoUrl, caseStudyUrl
 */
 
 export const PROJECTS = [
   {
-    id: "mind-the-gap",
-    title: "Mind the Gap",
-    subtitle: "BART Delay Predictor",
+    id: "neurotrace",
+    title: "NeuroTrace",
+    subtitle: "Parkinson's Risk Classifier",
     category: "ML / AI",
+    fields: ["Data Science", "Computer Vision", "Full-Stack ML"],
     year: "2025",
     coverImage: null,
-    coverStyle: { bg: "#1f3a4d", ink: "#eaf2f5", accent: "#4da6ff", motif: "transit" },
+    coverStyle: { bg: "#1f3a4d", ink: "#eaf2f5", accent: "#4da6ff", motif: "brain" },
     linerNotes:
-      "A machine learning web app that predicts BART train delays using historical data, weather, and time-based features. Riders get a heads-up before they ever tap in.",
-    tools: ["Python", "Scikit-learn", "Pandas", "Flask", "PostgreSQL", "Chart.js"],
-    role: "Full-stack developer, ML engineer, data analyst",
-    favoriteFeature:
-      "The live delay forecast that updates by line + hour, with a confidence band.",
+      "An explainable machine learning web app that screens for Parkinson's-related risk patterns using both clinical questionnaire data and spiral drawing analysis. The app combines two model outputs into a clear risk interpretation for Parkinson's disease.",
+    tools: ["Python", "Streamlit", "Scikit-learn", "PyTorch", "MobileNetV2", "OpenCV", "SHAP", "Pandas", "Plotly", "Gemini API"],
+    technicalHighlights:
+      "Multi-modal ML pipeline combining a Random Forest clinical model, MobileNetV2 spiral-drawing CNN, SHAP explainability, and late-fusion risk logic.",
     demoPreview: {
-      title: "Mind the Gap",
-      tagline: "Plan your ride, beat the delay.",
+      title: "NeuroTrace",
+      tagline: "Screen early. Understand the risk.",
       accent: "#4da6ff",
       kind: "dashboard",
     },
-    liveDemoUrl: "#",
+    liveDemoUrl: "https://parkinsons-screener.streamlit.app/",
     caseStudyUrl: "#",
   },
   {
@@ -49,8 +49,7 @@ export const PROJECTS = [
     linerNotes:
       "A warm, editorial marketing site for a boutique creative studio — case-study driven, with smooth scroll storytelling and a CMS the team can update themselves.",
     tools: ["Next.js", "TypeScript", "Sanity CMS", "Framer Motion", "Tailwind"],
-    role: "Designer + front-end developer",
-    favoriteFeature:
+    technicalHighlights:
       "The case-study reveal where project shots parallax as you read.",
     demoPreview: {
       title: "Studio Terraluna",
@@ -72,8 +71,7 @@ export const PROJECTS = [
     linerNotes:
       "Snap a photo of a struggling plant and get a diagnosis + care plan. A vision model flags disease and deficiency, then explains the fix in plain language.",
     tools: ["PyTorch", "FastAPI", "React Native", "Expo", "Supabase"],
-    role: "ML engineer + mobile developer",
-    favoriteFeature:
+    technicalHighlights:
       "On-device first pass so it still helps you when the signal in the greenhouse is bad.",
     demoPreview: {
       title: "Crop Companion",
@@ -95,8 +93,7 @@ export const PROJECTS = [
     linerNotes:
       "An inventory tool that learns each shop's rhythm and nudges owners before they run out — reorder suggestions, slow-mover alerts, and a dead-simple count flow.",
     tools: ["Next.js", "tRPC", "Prisma", "PostgreSQL", "Recharts"],
-    role: "Product engineer + data analyst",
-    favoriteFeature:
+    technicalHighlights:
       "The 'reorder by Friday' digest that turns a spreadsheet chore into one tap.",
     demoPreview: {
       title: "Shelf Sense",
@@ -118,8 +115,7 @@ export const PROJECTS = [
     linerNotes:
       "A cozy reading companion: log books, track streaks, and surface gentle stats about what you actually finish vs. what's been on the nightstand for a year.",
     tools: ["React", "Vite", "IndexedDB", "D3.js"],
-    role: "Solo designer + developer",
-    favoriteFeature:
+    technicalHighlights:
       "The year-in-reading wrap-up that feels like a little mixtape of your shelf.",
     demoPreview: {
       title: "Between Pages",
