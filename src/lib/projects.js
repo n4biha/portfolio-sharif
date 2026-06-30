@@ -35,7 +35,8 @@ export const PROJECTS = [
       accent: "#4da6ff",
       kind: "dashboard",
     },
-    liveDemoUrl: "https://parkinsons-screener.streamlit.app/",
+    liveDemoUrl: "https://github.com/n4biha/parkinsons_model",
+    liveDemoLabel: "GitHub",
     caseStudyUrl: "#",
   },
   {
@@ -43,6 +44,7 @@ export const PROJECTS = [
     title: "MarketMap",
     subtitle: "AI-powered market research agent",
     category: "Product / Data",
+    fields: ["Agentic AI", "LLM Pipeline", "RAG"],
     year: "2024",
     coverImage: null,
     coverStyle: { bg: "#2f2a3d", ink: "#f3ecff", accent: "#c9a3ff", motif: "chart" },
@@ -58,7 +60,7 @@ export const PROJECTS = [
       kind: "dashboard",
       screenshot: "/images/marketmap-preview.png",
     },
-    liveDemoUrl: "#",
+    liveDemoUrl: "https://www.youtube.com/watch?v=nNAQZ_gS6GI",
     caseStudyUrl: "#",
   },
   {

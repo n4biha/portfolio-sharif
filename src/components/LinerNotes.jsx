@@ -46,7 +46,7 @@ export default function LinerNotes({ project }) {
 
         <div className="liner-buttons">
           <a className="liner-btn liner-btn--primary" href={project.liveDemoUrl} target="_blank" rel="noreferrer">
-            ▶ Live Demo
+            {project.liveDemoLabel === "GitHub" ? "↗ GitHub" : "▶ Live Demo"}
           </a>
         </div>
       </motion.div>
