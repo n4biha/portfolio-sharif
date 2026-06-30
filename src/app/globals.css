@@ -2060,10 +2060,10 @@ body {
 .record-stage {
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.28fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.6fr) minmax(0, 0.92fr);
   gap: clamp(12px, 2vw, 30px);
   align-items: center;
-  width: min(1200px, 100%);
+  width: min(1340px, 100%);
   min-height: 0;
 }
 
@@ -2483,6 +2483,14 @@ body {
   background: linear-gradient(180deg, #2a2a30, #141419);
   border-radius: 0 0 12px 12px;
   box-shadow: 0 10px 16px rgba(0, 0, 0, 0.5);
+}
+
+.mock-shot {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
 }
 
 .mock {

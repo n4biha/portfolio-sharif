@@ -7,7 +7,16 @@ import { motion } from "framer-motion";
   demoPreview.kind). A matcha sits beside it. Crossfades the screen on change.
 */
 function MockScreen({ preview }) {
-  const { title, tagline, accent, kind } = preview;
+  const { title, tagline, accent, kind, screenshot } = preview;
+
+  // real screenshot fills the laptop screen instead of the CSS mock
+  if (screenshot) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={screenshot} alt={`${title} preview`} className="mock-shot" />
+    );
+  }
+
   return (
     <div className="mock" style={{ "--mock-accent": accent }}>
       <div className="mock-topbar">

@@ -52,6 +52,36 @@ function Motif({ motif, ink, accent }) {
           ))}
         </svg>
       );
+    case "chart": // bar chart + upward trend arrow (market research / business)
+      return (
+        <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">
+          {/* axes */}
+          <path d="M18 12 V48 H84" {...s} stroke={ink} opacity="0.7" />
+          {/* bars rising left to right */}
+          {[[28,18],[42,26],[56,22],[70,34]].map(([x,h],i)=>(
+            <rect key={i} x={x} y={48-h} width="9" height={h} fill={accent} opacity={0.55+0.12*i} />
+          ))}
+          {/* upward trend line with arrowhead */}
+          <path d="M26 40 L46 30 L60 34 L80 18" {...s} stroke={ink} />
+          <path d="M80 18 L72 18 M80 18 L80 26" {...s} stroke={ink} />
+        </svg>
+      );
+    case "web": // a browser window with code brackets
+      return (
+        <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">
+          <rect x="22" y="12" width="56" height="36" rx="4" fill={accent} fillOpacity="0.16" stroke={accent} strokeWidth="2" />
+          <line x1="22" y1="23" x2="78" y2="23" {...s} stroke={accent} strokeWidth="2" />
+          <g fill={ink}>
+            <circle cx="28" cy="17.5" r="1.8" />
+            <circle cx="34" cy="17.5" r="1.8" />
+            <circle cx="40" cy="17.5" r="1.8" />
+          </g>
+          <g {...s} stroke={ink} strokeWidth="2.2">
+            <path d="M46 30 L40 36 L46 42" />
+            <path d="M54 30 L60 36 L54 42" />
+          </g>
+        </svg>
+      );
     case "moon": // crescent + stars
       return (
         <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">
