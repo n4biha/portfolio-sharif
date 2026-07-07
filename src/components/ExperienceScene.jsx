@@ -1,14 +1,26 @@
 "use client";
 
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ClimbingWall from "./ClimbingWall";
 import RouteBetaBoard from "./RouteBetaBoard";
 import ChalkMark, { ChalkDefs } from "./ChalkMark";
 import ExperienceMobile from "./ExperienceMobile";
 import { EXPERIENCES } from "@/lib/experiences";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useParallaxLayers } from "./ui/parallax-scrolling";
+
+// Same layered-drift as the Hero, tuned for the climbing wall. The interactive
+// holds stay put (they carry the zoom-pan on open); only the chalk title and
+// doodles ride separate planes, so they drift as this screen scrolls up toward
+// Projects. Exit mode → identity at rest, drift on the way out. Tunable.
+const PARALLAX_LAYERS = [
+  { layer: "exptitle", yPercent: -16 }, // chalk EXPERIENCE title — drifts up
+  { layer: "expdeco", yPercent: 22 },   // chalk doodles — lag down, a far plane
+];
 
 function ExperienceScene({ active = true, arrived = true }) {
+  const sceneRef = useRef(null);
+  useParallaxLayers(sceneRef, { layers: PARALLAX_LAYERS });
   const [selectedId, setSelectedId] = useState(null);
   const open = selectedId != null;
   const experience = open ? EXPERIENCES[selectedId] : null;
@@ -55,14 +67,14 @@ function ExperienceScene({ active = true, arrived = true }) {
   );
 
   return (
-    <div className={`climb-scene${open ? " is-open" : ""}${tracing ? " is-tracing" : ""}`}>
+    <div ref={sceneRef} className={`climb-scene${open ? " is-open" : ""}${tracing ? " is-tracing" : ""}`}>
       <ChalkDefs />
 
       <div className="climb-scene-wall">
         {wall}
 
         {/* chalk doodles drawn on the wall (text removed — drawings only) */}
-        <div className="wall-deco" aria-hidden="true">
+        <div data-parallax-layer="expdeco" className="wall-deco" aria-hidden="true">
           <ChalkMark type="arrowUp" size={52} className="deco deco-arrow1" strokeWidth={3.2} />
           <ChalkMark type="star" size={32} className="deco deco-star1" strokeWidth={3.2} />
           <ChalkMark type="check" size={38} className="deco deco-check1" strokeWidth={3.4} />
@@ -74,7 +86,7 @@ function ExperienceScene({ active = true, arrived = true }) {
 
       {/* page title, chalked bottom-left of the wall; fades out while a route is
           open so it doesn't clash with the Route Beta Board */}
-      <div className="wall-title-block">
+      <div data-parallax-layer="exptitle" className="wall-title-block">
         <svg
           className="wall-title-marker"
           viewBox="0 0 26 240"

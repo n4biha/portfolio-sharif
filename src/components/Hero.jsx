@@ -1,10 +1,11 @@
 "use client";
 
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import CutoutLetter from "./CutoutLetter";
 import IntroText from "./IntroText";
+import { useParallaxLayers } from "./ui/parallax-scrolling";
 import { armAudioUnlock, playPop } from "@/lib/sfx";
 // Static import lets next/image auto-detect the size and serve a
 // correctly-scaled version for each device (phone, tablet, desktop).
@@ -97,6 +98,19 @@ Interested in Product Management, Data Science, and AI/ML roles.
 
 Explore this website to learn more about me!`;
 
+// Scroll-parallax depth for the scrapbook. As the Hero screen glides up toward
+// Experience, the layers drift by different amounts — and in opposite directions —
+// so the composition visibly pulls apart into planes. Values are % of each layer's
+// own height (negative = up). name/paper are the two main planes; stars + contacts
+// nest inside the paper for extra depth. Tune these four numbers to taste.
+// (Driven by useParallaxLayers over the existing Lenis engine.)
+const PARALLAX_LAYERS = [
+  { layer: "name", yPercent: -18 },   // floats closest — drifts up, exits fast
+  { layer: "paper", yPercent: 22 },   // backdrop sheet — lags down like a far plane
+  { layer: "stars", yPercent: 16 },   // bottom-right accent — extra drift on the paper
+  { layer: "contacts", yPercent: -12 }, // left-edge badges — pull the opposite way
+];
+
 function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
   // Tape sequence stage: 0 = none placed, 1 = first (top-right) placed,
   // 2 = both placed.
@@ -114,6 +128,12 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
   const [introTextIn, setIntroTextIn] = useState(false);
   // Contact sticker-icons pop on last, under the torn paper.
   const [contactIn, setContactIn] = useState(false);
+
+  // Layered scroll-parallax on the scrapbook (see PARALLAX_LAYERS). Scrubs off
+  // the existing Lenis/ScrollTrigger engine as this screen scrolls out — no new
+  // Lenis instance, no interference with the locked section paging.
+  const heroRef = useRef(null);
+  useParallaxLayers(heroRef, { layers: PARALLAX_LAYERS });
 
   // No click-to-enter zoom anymore — the scrapbook reveal just plays on mount.
   // Signal "done" right away (shows the navbar + kicks off the reveal sequence
@@ -214,22 +234,27 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
 
   return (
     <section
+      ref={heroRef}
       id="home"
       // transform-gpu: own compositor layer so the page-glide moves a cached texture
       className="relative flex h-screen flex-col items-center justify-center overflow-hidden px-6 transform-gpu"
     >
       {/* Cut-out name — hidden until the photo pops, then the letters scatter in
-          one-by-one (staggered) and spring into their resting tilts. */}
-      <motion.div
-        variants={nameContainer}
-        initial="hidden"
-        animate={lettersIn ? "show" : "hidden"}
-        className="relative z-10 mt-2 flex flex-wrap items-center justify-center gap-2 sm:gap-6"
-      >
-        {letters.map((l, i) => (
-          <CutoutLetter key={i} {...l} />
-        ))}
-      </motion.div>
+          one-by-one (staggered) and spring into their resting tilts.
+          Wrapped in a plain parallax-layer div so GSAP can drift the whole name
+          on scroll without touching Framer Motion's transforms on the letters. */}
+      <div data-parallax-layer="name" className="relative z-10">
+        <motion.div
+          variants={nameContainer}
+          initial="hidden"
+          animate={lettersIn ? "show" : "hidden"}
+          className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:gap-6"
+        >
+          {letters.map((l, i) => (
+            <CutoutLetter key={i} {...l} />
+          ))}
+        </motion.div>
+      </div>
 
 
       {/* Torn-paper panel — once the zoom finishes it gets "placed" onto the
@@ -248,6 +273,7 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
           above it. Everything inside is positioned as a % of this box, so the
           photo / text / tapes scale together with the paper. */}
       <div
+        data-parallax-layer="paper"
         className="relative z-10 mx-auto mt-4 w-full max-w-5xl"
         style={{
           width: "min(64rem, 92vw, calc((100svh - 210px) * 1.69))",
@@ -362,35 +388,47 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
         </div>
 
         {/* Star stickers — pop on in the bottom-right corner of the paper (after
-            the name lands, before the typing) with a quick spring + a stuck tilt. */}
-        <motion.div
-          aria-hidden="true"
+            the name lands, before the typing) with a quick spring + a stuck tilt.
+            Plain parallax-layer wrapper carries the positioning so GSAP can drift
+            it independently without touching Framer's spring transform. */}
+        <div
+          data-parallax-layer="stars"
           className="pointer-events-none absolute left-[78%] top-[68%] z-30 w-[25%]"
-          initial={{ scale: 0, opacity: 0, rotate: -16 }}
-          animate={
-            starsIn
-              ? { scale: 1, opacity: 1, rotate: 7 }
-              : { scale: 0, opacity: 0, rotate: -16 }
-          }
-          transition={{ type: "spring", stiffness: 650, damping: 13, mass: 0.55 }}
         >
-          <Image
-            src={starsSticker}
-            alt=""
-            sizes="(max-width: 1024px) 20vw, 210px"
-            className="block h-auto w-full select-none"
-          />
-        </motion.div>
+          <motion.div
+            aria-hidden="true"
+            initial={{ scale: 0, opacity: 0, rotate: -16 }}
+            animate={
+              starsIn
+                ? { scale: 1, opacity: 1, rotate: 7 }
+                : { scale: 0, opacity: 0, rotate: -16 }
+            }
+            transition={{ type: "spring", stiffness: 650, damping: 13, mass: 0.55 }}
+          >
+            <Image
+              src={starsSticker}
+              alt=""
+              sizes="(max-width: 1024px) 20vw, 210px"
+              className="block h-auto w-full select-none"
+            />
+          </motion.div>
+        </div>
 
         {/* Contact sticker-icons — anchored to the torn paper (its wrapper is the
             centering reference), hanging just below it. Absolute so it doesn't
             change the paper's height / disturb its % layout. Bigger cream badges
             with a slight scrapbook tilt, spaced out, that pop in + lift on hover. */}
+        {/* Parallax wrapper owns GSAP's transform; the -50% vertical centering
+            lives on the inner div so the two transforms don't fight. */}
+        <div
+          data-parallax-layer="contacts"
+          className="absolute left-[2%] top-1/2 z-20"
+        >
         <motion.div
           variants={contactContainer}
           initial="hidden"
           animate={contactIn ? "show" : "hidden"}
-          className="absolute left-[2%] top-1/2 z-20 flex -translate-y-1/2 flex-col items-center justify-center gap-[clamp(13px,4.5cqw,44px)]"
+          className="flex -translate-y-1/2 flex-col items-center justify-center gap-[clamp(13px,4.5cqw,44px)]"
         >
           {CONTACTS.map((c) => (
             <motion.a
@@ -410,6 +448,7 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
             </motion.a>
           ))}
         </motion.div>
+        </div>
       </div>
     </section>
   );

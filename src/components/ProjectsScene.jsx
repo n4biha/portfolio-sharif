@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import RecordShelf from "./RecordShelf";
 import RecordPlayer from "./RecordPlayer";
 import LinerNotes from "./LinerNotes";
@@ -8,6 +8,16 @@ import LivePreview from "./LivePreview";
 import ProjectsMobile from "./ProjectsMobile";
 import { PROJECTS } from "@/lib/projects";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useParallaxLayers } from "./ui/parallax-scrolling";
+
+// Projects is the last screen — it only ever glides UP into view, never out the
+// top — so this uses "enter" mode: the title and turntable stage start slightly
+// offset and settle into place (identity at rest) as the screen rises in. Paired
+// with the start/end below so rest lands exactly at identity. Tunable.
+const PARALLAX_LAYERS = [
+  { layer: "projhead", yPercent: -20 },  // title drops into place from above
+  { layer: "projstage", yPercent: 16 },  // turntable stage rises up into place
+];
 
 /*
   "Projects on Repeat" — a cozy vintage listening room. Browse project albums on
@@ -35,9 +45,17 @@ function ProjectsScene({ active = true }) {
     }
   }, [shelf, selectedId]);
 
+  const roomRef = useRef(null);
+  useParallaxLayers(roomRef, {
+    layers: PARALLAX_LAYERS,
+    mode: "enter",
+    start: "top bottom",
+    end: "top top",
+  });
+
   return (
-    <div className="record-room">
-      <header className="record-room-head">
+    <div ref={roomRef} className="record-room">
+      <header data-parallax-layer="projhead" className="record-room-head">
         <h1 className="record-room-title hand">Projects on Repeat</h1>
         <p className="record-room-sub">
           Favorite builds, experiments, and ideas I keep coming back to.
@@ -52,7 +70,7 @@ function ProjectsScene({ active = true }) {
         onCategory={setCategory}
       />
 
-      <div className="record-stage">
+      <div data-parallax-layer="projstage" className="record-stage">
         <RecordPlayer project={selected} spinning={active} />
         <LinerNotes project={selected} />
         <LivePreview project={selected} />
