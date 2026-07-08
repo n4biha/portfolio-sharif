@@ -2467,6 +2467,18 @@ body {
   max-width: 360px;
 }
 
+/* small "not real data" disclaimer under the laptop (only shown for projects
+   whose demoPreview sets a `note`) */
+.live-note {
+  margin: 2px 0 0;
+  max-width: 360px;
+  text-align: center;
+  font-size: clamp(9px, 1.1vw, 11px);
+  font-style: italic;
+  line-height: 1.3;
+  color: rgba(243, 233, 207, 0.6);
+}
+
 .laptop-screen {
   background: #0e0e12;
   border: 6px solid #1c1c22;

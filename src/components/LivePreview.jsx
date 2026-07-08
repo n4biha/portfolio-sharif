@@ -92,6 +92,11 @@ export default function LivePreview({ project }) {
         <div className="laptop-base" />
       </div>
 
+      {/* small disclaimer under the laptop — only for projects that set one */}
+      {project.demoPreview.note && (
+        <p className="live-note">{project.demoPreview.note}</p>
+      )}
+
       {/* a little matcha on the desk */}
       <span className="matcha" aria-hidden="true">
         <span className="matcha-cup" />

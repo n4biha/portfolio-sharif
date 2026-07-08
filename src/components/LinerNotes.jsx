@@ -44,11 +44,13 @@ export default function LinerNotes({ project }) {
         <p className="liner-label">Technical Highlights</p>
         <p className="liner-text">{project.technicalHighlights}</p>
 
-        <div className="liner-buttons">
-          <a className="liner-btn liner-btn--primary" href={project.liveDemoUrl} target="_blank" rel="noreferrer">
-            {project.liveDemoLabel === "GitHub" ? "↗ GitHub" : "▶ Live Demo"}
-          </a>
-        </div>
+        {project.liveDemoUrl && (
+          <div className="liner-buttons">
+            <a className="liner-btn liner-btn--primary" href={project.liveDemoUrl} target="_blank" rel="noreferrer">
+              {project.liveDemoLabel === "GitHub" ? "↗ GitHub" : "▶ Live Demo"}
+            </a>
+          </div>
+        )}
       </motion.div>
     </div>
   );
