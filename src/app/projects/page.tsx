@@ -10,7 +10,8 @@ export const metadata: Metadata = {
 
 // The Projects page: just the polaroid gallery on one screen (no cover / scroll
 // reveal). The home page also shows this as the third paged screen; this route is
-// the standalone version for direct links and the other pages' nav.
+// the standalone version for direct links and the other pages' nav. The footer
+// band sits below the screen — scroll down to reveal it.
 export default function ProjectsPage() {
   return (
     <>

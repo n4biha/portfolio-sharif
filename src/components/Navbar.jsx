@@ -11,7 +11,6 @@ const links = [
   { id: "about", label: "About", href: "/#about" },
   { id: "experience", label: "Experience", href: "/experience" },
   { id: "projects", label: "Projects", href: "/projects" },
-  { id: "fun", label: "Fun Stuff", href: "/#fun" },
 ];
 
 // A neutral serif close to the mockup (kept separate from the display fonts)

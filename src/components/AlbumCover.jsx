@@ -147,7 +147,6 @@ export default function AlbumCover({ project, selected = false, onSelect }) {
 
       <span className="cover-meta">
         <span className="cover-title">{project.title}</span>
-        <span className="cover-cat">{project.category} · {project.year}</span>
       </span>
 
       {/* now-playing sticker on the selected album */}

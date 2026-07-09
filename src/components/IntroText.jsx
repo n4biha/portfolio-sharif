@@ -1,19 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { playTypeKey } from "@/lib/sfx";
 
 /*
-  Types `text` out one character at a time once `start` is true, with a blinking
-  "|" caret that disappears the moment the message finishes. Sentence ends and
-  line breaks get a slightly longer pause so it reads naturally. Honors
+  Turbo typewriter: types `text` out in small BURSTS of characters (rather than
+  one at a time) once `start` is true, with a blinking "|" caret that disappears
+  the moment the message finishes. Same personality as a per-letter typewriter —
+  caret and natural pauses at sentence ends and line breaks — but the whole
+  intro lands in ~2.5s instead of 12s+. Silent by design (no key clicks). Honors
   prefers-reduced-motion by showing the full text immediately (no caret).
 
-  Typing (and its key-click sound) halts when `stop` is true or the tab is hidden
-  — e.g. the visitor scrolls off to the experience section or leaves the site
-  mid-intro — and resumes where it left off if they come back.
+  Typing halts when `stop` is true or the tab is hidden — e.g. the visitor
+  scrolls off to the experience section or leaves the site mid-intro — and
+  resumes where it left off if they come back.
 */
-export default function IntroText({ text, start, speed = 25, stop = false, instant = false }) {
+const CHUNK = 3; // characters revealed per tick
+
+export default function IntroText({ text, start, speed = 18, stop = false, instant = false }) {
   // Starts empty and fills in as it types. (Starting at 0 is the whole point —
   // initialising to text.length would make it render "finished" and never run.)
   const [count, setCount] = useState(0);
@@ -36,19 +39,19 @@ export default function IntroText({ text, start, speed = 25, stop = false, insta
       return;
     }
     // Paused (left the intro / tab hidden) or finished → schedule nothing, so no
-    // further characters type and no more key clicks play. The cleanup below also
-    // cancels any already-pending keystroke, so the sound stops immediately.
+    // further characters type. The cleanup below also cancels any already-pending
+    // tick, so typing stops immediately.
     if (stop || hidden || count >= text.length) return;
-    // Natural pauses: longer after line breaks and sentence punctuation.
-    const justTyped = text[count - 1];
-    const delay =
-      justTyped === "\n" ? 220 : ".!?".includes(justTyped) ? 150 : speed;
+    // Natural pauses: if the last burst crossed a line break or sentence end,
+    // breathe a little before the next one (shorter than the per-letter delays).
+    const justTyped = text.slice(Math.max(0, count - CHUNK), count);
+    const delay = justTyped.includes("\n")
+      ? 120
+      : /[.!?]/.test(justTyped)
+        ? 80
+        : speed;
     const id = window.setTimeout(() => {
-      // Click for the character that's about to appear (text[count]); skip
-      // whitespace so spaces/newlines stay silent, like a real typewriter.
-      const nextChar = text[count];
-      if (nextChar && !/\s/.test(nextChar)) playTypeKey(count);
-      setCount((n) => n + 1);
+      setCount((n) => Math.min(n + CHUNK, text.length));
     }, delay);
     return () => window.clearTimeout(id);
   }, [start, stop, hidden, count, text, speed, instant]);

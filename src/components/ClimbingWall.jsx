@@ -5,18 +5,18 @@ import { ChalkDust } from "./ChalkMark";
 
 /*
   The climbing wall content: one bright-blue route weaving up the centre (each
-  hold = a future experience), a dotted blue trail joining the holds, and muted
+  hold = an experience), a dotted blue trail joining the holds, and muted
   holds scattered around so the wall feels like a real bouldering gym. Positions
   are in % so it scales with the viewport; sizes use clamp() via inline calc.
 */
 
-// The route — bottom "start" to top "future". x weaves around centre (50%).
+// The route — bottom "start" upward. x weaves around centre (50%). Spread to fill
+// the wall top-to-bottom so it doesn't sit low (more holds get added here later).
 const ROUTE = [
-  { id: "code-ninjas", x: 46, y: 85, size: 64, rot: -8 },
-  { id: "datastory", x: 58, y: 69, size: 60, rot: 7 },
-  { id: "behavioral", x: 44, y: 53, size: 66, rot: -5 },
-  { id: "pm-intern", x: 58, y: 37, size: 62, rot: 9 },
-  { id: "future", x: 49, y: 21, size: 56, rot: -6 },
+  { id: "code-ninjas", x: 46, y: 78, size: 64, rot: -8 },
+  { id: "datastory", x: 58, y: 60, size: 60, rot: 7 },
+  { id: "behavioral", x: 44, y: 42, size: 66, rot: -5 },
+  { id: "pm-intern", x: 58, y: 25, size: 62, rot: 9 },
 ];
 
 // Muted scattered holds — mostly off to the sides of the route for ambiance.

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { PROJECTS, CATEGORIES } from "@/lib/projects";
 import FieldIcon from "./FieldIcon";
+import SiteFooter from "./SiteFooter";
 
 /*
   Mobile Projects screen — keeps the "Projects on Repeat" vinyl vibe (deep green
@@ -111,15 +112,21 @@ export default function ProjectsMobile() {
           )}
 
           <div className="m-proj-btns">
-            <a className="m-btn m-btn--primary" href={selected.liveDemoUrl || "#"} target="_blank" rel="noopener noreferrer">
-              ▶ Demo
-            </a>
+            {selected.liveDemoUrl && (
+              <a className="m-btn m-btn--primary" href={selected.liveDemoUrl} target="_blank" rel="noopener noreferrer">
+                {selected.liveDemoLabel === "GitHub"
+                  ? "↗ GitHub"
+                  : `▶ ${selected.liveDemoLabel || "Demo"}`}
+              </a>
+            )}
             <a className="m-btn m-btn--ghost" href={selected.caseStudyUrl || "#"} target="_blank" rel="noopener noreferrer">
               Case Study
             </a>
           </div>
         </article>
       )}
+
+      <SiteFooter />
     </section>
   );
 }

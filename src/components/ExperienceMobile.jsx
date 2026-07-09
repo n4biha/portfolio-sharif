@@ -11,11 +11,8 @@ import { EXPERIENCES } from "@/lib/experiences";
   expands it to the full write-up. Data comes from the shared EXPERIENCES map.
 */
 
-// newest-first, with the aspirational "future" card last
-const ORDER = [
-  ...Object.keys(EXPERIENCES).filter((k) => k !== "future").reverse(),
-  ...(EXPERIENCES.future ? ["future"] : []),
-];
+// newest-first
+const ORDER = Object.keys(EXPERIENCES).reverse();
 
 export default function ExperienceMobile() {
   const [openId, setOpenId] = useState(null);

@@ -1,6 +1,6 @@
 /*
   The five route holds → experiences on the wall. `id` matches ROUTE in
-  ClimbingWall.jsx (bottom "start" to top "future"). Each entry drives the
+  ClimbingWall.jsx (bottom "start" upward). Each entry drives the
   editorial popup (RouteBetaBoard): an eyebrow index, the company title, a split
   role (name + tag), a metadata row (date · location · type), an ABOUT paragraph
   (clamped to 3 lines with an inline "Show more"), KEY CONTRIBUTIONS bullets, a
@@ -54,21 +54,20 @@ export const EXPERIENCES = {
   },
   behavioral: {
     index: "03",
-    company: "FitnessGram",
-    roleName: "Data Product Analyst",
-    roleTag: "Consultant",
+    company: "UC Berkeley - Data Science Education",
+    roleName: "Podcast Operations Manager",
+    roleTag: "",
     grade: "5.10a",
-    date: "March 2025 – Present",
+    date: "Feb 2025 – Present",
     location: "Berkeley, CA",
-    employmentType: "Contract",
+    employmentType: "Work-Study",
     about:
-      "Designed and ran behavioral studies, then analyzed the results to understand how people actually make decisions. I owned pieces of study design end-to-end, from framing the question through collecting data and running the statistics behind the findings.",
+      "The Data Science Education Podcast is a UC The Data Science Education Podcast is a Berkeley Computing, Data Science, and Society project focused on making data science education more accessible to all. I manage episode production and operations by coordinating with guests, planning interviews, co-hosting conversations, editing episodes, and preparing launches across our media platforms. This role has strengthened my project management, organization, audience awareness, and content judgment. It has taught me how to shape interview flow and design clear, engaging episodes for viewers. On a personal level, the role has also pushed me out of my comfort zone. As someone who used to feel nervous initiating conversations and speaking with new people, this role gave me a new lens on professional growth. I’ve had the chance to meet guests from different backgrounds, hear new perspectives, and build confidence in conversations that I’ll carry with me throughout my career.",
     contributions: [
-      "Designed and ran behavioral studies",
-      "Analyzed results to surface decision patterns",
-      "Owned study design from question to analysis",
+      "Shipped 10 complete episodes to a 3.1K+ subscriber and follower audience, helping drive 80K+ cumulative views and plays across Substack and Spotify.",
+      "Managed guest communication, interview planning, co-hosting, editing, and release execution while working with professors, students, program directors, researchers, and industry guests.",
     ],
-    skills: ["R", "Study Design", "Statistics", "Analysis"],
+    skills: ["Project Management", "Episode Production", "Content Strategy", "Audience Awareness", "Adobe Premiere Pro"],
     highlight: {
       photo: null,
       caption: "Running behavioral studies in the Cognitive Science lab.",
@@ -77,45 +76,22 @@ export const EXPERIENCES = {
   "pm-intern": {
     index: "04",
     company: "Dabble Health",
-    roleName: "Product Manager",
+    roleName: "Product Management & Data",
     roleTag: "Intern",
     grade: "5.10c",
-    date: "May 2026 – Present",
-    location: "Healthcare Tech",
+    date: "May 2026 – August 2026",
+    location: "",
     employmentType: "Internship",
     about:
-      "Partnered with cross-functional teams to identify user needs, define product requirements, and ship features that improve engagement and outcomes. I learned firsthand how data influences product decisions, working across design, engineering, and stakeholders to move ideas from research to launch.",
+      "Dabble Health is an early-stage digital health startup building MindClear, a cognitive health app for women in menopause. As a Product Management Intern, I helped build the product from the ground up. Our team recruited 80+ women through Meta ads and onboarded them into a 4-week product study. I conducted 20+ onboarding interviews to understand users' cognitive symptoms, routines, frustrations, and unmet needs. This was my first internship after starting college, and it showed me how impactful product work can be when it moves beyond planning and into real users’ hands. I worked closely with the CEO, engineering, and clinical teams, and it was exciting to see my work directly shape parts of the app that women are using today. I grew my technical skills, but more importantly, I learned how user research, design, data, and product decisions come together to build something useful.",
     contributions: [
-      "Defined product requirements from user research",
-      "Shipped features that improved engagement",
-      "Drove decisions with product analytics",
+      "Personally conducted 20+ user onboarding interviews to uncover pain points, validate assumptions, and guide feature development",
+      "Within my team, I served as Product Lead, where I helped design the coordinator dashboard and used user experiences, feedback, and data to guide the next round of features after the trial period."
     ],
-    skills: ["User Research", "Product Strategy", "Roadmapping", "SQL", "Analytics"],
+   skills: ["Product Strategy","User Research","Product Analytics","Dashboard Design","Feature Development","Cross-functional Collaboration","Data Analysis"],
     highlight: {
       photo: null,
       caption: "Shipping product features with a cross-functional team.",
-    },
-  },
-  future: {
-    index: "05",
-    company: "Next Summit",
-    roleName: "Future Goals",
-    roleTag: "Onward",
-    grade: "5.12",
-    date: "2025 →",
-    location: "Data + Product",
-    employmentType: null,
-    about:
-      "Data + product roles where I can build things people genuinely love. The route keeps going up, and that's the fun part — I'm excited for the next crux and everything I'll learn climbing toward it.",
-    contributions: [
-      "Build data + product experiences people love",
-      "Keep learning across data science and ML",
-      "Ship work that genuinely helps people",
-    ],
-    skills: ["Data Science", "AI / ML", "Product", "Storytelling"],
-    highlight: {
-      photo: null,
-      caption: "Chasing the next summit in data and product.",
     },
   },
 };

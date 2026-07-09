@@ -61,6 +61,7 @@ export const PROJECTS = [
       screenshot: "/images/marketmap-preview.png",
     },
     liveDemoUrl: "https://www.youtube.com/watch?v=nNAQZ_gS6GI",
+    liveDemoLabel: "Video Demo",
     caseStudyUrl: "#",
   },
   {
@@ -72,17 +73,19 @@ export const PROJECTS = [
     coverImage: null,
     coverStyle: { bg: "#234032", ink: "#eef6ec", accent: "#7fc98a", motif: "web" },
     linerNotes:
-      "My personal portfolio — a vintage, record-room take on a developer site, built with Next.js and React with smooth scroll-driven storytelling and playful motion throughout.",
+      "My creative take on a personal portfolio, built around the things I love. The About page is a scrapbook I'm piecing together about myself; since I'm a rock climber, you climb up the wall to explore my experiences; and because I love music, my projects live in a record room you can browse and play.",
     tools: ["Next.js", "React", "TypeScript", "Framer Motion", "GSAP", "Lenis", "Tailwind CSS"],
     technicalHighlights:
-      "Scroll-driven single-page flow with GSAP + Lenis smooth scrolling, section-aware navigation, Framer Motion micro-interactions, and a fully interactive record-room projects scene driven from a single typed data file.",
+      "Designed and built end to end in Next.js (App Router), React, and TypeScript, styled entirely with Tailwind CSS. I designed the full visual system myself, from the scrapbook and record-room scenes to the CSS-drawn art and album covers, plus a responsive layout with its own mobile experience. Motion comes from Framer Motion and GSAP with Lenis smooth scrolling, and the projects and experience sections are driven from typed data files.",
     demoPreview: {
       title: "Nabiha",
       tagline: "Projects on repeat.",
       accent: "#7fc98a",
       kind: "site",
+      screenshot: "/images/portfolio-preview.svg",
     },
-    liveDemoUrl: "#",
+    liveDemoUrl: "https://github.com/n4biha/portfolio-sharif",
+    liveDemoLabel: "GitHub",
     caseStudyUrl: "#",
   },
   {
@@ -108,28 +111,6 @@ export const PROJECTS = [
       note: "Not real data, just a project reference.",
     },
     liveDemoUrl: null,
-    caseStudyUrl: "#",
-  },
-  {
-    id: "between-pages",
-    title: "Between Pages",
-    subtitle: "Reading Tracker",
-    category: "Research",
-    year: "2023",
-    coverImage: null,
-    coverStyle: { bg: "#3a2230", ink: "#fce9f0", accent: "#f29bb5", motif: "book" },
-    linerNotes:
-      "A cozy reading companion: log books, track streaks, and surface gentle stats about what you actually finish vs. what's been on the nightstand for a year.",
-    tools: ["React", "Vite", "IndexedDB", "D3.js"],
-    technicalHighlights:
-      "The year-in-reading wrap-up that feels like a little mixtape of your shelf.",
-    demoPreview: {
-      title: "Between Pages",
-      tagline: "Keep your place, keep the habit.",
-      accent: "#f29bb5",
-      kind: "app",
-    },
-    liveDemoUrl: "#",
     caseStudyUrl: "#",
   },
 ];

@@ -60,8 +60,8 @@ function HomeDesktop() {
   // when a reload lands us on a non-About screen, keep Hero's intro silent + static
   const [silentIntro, setSilentIntro] = useState(false);
 
-  // "Experience" → screen 1, "Projects" → screen 2, "About"/"Fun"/wordmark →
-  // screen 0. (Projects lives on this page now, so no route change.)
+  // "Experience" → screen 1, "Projects" → screen 2, "About"/wordmark → screen 0.
+  // (Projects lives on this page now, so no route change.)
   const handleNav = (id) => {
     const target = id === "experience" ? 1 : id === "projects" ? 2 : 0;
     goToRef.current?.(target);
