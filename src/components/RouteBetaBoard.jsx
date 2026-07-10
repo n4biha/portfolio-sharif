@@ -27,6 +27,28 @@ function MetaIcon({ type }) {
 
 // HIGHLIGHTS snapshot — a rounded photo integrated into the card, with a caption.
 // Falls back to a clean placeholder until a real photo path is supplied.
+// One highlight photo, held invisible until loaded + decoded, then faded in.
+// Prevents any half-drawn paint of a photo arriving over the network.
+// `focus` overrides the default centered crop (object-position) so a photo
+// whose subject sits off-centre isn't clipped at a face.
+function HighlightImg({ src, alt, focus }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={`beta-highlight-img${loaded ? " is-loaded" : ""}`}
+      decoding="async"
+      onLoad={() => setLoaded(true)}
+      // cached images can be complete before onLoad wires up — catch those too
+      ref={(el) => {
+        if (el?.complete && el.naturalWidth > 0) setLoaded(true);
+      }}
+      style={focus ? { objectPosition: focus } : undefined}
+    />
+  );
+}
+
 function Highlight({ photo, photos, caption, focus }) {
   // accept a single `photo` or a `photos` array (rendered side-by-side)
   const list = photos?.length ? photos : photo ? [photo] : [];
@@ -35,17 +57,12 @@ function Highlight({ photo, photos, caption, focus }) {
     <figure className="beta-highlight">
       {list.length ? (
         <div className={`beta-highlight-photos${multi ? " is-multi" : ""}`}>
-          {list.map((src, i) => (
-            <div className="beta-highlight-frame" key={i}>
-              {/* `focus` overrides the default centered crop (object-position) so
-                  a photo whose subject sits off-centre isn't clipped at a face */}
-              <img
-                src={src}
-                alt={caption || ""}
-                className="beta-highlight-img"
-                decoding="async"
-                style={focus ? { objectPosition: focus } : undefined}
-              />
+          {list.map((src) => (
+            // keyed by src (not index) so switching rocks mounts a FRESH <img> —
+            // a reused node would keep painting the previous rock's photo until
+            // the new file decodes (the stale-image flash between popups).
+            <div className="beta-highlight-frame" key={src}>
+              <HighlightImg src={src} alt={caption || ""} focus={focus} />
             </div>
           ))}
         </div>
