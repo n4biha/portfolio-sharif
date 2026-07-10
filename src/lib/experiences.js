@@ -1,6 +1,6 @@
 /*
   The five route holds → experiences on the wall. `id` matches ROUTE in
-  ClimbingWall.jsx (bottom "start" upward). Each entry drives the
+  ClimbingWall.jsx (bottom "start" to top "future"). Each entry drives the
   editorial popup (RouteBetaBoard): an eyebrow index, the company title, a split
   role (name + tag), a metadata row (date · location · type), an ABOUT paragraph
   (clamped to 3 lines with an inline "Show more"), KEY CONTRIBUTIONS bullets, a
@@ -27,7 +27,10 @@ export const EXPERIENCES = {
     ],
     skills: ["JavaScript", "Lua", "C#", "Teaching", "Game Logic", "Mentorship", "Design"],
     highlight: {
-      photos: ["/images/code-ninjas-1.jpg", "/images/code-ninjas-2.jpg"],
+      photos: ["/images/code-ninjas-1.jpg"],
+      // pan the crop down so the lower kid's face isn't clipped and the circuit
+      // board they're holding stays the focus (tune the % if needed)
+      focus: "center 70%",
       caption: "Teaching a junior circuitry camp for kids ages 4-7 yrs old!",
     },
   },
@@ -62,8 +65,8 @@ export const EXPERIENCES = {
     location: "Berkeley, CA",
     employmentType: "Work-Study",
     about:
-      "The Data Science Education Podcast is a UC The Data Science Education Podcast is a Berkeley Computing, Data Science, and Society project focused on making data science education more accessible to all. I manage episode production and operations by coordinating with guests, planning interviews, co-hosting conversations, editing episodes, and preparing launches across our media platforms. This role has strengthened my project management, organization, audience awareness, and content judgment. It has taught me how to shape interview flow and design clear, engaging episodes for viewers. On a personal level, the role has also pushed me out of my comfort zone. As someone who used to feel nervous initiating conversations and speaking with new people, this role gave me a new lens on professional growth. I’ve had the chance to meet guests from different backgrounds, hear new perspectives, and build confidence in conversations that I’ll carry with me throughout my career.",
-    contributions: [
+      "The Data Science Education Podcast is a Berkeley Computing, Data Science, and Society project focused on making data science education more accessible to all. I manage episode production and operations by coordinating with guests, planning interviews, co-hosting conversations, editing episodes, and preparing launches across our media platforms. This role has strengthened my project management, organization, audience awareness, and content judgment. It has taught me how to shape interview flow and design clear, engaging episodes for viewers. On a personal level, it has also pushed me out of my comfort zone. As someone who used to feel nervous initiating conversations and speaking with new people, this role gave me a new lens on professional growth. I’ve had the chance to meet guests from different backgrounds, hear new perspectives, and build confidence in conversations that I’ll carry with me throughout my career.",
+      contributions: [
       "Shipped 10 complete episodes to a 3.1K+ subscriber and follower audience, helping drive 80K+ cumulative views and plays across Substack and Spotify.",
       "Managed guest communication, interview planning, co-hosting, editing, and release execution while working with professors, students, program directors, researchers, and industry guests.",
     ],
@@ -92,6 +95,28 @@ export const EXPERIENCES = {
     highlight: {
       photo: null,
       caption: "Shipping product features with a cross-functional team.",
+    },
+  },
+  future: {
+    index: "05",
+    company: "Next Summit",
+    roleName: "Future Goals",
+    roleTag: "Onward",
+    grade: "5.12",
+    date: "2025 →",
+    location: "Data + Product",
+    employmentType: null,
+    about:
+      "Data + product roles where I can build things people genuinely love. The route keeps going up, and that's the fun part — I'm excited for the next crux and everything I'll learn climbing toward it.",
+    contributions: [
+      "Build data + product experiences people love",
+      "Keep learning across data science and ML",
+      "Ship work that genuinely helps people",
+    ],
+    skills: ["Data Science", "AI / ML", "Product", "Storytelling"],
+    highlight: {
+      photo: null,
+      caption: "Chasing the next summit in data and product.",
     },
   },
 };

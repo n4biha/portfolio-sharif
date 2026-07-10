@@ -27,7 +27,7 @@ function MetaIcon({ type }) {
 
 // HIGHLIGHTS snapshot — a rounded photo integrated into the card, with a caption.
 // Falls back to a clean placeholder until a real photo path is supplied.
-function Highlight({ photo, photos, caption }) {
+function Highlight({ photo, photos, caption, focus }) {
   // accept a single `photo` or a `photos` array (rendered side-by-side)
   const list = photos?.length ? photos : photo ? [photo] : [];
   const multi = list.length > 1;
@@ -37,7 +37,14 @@ function Highlight({ photo, photos, caption }) {
         <div className={`beta-highlight-photos${multi ? " is-multi" : ""}`}>
           {list.map((src, i) => (
             <div className="beta-highlight-frame" key={i}>
-              <img src={src} alt={caption || ""} className="beta-highlight-img" />
+              {/* `focus` overrides the default centered crop (object-position) so
+                  a photo whose subject sits off-centre isn't clipped at a face */}
+              <img
+                src={src}
+                alt={caption || ""}
+                className="beta-highlight-img"
+                style={focus ? { objectPosition: focus } : undefined}
+              />
             </div>
           ))}
         </div>
@@ -131,7 +138,7 @@ export default function RouteBetaBoard({ experience, onClose }) {
 
             <section className="beta-section">
               <p className="beta-section-label">Highlights</p>
-              <Highlight photo={exp.highlight?.photo} photos={exp.highlight?.photos} caption={exp.highlight?.caption} />
+              <Highlight photo={exp.highlight?.photo} photos={exp.highlight?.photos} caption={exp.highlight?.caption} focus={exp.highlight?.focus} />
             </section>
           </div>
 
