@@ -1,20 +1,40 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 
 /*
   Lower-right laptop showing a CSS mock of the selected project's UI (keyed off
   demoPreview.kind). A matcha sits beside it. Crossfades the screen on change.
 */
+
+// Real screenshot on the laptop screen. Held at opacity 0 until the file has
+// actually loaded + decoded, then faded in — so a cold first visit never shows
+// the image popping in half-drawn (the source of the choppy first paint).
+function Shot({ src, alt }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      className={`mock-shot${loaded ? " is-loaded" : ""}`}
+      decoding="async"
+      onLoad={() => setLoaded(true)}
+      // cached images can be complete before onLoad wires up — catch those too
+      ref={(el) => {
+        if (el?.complete && el.naturalWidth > 0) setLoaded(true);
+      }}
+    />
+  );
+}
+
 function MockScreen({ preview }) {
   const { title, tagline, accent, kind, screenshot } = preview;
 
   // real screenshot fills the laptop screen instead of the CSS mock
   if (screenshot) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={screenshot} alt={`${title} preview`} className="mock-shot" />
-    );
+    return <Shot src={screenshot} alt={`${title} preview`} />;
   }
 
   return (

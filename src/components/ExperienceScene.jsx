@@ -21,6 +21,19 @@ const PARALLAX_LAYERS = [
 function ExperienceScene({ active = true, arrived = true }) {
   const sceneRef = useRef(null);
   useParallaxLayers(sceneRef, { layers: PARALLAX_LAYERS });
+
+  // Warm every route's highlight photo into the browser cache on mount, so
+  // opening a rock (or hopping between rocks) never fetches + decodes a photo
+  // mid-animation — that on-demand load was visible jank on the deployed site.
+  useEffect(() => {
+    Object.values(EXPERIENCES).forEach((exp) => {
+      const list = exp.highlight?.photos ?? (exp.highlight?.photo ? [exp.highlight.photo] : []);
+      list.forEach((src) => {
+        const img = new Image();
+        img.src = src;
+      });
+    });
+  }, []);
   const [selectedId, setSelectedId] = useState(null);
   const open = selectedId != null;
   const experience = open ? EXPERIENCES[selectedId] : null;

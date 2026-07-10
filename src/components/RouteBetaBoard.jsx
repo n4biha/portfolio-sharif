@@ -43,6 +43,7 @@ function Highlight({ photo, photos, caption, focus }) {
                 src={src}
                 alt={caption || ""}
                 className="beta-highlight-img"
+                decoding="async"
                 style={focus ? { objectPosition: focus } : undefined}
               />
             </div>

@@ -33,6 +33,7 @@ export default function SiteFooter() {
   return (
     <footer className="site-footer">
       <span className="site-footer-name">© 2026 Nabiha Sharif</span>
+
       <span className="site-footer-links">
         {LINKS.map((l) => (
           <a
@@ -40,7 +41,9 @@ export default function SiteFooter() {
             href={l.href}
             aria-label={l.label}
             className="site-footer-link"
-            {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            {...(l.external
+              ? { target: "_blank", rel: "noopener noreferrer" }
+              : {})}
           >
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d={l.iconPath} />

@@ -54,6 +54,17 @@ function ProjectsScene({ active = true }) {
     end: "top top",
   });
 
+  // Warm every album's laptop screenshot into the browser cache on mount, so
+  // switching records swaps the preview instantly instead of fetching on demand.
+  useEffect(() => {
+    PROJECTS.forEach((p) => {
+      if (p.demoPreview?.screenshot) {
+        const img = new Image();
+        img.src = p.demoPreview.screenshot;
+      }
+    });
+  }, []);
+
   return (
     <div ref={roomRef} className="record-room">
       <header data-parallax-layer="projhead" className="record-room-head">

@@ -1704,12 +1704,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: clamp(8px, 1.4vh, 18px);
-
-  padding:
-    clamp(76px, 11vh, 112px)
-    clamp(18px, 4vw, 56px)
-    clamp(110px, 14vh, 160px);
-
+  padding: clamp(76px, 11vh, 112px) clamp(18px, 4vw, 56px) clamp(28px, 4.5vh, 52px);
   overflow-y: auto;
   color: #f3e9cf;
 }
@@ -2575,6 +2570,14 @@ body {
   height: 100%;
   object-fit: cover;
   object-position: top center;
+  /* hidden until fully loaded + decoded, then eased in (see Shot in
+     LivePreview) — prevents the half-drawn pop-in on a cold first visit */
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.mock-shot.is-loaded {
+  opacity: 1;
 }
 
 .mock {
