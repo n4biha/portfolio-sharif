@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import ProjectsScene from "@/components/ProjectsScene";
+import CursorTrail from "@/components/CursorTrail";
 
 export const metadata: Metadata = {
   title: "Projects — A Wall of Snapshots",
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 export default function ProjectsPage() {
   return (
     <>
+      <CursorTrail variant="motes" />
       <Navbar theme="dark" active="projects" />
       <main className="projects-section">
         <ProjectsScene />

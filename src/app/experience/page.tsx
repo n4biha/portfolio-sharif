@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import ExperienceScene from "@/components/ExperienceScene";
+import CursorTrail from "@/components/CursorTrail";
 
 export const metadata: Metadata = {
   title: "Experience — Climb My Journey",
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default function ExperiencePage() {
   return (
     <>
+      <CursorTrail variant="chalk" />
       <Navbar theme="dark" active="experience" />
       <main className="climb-wall relative min-h-screen w-full overflow-hidden">
         <ExperienceScene />

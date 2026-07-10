@@ -9,6 +9,7 @@ import Navbar from "./Navbar";
 import Hero from "./Hero";
 import ExperienceScene from "./ExperienceScene";
 import ProjectsScene from "./ProjectsScene";
+import CursorTrail from "./CursorTrail";
 import HomeMobile from "./HomeMobile";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
@@ -235,6 +236,12 @@ function HomeDesktop() {
 
   return (
     <div className="home-flow">
+      {/* scene-themed cursor trail: muted confetti on the scrapbook, chalk dust
+          on the wall, lamplight motes in the record room (follows the section
+          you're on / heading to; in-flight particles finish out naturally) */}
+      <CursorTrail
+        variant={section === 1 ? "chalk" : section === 2 ? "motes" : "confetti"}
+      />
       <Navbar
         fixed
         theme={onWall || section === 2 ? "dark" : "light"}
