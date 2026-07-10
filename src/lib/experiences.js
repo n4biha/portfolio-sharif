@@ -61,7 +61,7 @@ export const EXPERIENCES = {
     roleName: "Podcast Operations Manager",
     roleTag: "",
     grade: "5.10a",
-    date: "Feb 2025 – Present",
+    date: "Feb 2026 – Present",
     location: "Berkeley, CA",
     employmentType: "Work-Study",
     about:
