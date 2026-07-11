@@ -34,6 +34,7 @@ export const PROJECTS = [
       tagline: "Screen early. Understand the risk.",
       accent: "#4da6ff",
       kind: "dashboard",
+      screenshot: "/images/neurotrace-preview.png",
     },
     liveDemoUrl: "https://github.com/n4biha/parkinsons_model",
     liveDemoLabel: "GitHub",
