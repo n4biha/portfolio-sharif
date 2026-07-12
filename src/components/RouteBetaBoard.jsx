@@ -29,9 +29,10 @@ function MetaIcon({ type }) {
 // Falls back to a clean placeholder until a real photo path is supplied.
 // One highlight photo, held invisible until loaded + decoded, then faded in.
 // Prevents any half-drawn paint of a photo arriving over the network.
-// `focus` overrides the default centered crop (object-position) so a photo
-// whose subject sits off-centre isn't clipped at a face.
-function HighlightImg({ src, alt, focus }) {
+// `focus` overrides the default centered crop (object-position). `fit` switches
+// object-fit (e.g. "contain" so a square logo shows fully instead of cropping);
+// pair it with a matching frame `bg` so the letterbox bars blend in.
+function HighlightImg({ src, alt, focus, fit }) {
   const [loaded, setLoaded] = useState(false);
   return (
     <img
@@ -44,12 +45,15 @@ function HighlightImg({ src, alt, focus }) {
       ref={(el) => {
         if (el?.complete && el.naturalWidth > 0) setLoaded(true);
       }}
-      style={focus ? { objectPosition: focus } : undefined}
+      style={{
+        ...(focus ? { objectPosition: focus } : {}),
+        ...(fit ? { objectFit: fit } : {}),
+      }}
     />
   );
 }
 
-function Highlight({ photo, photos, caption, focus }) {
+function Highlight({ photo, photos, caption, focus, fit, bg }) {
   // accept a single `photo` or a `photos` array (rendered side-by-side)
   const list = photos?.length ? photos : photo ? [photo] : [];
   const multi = list.length > 1;
@@ -61,8 +65,12 @@ function Highlight({ photo, photos, caption, focus }) {
             // keyed by src (not index) so switching rocks mounts a FRESH <img> —
             // a reused node would keep painting the previous rock's photo until
             // the new file decodes (the stale-image flash between popups).
-            <div className="beta-highlight-frame" key={src}>
-              <HighlightImg src={src} alt={caption || ""} focus={focus} />
+            <div
+              className="beta-highlight-frame"
+              key={src}
+              style={bg ? { background: bg } : undefined}
+            >
+              <HighlightImg src={src} alt={caption || ""} focus={focus} fit={fit} />
             </div>
           ))}
         </div>
@@ -156,7 +164,7 @@ export default function RouteBetaBoard({ experience, onClose }) {
 
             <section className="beta-section">
               <p className="beta-section-label">Highlights</p>
-              <Highlight photo={exp.highlight?.photo} photos={exp.highlight?.photos} caption={exp.highlight?.caption} focus={exp.highlight?.focus} />
+              <Highlight photo={exp.highlight?.photo} photos={exp.highlight?.photos} caption={exp.highlight?.caption} focus={exp.highlight?.focus} fit={exp.highlight?.fit} bg={exp.highlight?.bg} />
             </section>
           </div>
 

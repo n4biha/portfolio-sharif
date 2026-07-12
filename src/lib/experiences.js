@@ -72,8 +72,11 @@ export const EXPERIENCES = {
     ],
     skills: ["Project Management", "Episode Production", "Content Strategy", "Audience Awareness", "Adobe Premiere Pro"],
     highlight: {
-      photo: null,
-      caption: "Running behavioral studies in the Cognitive Science lab.",
+      photo: "/images/podcast-thumbnail.png",
+      // square logo → show it whole (no crop) on a matching navy so the sides blend
+      fit: "contain",
+      bg: "#002676",
+      caption: "Cover art for the Data Science Education Podcast.",
     },
   },
   "pm-intern": {
@@ -93,8 +96,11 @@ export const EXPERIENCES = {
     ],
    skills: ["Product Strategy","User Research","Product Analytics","Dashboard Design","Feature Development","Cross-functional Collaboration","Data Analysis"],
     highlight: {
-      photo: null,
-      caption: "Shipping product features with a cross-functional team.",
+      photo: "/images/dabblehealth_logo.png",
+      // wide logo on white → show it whole (no crop) on a matching white bg
+      fit: "contain",
+      bg: "#ffffff",
+      caption: null,
     },
   },
   future: {
