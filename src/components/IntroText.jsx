@@ -7,8 +7,8 @@ import { useEffect, useState } from "react";
   one at a time) once `start` is true, with a blinking "|" caret that disappears
   the moment the message finishes. Same personality as a per-letter typewriter —
   caret and natural pauses at sentence ends and line breaks — but the whole
-  intro lands in ~2.5s instead of 12s+. Silent by design (no key clicks). Honors
-  prefers-reduced-motion by showing the full text immediately (no caret).
+  intro lands in ~2.5s instead of 12s+. Honors prefers-reduced-motion by showing
+  the full text immediately (no caret).
 
   Typing halts when `stop` is true or the tab is hidden — e.g. the visitor
   scrolls off to the experience section or leaves the site mid-intro — and
@@ -32,8 +32,8 @@ export default function IntroText({ text, start, speed = 18, stop = false, insta
 
   useEffect(() => {
     if (!start) return;
-    // instant: show the whole message at once with no typing + no sound (used when
-    // the page is reloaded straight onto another section, so About stays silent).
+    // instant: show the whole message at once with no typing (used when the page
+    // is reloaded straight onto another section).
     if (instant || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setCount(text.length);
       return;

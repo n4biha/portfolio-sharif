@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import CutoutLetter from "./CutoutLetter";
 import IntroText from "./IntroText";
 import { useParallaxLayers } from "./ui/parallax-scrolling";
-import { armAudioUnlock, playPop } from "@/lib/sfx";
 // Static import lets next/image auto-detect the size and serve a
 // correctly-scaled version for each device (phone, tablet, desktop).
 import pageRipOut from "../../public/images/page-rip-out.png";
@@ -136,28 +135,20 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
   useParallaxLayers(heroRef, { layers: PARALLAX_LAYERS });
 
   // No click-to-enter zoom anymore — the scrapbook reveal just plays on mount.
-  // Signal "done" right away (shows the navbar + kicks off the reveal sequence
-  // below), and unlock audio on the visitor's first interaction so the intro
-  // sounds can play once the browser allows it.
+  // Signal "done" right away so the navbar appears and the reveal sequence starts.
   useEffect(() => {
     onIntroDone?.();
-    // Unlock audio on the visitor's first interaction of ANY kind (move, scroll,
-    // key, touch — not just a click) so the intro sounds can play without them
-    // having to click anything.
-    return armAudioUnlock();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sound + reveal sequence, kicked off when the intro finishes. The paper is
-  // gliding in right now, so play its rustle immediately; then, once the paper
-  // has fully settled, the tapes go on one-by-one (each with a "shh") and the
-  // photo pops on (with a "pop"). Audio was unlocked by the intro click.
+  // Reveal sequence, kicked off when the intro finishes. Once the paper has
+  // fully settled, the tapes go on one-by-one and the photo pops into place.
   useEffect(() => {
     if (!introDone || typeof window === "undefined") return;
 
     // Reloaded straight onto another section (experience/projects): show the whole
-    // scrapbook in its final state with NO timed reveal and NO audio, so About
-    // doesn't animate/play offscreen.
+    // scrapbook in its final state with no timed reveal, so About doesn't
+    // animate offscreen.
     if (!play) {
       setTapeStage(2);
       setPhotoIn(true);
@@ -169,7 +160,7 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
       return;
     }
 
-    // Reduced motion: show both tapes + photo + text immediately, no sound.
+    // Reduced motion: show both tapes + photo + text immediately.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setTapeStage(2);
       setPhotoIn(true);
@@ -192,21 +183,17 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
     // ms after the second tape starts to when the photo pops on (after it sets).
     const PHOTO_AT = SECOND_AT + 900;
 
-    // The torn paper glides in silently now (no paper sound) — the tapes and
-    // the typing tick handle the audio from here.
-
     const startSequence = () => {
-      // Tape 1 (top-right) goes on — silently now (no tape sound).
+      // Tape 1 (top-right) goes on.
       setTapeStage(1);
 
       // Tape 2 (bottom-left) goes on after the first has settled.
       timers.push(window.setTimeout(() => setTapeStage(2), SECOND_AT));
 
-      // The photo pops onto the paper, with a quick pop.
+      // The photo pops onto the paper.
       timers.push(
         window.setTimeout(() => {
           setPhotoIn(true);
-          playPop();
         }, PHOTO_AT)
       );
 

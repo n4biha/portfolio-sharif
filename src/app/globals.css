@@ -377,7 +377,7 @@ html[data-site-loading="true"] body {
     transform: scale(0.5) rotate(-9deg);
   }
 
-  /* visible + peak early so it lands on the "pop" sound */
+  /* Become visible early, then settle from a playful overshoot. */
   32% {
     opacity: 1;
     transform: scale(1.1) rotate(2deg);
@@ -390,8 +390,7 @@ html[data-site-loading="true"] body {
 }
 
 .photo-pop {
-  /* start time is controlled in JS (added once the tapes are on); kept short
-     so the visual pop coincides with the "pop" sound */
+  /* Start time is controlled in JS once the tapes are in place. */
   animation: photo-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   transform-origin: center;
   will-change: transform, opacity;
@@ -1841,7 +1840,6 @@ html[data-site-loading="true"] body {
   line-height: 1.05;
   letter-spacing: 0.01em;
   color: #e6c878;
-  transform: rotate(-1.5deg);
   text-shadow: 0 2px 18px rgba(255, 200, 110, 0.35);
 }
 
