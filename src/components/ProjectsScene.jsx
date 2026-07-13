@@ -6,7 +6,6 @@ import RecordPlayer from "./RecordPlayer";
 import LinerNotes from "./LinerNotes";
 import LivePreview from "./LivePreview";
 import ProjectsMobile from "./ProjectsMobile";
-import SiteFooter from "./SiteFooter";
 import { PROJECTS } from "@/lib/projects";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useParallaxLayers } from "./ui/parallax-scrolling";
@@ -87,9 +86,6 @@ function ProjectsScene({ active = true }) {
         <LinerNotes project={selected} />
         <LivePreview project={selected} />
       </div>
-
-      {/* quiet sign-off at the bottom of the room */}
-      <SiteFooter />
     </div>
   );
 }

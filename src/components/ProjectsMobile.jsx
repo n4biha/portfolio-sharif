@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { PROJECTS, CATEGORIES } from "@/lib/projects";
 import FieldIcon from "./FieldIcon";
-import SiteFooter from "./SiteFooter";
 
 /*
   Mobile Projects screen — keeps the "Projects on Repeat" vinyl vibe (deep green
@@ -125,8 +124,6 @@ export default function ProjectsMobile() {
           </div>
         </article>
       )}
-
-      <SiteFooter />
     </section>
   );
 }
