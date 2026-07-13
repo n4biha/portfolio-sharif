@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Nunito, Anton, Courier_Prime, Caveat, Bungee, Bricolage_Grotesque, Oswald, Bebas_Neue, Inter, Fredoka } from "next/font/google";
+import SiteLoadGate from "@/components/SiteLoadGate";
 import "./globals.css";
 
 // Body text — clean and readable
@@ -57,7 +58,9 @@ export default function RootLayout({
       lang="en"
       className={`${nunito.variable} ${anton.variable} ${courier.variable} ${caveat.variable} ${bungee.variable} ${bricolage.variable} ${oswald.variable} ${bebas.variable} ${inter.variable} ${fredoka.variable} h-full antialiased`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <SiteLoadGate>{children}</SiteLoadGate>
+      </body>
     </html>
   );
 }
