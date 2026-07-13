@@ -1,7 +1,6 @@
 "use client";
 
 import { startTransition, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
@@ -46,7 +45,6 @@ export default function ScrollRevealExperience() {
 }
 
 function HomeDesktop() {
-  const router = useRouter();
   const exp = useRef(null);
   const proj = useRef(null);
   const footer = useRef(null);
