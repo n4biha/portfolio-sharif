@@ -194,7 +194,7 @@ body {
      and the 100% (settled) pose sticks after it finishes.
      A gentle ease-in-out: eases in softly (no jarring fast entrance),
      carries through the middle, then decelerates smoothly to a stop. */
-  animation: stop-motion-in 1.6s cubic-bezier(0.42, 0, 0.2, 1) both;
+  animation: stop-motion-in 1.3s cubic-bezier(0.42, 0, 0.2, 1) both;
   will-change: transform, opacity;
   backface-visibility: hidden;
 }
@@ -202,7 +202,7 @@ body {
 .stop-motion-bob {
   /* ease-in-out gives each up/down beat a smooth, sine-like arc so the
      rhythm reads as cohesive rather than mechanical. */
-  animation: stop-motion-bob 1.6s ease-in-out both;
+  animation: stop-motion-bob 1.3s ease-in-out both;
   will-change: transform;
   backface-visibility: hidden;
 }
@@ -301,20 +301,20 @@ body {
 .tape-in-right {
   /* start time is controlled in JS (the class is added when the strip's turn
      comes), so the two tapes can be sequenced one after the other */
-  animation: tape-in-right 1s cubic-bezier(0.42, 0, 0.2, 1) both;
+  animation: tape-in-right 0.65s cubic-bezier(0.42, 0, 0.2, 1) both;
   will-change: transform, opacity;
   backface-visibility: hidden;
 }
 
 .tape-in-bl {
-  animation: tape-in-bottom-left 1s cubic-bezier(0.42, 0, 0.2, 1) both;
+  animation: tape-in-bottom-left 0.65s cubic-bezier(0.42, 0, 0.2, 1) both;
   will-change: transform, opacity;
   backface-visibility: hidden;
 }
 
 .tape-bob {
   /* same damped bob as the paper, synced to the glide */
-  animation: stop-motion-bob 1s ease-in-out both;
+  animation: stop-motion-bob 0.65s ease-in-out both;
   will-change: transform;
   backface-visibility: hidden;
 }

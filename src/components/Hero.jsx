@@ -186,11 +186,11 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
     // ms for the paper's glide-to-center (`stop-motion-in`) to finish — the
     // tape/photo reveal waits for this so nothing lands on empty space.
     // (Matches the .stop-motion-in CSS duration.)
-    const PAPER_SETTLE = 1600;
+    const PAPER_SETTLE = 1300;
     // ms between the first tape starting and the second tape starting.
-    const SECOND_AT = 1200;
+    const SECOND_AT = 950;
     // ms after the second tape starts to when the photo pops on (after it sets).
-    const PHOTO_AT = SECOND_AT + 1150;
+    const PHOTO_AT = SECOND_AT + 900;
 
     // The torn paper glides in silently now (no paper sound) — the tapes and
     // the typing tick handle the audio from here.
@@ -211,7 +211,7 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
       );
 
       // The cut-out name scatters in (it was hidden until now).
-      timers.push(window.setTimeout(() => setLettersIn(true), PHOTO_AT + 250));
+      timers.push(window.setTimeout(() => setLettersIn(true), PHOTO_AT + 220));
 
       // Then ALL the stickers (stars, "!!", flower, hearts) appear together once
       // the name has landed, and finally the intro starts typing.
@@ -219,12 +219,12 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
         window.setTimeout(() => {
           setStarsIn(true);
           setDecorIn(true);
-        }, PHOTO_AT + 1300)
+        }, PHOTO_AT + 1050)
       );
-      timers.push(window.setTimeout(() => setIntroTextIn(true), PHOTO_AT + 1700));
+      timers.push(window.setTimeout(() => setIntroTextIn(true), PHOTO_AT + 1350));
 
       // Contact sticker-icons pop on under the paper, rounding out the reveal.
-      timers.push(window.setTimeout(() => setContactIn(true), PHOTO_AT + 1900));
+      timers.push(window.setTimeout(() => setContactIn(true), PHOTO_AT + 1500));
     };
 
     timers.push(window.setTimeout(startSequence, PAPER_SETTLE));
