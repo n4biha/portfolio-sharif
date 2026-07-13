@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito, Anton, Courier_Prime, Caveat, Bungee, Bricolage_Grotesque, Oswald, Bebas_Neue, Inter } from "next/font/google";
+import { Nunito, Anton, Courier_Prime, Caveat, Bungee, Bricolage_Grotesque, Oswald, Bebas_Neue, Inter, Fredoka } from "next/font/google";
 import "./globals.css";
 
 // Body text — clean and readable
@@ -32,6 +32,9 @@ const oswald = Oswald({ variable: "--font-condensed", subsets: ["latin"], weight
 const bebas = Bebas_Neue({ variable: "--font-display", subsets: ["latin"], weight: "400" });
 const inter = Inter({ variable: "--font-body", subsets: ["latin"] });
 
+// Soft rounded display face for the full-screen Smiski sign-off.
+const fredoka = Fredoka({ variable: "--font-footer-display", subsets: ["latin"], weight: ["600", "700"] });
+
 export const metadata: Metadata = {
   title: "Nabiha — Portfolio",
   description:
@@ -52,7 +55,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${nunito.variable} ${anton.variable} ${courier.variable} ${caveat.variable} ${bungee.variable} ${bricolage.variable} ${oswald.variable} ${bebas.variable} ${inter.variable} h-full antialiased`}
+      className={`${nunito.variable} ${anton.variable} ${courier.variable} ${caveat.variable} ${bungee.variable} ${bricolage.variable} ${oswald.variable} ${bebas.variable} ${inter.variable} ${fredoka.variable} h-full antialiased`}
     >
       <body className="min-h-full">{children}</body>
     </html>

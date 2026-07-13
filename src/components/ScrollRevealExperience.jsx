@@ -11,6 +11,7 @@ import ExperienceScene from "./ExperienceScene";
 import ProjectsScene from "./ProjectsScene";
 import CursorTrail from "./CursorTrail";
 import HomeMobile from "./HomeMobile";
+import PortfolioFooter from "./PortfolioFooter";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 /*
@@ -28,12 +29,12 @@ const PAGE_DURATION = 1.4;
 // abruptly fast), so each page glide feels smooth from rest to rest.
 const PAGE_EASE = (t) =>
   t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-const LAST = 2;
+const LAST = 3;
 // stable no-op so Hero's memo isn't broken by a fresh inline fn each render
 const NOOP = () => {};
 // section index → URL hash (0 = About = no hash). Lets a reload stay on the same
 // screen with the correct nav instead of snapping back to About.
-const SECTION_HASH = ["", "experience", "projects"];
+const SECTION_HASH = ["", "experience", "projects", "footer"];
 
 // On phones, swap the whole locked-paging desktop flow for the simple mobile
 // stack. HomeDesktop only mounts on desktop, so Lenis/ScrollTrigger never run on
@@ -48,6 +49,7 @@ function HomeDesktop() {
   const router = useRouter();
   const exp = useRef(null);
   const proj = useRef(null);
+  const footer = useRef(null);
   // imperative page-changer, wired up in the effect; used by the navbar too
   const goToRef = useRef(null);
   // which screen we're on/heading to (rings the matching nav item)
@@ -91,7 +93,7 @@ function HomeDesktop() {
     // --- locked section paging ---------------------------------------------
     const indexRef = { current: 0 };
     const animatingRef = { current: false };
-    const targetFor = (i) => (i === 0 ? 0 : i === 1 ? exp.current : proj.current);
+    const targetFor = (i) => (i === 0 ? 0 : i === 1 ? exp.current : i === 2 ? proj.current : footer.current);
 
     const goTo = (i) => {
       const next = i < 0 ? 0 : i > LAST ? LAST : i;
@@ -239,9 +241,7 @@ function HomeDesktop() {
       {/* scene-themed cursor trail: muted confetti on the scrapbook, chalk dust
           on the wall, lamplight motes in the record room (follows the section
           you're on / heading to; in-flight particles finish out naturally) */}
-      <CursorTrail
-        variant={section === 1 ? "chalk" : section === 2 ? "motes" : "confetti"}
-      />
+      {section !== 3 && <CursorTrail variant={section === 1 ? "chalk" : section === 2 ? "motes" : "confetti"} />}
       <Navbar
         fixed
         theme={onWall || section === 2 ? "dark" : "light"}
@@ -262,6 +262,9 @@ function HomeDesktop() {
       <section ref={proj} className="projects-section">
         <ProjectsScene active={section === 2} />
       </section>
+
+      {/* screen 3 — the calm cream sign-off world */}
+      <PortfolioFooter ref={footer} />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import Navbar from "./Navbar";
 import AboutMobile from "./AboutMobile";
 import ExperienceMobile from "./ExperienceMobile";
 import ProjectsMobile from "./ProjectsMobile";
+import PortfolioFooter from "./PortfolioFooter";
 
 /*
   Mobile home flow — a simple, normal-scroll stack (no Lenis page-lock): the
@@ -26,7 +27,7 @@ export default function HomeMobile() {
   };
 
   useEffect(() => {
-    const ids = ["home", "experience", "projects"];
+    const ids = ["home", "experience", "projects", "footer"];
     const els = ids.map((id) => document.getElementById(id)).filter(Boolean);
     if (!els.length) return;
     const obs = new IntersectionObserver(
@@ -42,7 +43,7 @@ export default function HomeMobile() {
     return () => obs.disconnect();
   }, []);
 
-  const theme = section === "home" ? "light" : "dark";
+  const theme = section === "home" || section === "footer" ? "light" : "dark";
   const active = section === "experience" ? "experience" : section === "projects" ? "projects" : null;
 
   return (
@@ -53,6 +54,7 @@ export default function HomeMobile() {
         <ExperienceMobile />
         <ProjectsMobile />
       </main>
+      <PortfolioFooter />
     </div>
   );
 }
