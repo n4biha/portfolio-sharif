@@ -52,9 +52,20 @@ export default function AboutMobile() {
       </h1>
 
       <article className="m-about-card">
-        <div className="m-about-polaroid">
+        {/* washi tape holding the card down, like the desktop torn paper */}
+        <span className="m-tape m-tape--tr" aria-hidden="true" />
+        <span className="m-tape m-tape--bl" aria-hidden="true" />
+
+        <div className="m-about-photo-wrap">
+          <div className="m-about-polaroid">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/photo-portrait.jpg" alt="Nabiha" />
+          </div>
+          {/* stickers on the photo corners, matching the desktop scrapbook */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/photo-portrait.jpg" alt="Nabiha" />
+          <img src="/images/hearts.png" alt="" aria-hidden="true" className="m-about-hearts" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/flower.png" alt="" aria-hidden="true" className="m-about-flower" />
         </div>
 
         <div className="m-about-text">

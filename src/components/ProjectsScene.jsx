@@ -34,8 +34,11 @@ function ProjectsScene({ active = true }) {
     [category]
   );
 
+  // resolve against the filtered shelf (not all PROJECTS) so switching to a
+  // category that excludes the current pick can't flash the stale project for a
+  // frame before the reconciling effect below moves selectedId onto the shelf
   const selected =
-    PROJECTS.find((p) => p.id === selectedId) ?? PROJECTS[0] ?? null;
+    shelf.find((p) => p.id === selectedId) ?? shelf[0] ?? null;
 
   // when switching crates, keep the current pick if it's still on the shelf;
   // otherwise drop the needle on the first record of the new crate.

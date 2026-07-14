@@ -121,7 +121,7 @@ export default function Navbar({ theme = "light", active = null, onNav, fixed = 
                   href={link.href}
                   onClick={(e) => handleClick(link.id, e)}
                   style={serif}
-                  className={`m-menu-link ${textColor}`}
+                  className={`m-menu-link ${textColor}${active === link.id ? " is-active" : ""}`}
                 >
                   {link.label}
                 </Link>

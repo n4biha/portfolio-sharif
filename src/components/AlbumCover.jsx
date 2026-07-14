@@ -10,7 +10,8 @@ import { motion } from "framer-motion";
 */
 
 // little per-project cover illustration, tinted with the cover's accent/ink
-function Motif({ motif, ink, accent }) {
+// exported so the mobile shelf can reuse the real cover art at mini size
+export function Motif({ motif, ink, accent }) {
   const s = { stroke: ink, fill: "none", strokeWidth: 2.4, strokeLinecap: "round", strokeLinejoin: "round" };
   switch (motif) {
     case "brain": // a brain-shaped neural network

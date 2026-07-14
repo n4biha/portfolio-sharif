@@ -33,6 +33,16 @@ export const SMISKI_CHARACTERS = [
   ariaLabel: character.link ? "Open Nabiha's resume" : `Animate ${character.id.replace("-", " ")} Smiski`,
 }));
 
+// Set once the Smiski entrance has played this page load. The home flow swaps
+// between desktop and mobile trees at 768px, remounting the footer — this flag
+// keeps the entrance from replaying on every remount.
+let entrancePlayed = false;
+
+// Monotonic z counter: each grabbed Smiski is lifted above everything grabbed
+// before it — and STAYS there after the drop, so a Smiski dropped under a
+// sibling's (transparent) bounding box can always be picked up again.
+let zLiftCounter = 20;
+
 function SocialIcon({ type }) {
   if (type === "email") return <path d="M3 5.5h18v13H3v-13Zm1.5 2 7.5 5 7.5-5M4.5 17V9.8l7.5 5 7.5-5V17" />;
   if (type === "linkedin") return <path d="M5 9v10M5 5.6v.1M9.5 19V9m0 4.2c.8-2.9 6.5-3.5 6.5 1V19M3.5 9h3M8 9h3" />;
@@ -313,9 +323,61 @@ function DraggableSmiski({ character, boundaryRef, index }) {
   const [missing, setMissing] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [reactionRun, setReactionRun] = useState(0);
+  // One-shot entrance: the .smiski-enter class (and its CSS animation) is
+  // removed once the animation ends, leaving a plain positioned div. Without
+  // this, the 768px breakpoint's display:none↔block toggles RESTART the CSS
+  // animation (per spec) and every re-shown Smiski blinks out + re-flies in —
+  // the "glitch out" during a manual window resize. The timeout is a failsafe:
+  // offscreen compositor throttling can freeze the animation at its from-frame
+  // (verified live), which would otherwise leave a Smiski invisible forever.
+  // Seeded from the module flag so the entrance plays once per PAGE LOAD:
+  // crossing 768px remounts the whole home tree (desktop ⇄ mobile), and without
+  // the flag every remount replayed all ten entrances mid-resize.
+  const [entered, setEntered] = useState(() => entrancePlayed);
+  useEffect(() => {
+    if (entered) return undefined;
+    const t = window.setTimeout(() => {
+      // Still inside SiteLoadGate's preload shell (animations paused, tree gets
+      // remounted on reveal): don't mark the entrance as played, or the
+      // post-reveal remount would skip it entirely on loads slower than this
+      // failsafe. The fresh instances after the remount run their own timer.
+      if (document.querySelector(".site-preload-shell")) return;
+      setEntered(true);
+    }, 2600);
+    return () => window.clearTimeout(t);
+  }, [entered]);
+  useEffect(() => {
+    if (entered) entrancePlayed = true;
+  }, [entered]);
   const dragTilt = useMotionValue(0);
   const smoothDragTilt = useSpring(dragTilt, { stiffness: 520, damping: 38, mass: 0.35 });
   const movedRef = useRef(false);
+  // Explicit drag offsets (instead of framer's internal ones) so we can send a
+  // dragged Smiski home again. On resize the slots' % anchors move but a px
+  // drag offset doesn't — a previously dragged Smiski would land somewhere
+  // random (or offscreen and unreachable). Once the resize settles, spring the
+  // offsets back to 0 so everyone glides back to their spot.
+  const dragXValue = useMotionValue(0);
+  const dragYValue = useMotionValue(0);
+  // persistent stacking lift (see zLiftCounter)
+  const [zLift, setZLift] = useState(null);
+  useEffect(() => {
+    let timer = 0;
+    const onResize = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        if (dragXValue.get() !== 0 || dragYValue.get() !== 0) {
+          animate(dragXValue, 0, { type: "spring", stiffness: 240, damping: 26 });
+          animate(dragYValue, 0, { type: "spring", stiffness: 240, damping: 26 });
+        }
+      }, 220);
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [dragXValue, dragYValue]);
   if (missing) return null;
   const isResume = character.link;
   const isPeeking = character.id === "peeking";
@@ -342,10 +404,24 @@ function DraggableSmiski({ character, boundaryRef, index }) {
     "--sm-rotation": `${character.rotation}deg`,
     "--sm-z": character.z,
     "--sm-idle-delay": `${index * -0.37}s`,
+    // CSS-driven entrance (see .smiski-slot / @keyframes smiski-in). Positioning
+    // + rotation + entry are pure CSS so framer-motion never controls the slot's
+    // transform — that framer transform was freezing mid-animation and making the
+    // Smiskis fall on resize. Framer now only drives the inner drag.
+    "--sm-in-x": `${character.entry[0]}px`,
+    "--sm-in-y": `${character.entry[1]}px`,
+    "--sm-in-delay": `${0.18 + index * 0.04}s`,
+    // once grabbed, stay above previously grabbed siblings (see zLiftCounter)
+    ...(zLift ? { zIndex: zLift } : {}),
   };
 
   return (
-    <motion.div data-smiski={character.id} className={`smiski-slot${character.mobile ? " smiski-mobile-priority" : ""}`} style={style} initial={{ opacity: 0, x: reducedMotion ? 0 : character.entry[0], y: reducedMotion ? 0 : character.entry[1] }} whileInView={{ opacity: 1, x: 0, y: 0 }} viewport={{ once: true, amount: 0.15 }} transition={{ delay: reducedMotion ? 0 : 0.18 + index * 0.035, duration: reducedMotion ? 0.15 : 0.42 }}>
+    <div
+      data-smiski={character.id}
+      className={`smiski-slot${entered ? "" : " smiski-enter"}${character.mobile ? " smiski-mobile-priority" : ""}`}
+      style={style}
+      onAnimationEnd={(event) => { if (event.animationName === "smiski-in") setEntered(true); }}
+    >
       <InteractiveCharacter
         className={`smiski-drag${isResume ? " smiski-resume-link" : ""}${!isDraggable ? " smiski-fixed" : ""}${dragging ? " is-dragging" : ""}`}
         {...(isResume ? { href: resumeHref, ...(RESUME_URL ? { target: "_blank", rel: "noopener noreferrer" } : {}) } : {})}
@@ -354,14 +430,14 @@ function DraggableSmiski({ character, boundaryRef, index }) {
         dragElastic={reducedMotion ? 0 : 0.06}
         dragMomentum={false}
         dragTransition={{ bounceStiffness: 560, bounceDamping: 34 }}
-        style={{ rotate: smoothDragTilt }}
-        whileHover={reducedMotion ? undefined : { y: -6, scale: 1.045 }}
-        whileDrag={isDraggable ? { y: -5, scale: 1.05, zIndex: 30 } : undefined}
+        style={{ x: dragXValue, y: dragYValue, rotate: smoothDragTilt }}
+        whileHover={reducedMotion ? undefined : { scale: 1.045 }}
+        whileDrag={isDraggable ? { scale: 1.05 } : undefined}
         transition={{ type: "spring", stiffness: 440, damping: 30 }}
         role={isResume ? undefined : "button"}
         tabIndex={0}
         aria-label={isPeeking ? "Play the peeking Smiski hide-and-return animation" : character.ariaLabel}
-        onDragStart={() => { movedRef.current = true; setDragging(true); }}
+        onDragStart={() => { movedRef.current = true; setDragging(true); setZLift(++zLiftCounter); }}
         onDrag={(_, info) => dragTilt.set(Math.max(-6, Math.min(6, info.velocity.x / 155)))}
         onDragEnd={() => { setDragging(false); dragTilt.set(0); window.setTimeout(() => { movedRef.current = false; }, 0); }}
         onTap={() => { if (!movedRef.current && !isResume) activate(); }}
@@ -384,7 +460,7 @@ function DraggableSmiski({ character, boundaryRef, index }) {
         </span>
         {isResume && <span className="smiski-resume-copy">click to see<br />my resume <i aria-hidden="true">↗</i></span>}
       </InteractiveCharacter>
-    </motion.div>
+    </div>
   );
 }
 

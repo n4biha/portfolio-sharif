@@ -197,6 +197,21 @@ function HomeDesktop() {
     window.addEventListener("touchend", onTouchEnd, { passive: true });
     window.addEventListener("keydown", onKey);
 
+    // Re-snap to the current screen when the window is resized: the sections are
+    // viewport-sized, so their offsets move under a resize while the scroll
+    // position doesn't — without this the page ends up resting between two
+    // screens. Debounced so it fires once the drag-resize settles.
+    let resizeTimer = 0;
+    const onResize = () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        if (animatingRef.current) return;
+        ScrollTrigger.refresh();
+        lenis.scrollTo(targetFor(indexRef.current), { immediate: true, force: true });
+      }, 180);
+    };
+    window.addEventListener("resize", onResize);
+
     const ctx = gsap.context(() => {
       // Cream nav ink while the dark wall is the screen behind the navbar (from
       // when its top passes the upper 15% until its bottom does). setState runs
@@ -228,6 +243,8 @@ function HomeDesktop() {
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchend", onTouchEnd);
       window.removeEventListener("keydown", onKey);
+      window.clearTimeout(resizeTimer);
+      window.removeEventListener("resize", onResize);
       goToRef.current = null;
       gsap.ticker.remove(raf);
       lenis.destroy();

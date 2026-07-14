@@ -1,6 +1,6 @@
 /*
   The five route holds → experiences on the wall. `id` matches ROUTE in
-  ClimbingWall.jsx (bottom "start" to top "future"). Each entry drives the
+  ClimbingWall.jsx (bottom "start" upward). Each entry drives the
   editorial popup (RouteBetaBoard): an eyebrow index, the company title, a split
   role (name + tag), a metadata row (date · location · type), an ABOUT paragraph
   (clamped to 3 lines with an inline "Show more"), KEY CONTRIBUTIONS bullets, a
@@ -20,7 +20,7 @@ export const EXPERIENCES = {
     location: "Los Angeles, CA",
     employmentType: "Part-time",
     about:
-      "Code Ninjas is a global youth education organization that helps children discover technology through coding, game development, robotics, and creative projects. I joined as a Code Sensei when I was in 10th grade, and overtime, the dojo became a place where I grew alongside the students I taught. I’ve guided students through JavaScript, Lua, and C# while developing curricula and leading camps in animation, robotics, and game development. Beyond teaching, I manage weekend operations for 30–40 students, maintain classroom technology, communicate student progress with parents, and design graphics that make the dojo a more engaging place to learn.",
+      "Code Ninjas is a global youth education organization that helps children discover technology through coding, game development, robotics, and creative projects. I joined as a Code Sensei when I was in 10th grade, and over time, the dojo became a place where I grew alongside the students I taught. I’ve guided students through JavaScript, Lua, and C# while developing curricula and leading camps in animation, robotics, and game development. Beyond teaching, I manage weekend operations for 30–40 students, maintain classroom technology, communicate student progress with parents, and design graphics that make the dojo a more engaging place to learn.",
     contributions: [
       "Mentored 300+ students through Code Ninjas’ coding curriculum and a diverse range of STEM camps.",
       "Developed specialized curricula tailored to students with disabilities and different learning needs.",
@@ -44,7 +44,7 @@ export const EXPERIENCES = {
     location: "Los Angeles, CA",
     employmentType: "Internship",
     about:
-      "At the University of Southern California I conducted computational neuroscience research, using Drosophila as a model organism to study how neuronal dysfunction can contribute to movement and functional impairments. My work connected experimental neuroscience with computational analysis, including RNA-sequencing analyses, Gene Ontology analysis, and RNA-sequencing workflows in R. Through this role, I gained experience applying programming, data analysis, and biological research methods to understand how changes at the molecular level can affect behavior.",
+      "At the University of Southern California I conducted computational neuroscience research, using Drosophila as a model organism to study how neuronal dysfunction can contribute to movement and functional impairments. My work connected experimental neuroscience with computational analysis, including RNA-sequencing analyses and Gene Ontology workflows in R. Through this role, I gained experience applying programming, data analysis, and biological research methods to understand how changes at the molecular level can affect behavior.",
     contributions: [
       "Performed RNA analysis and Gene Ontology analysis to connect molecular changes with broader biological functions and neurological outcomes.",
       "Conducted experimental neuroscience work including brain dissections, immunofluorescence microscopy, geotaxis assays, and qPCR analyses.",
@@ -101,28 +101,6 @@ export const EXPERIENCES = {
       fit: "contain",
       bg: "#ffffff",
       caption: null,
-    },
-  },
-  future: {
-    index: "05",
-    company: "Next Summit",
-    roleName: "Future Goals",
-    roleTag: "Onward",
-    grade: "5.12",
-    date: "2025 →",
-    location: "Data + Product",
-    employmentType: null,
-    about:
-      "Data + product roles where I can build things people genuinely love. The route keeps going up, and that's the fun part — I'm excited for the next crux and everything I'll learn climbing toward it.",
-    contributions: [
-      "Build data + product experiences people love",
-      "Keep learning across data science and ML",
-      "Ship work that genuinely helps people",
-    ],
-    skills: ["Data Science", "AI / ML", "Product", "Storytelling"],
-    highlight: {
-      photo: null,
-      caption: "Chasing the next summit in data and product.",
     },
   },
 };

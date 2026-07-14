@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ClimbingHold, { ClimbingWallDefs } from "./ClimbingHold";
+import ChalkMark, { ChalkDefs } from "./ChalkMark";
 import { EXPERIENCES } from "@/lib/experiences";
 
 /*
@@ -20,12 +21,22 @@ export default function ExperienceMobile() {
   return (
     <section id="experience" className="m-screen m-exp">
       <ClimbingWallDefs />
+      <ChalkDefs />
 
       {/* a few faint decorative holds — purely thematic, not interactive */}
       <div className="m-exp-holds" aria-hidden="true">
         <ClimbingHold color="pine" variant={1} size="46px" />
         <ClimbingHold color="kraft" variant={2} size="60px" />
         <ClimbingHold color="denim" variant={0} size="38px" />
+        <ClimbingHold color="tomato" variant={2} size="30px" />
+        <ClimbingHold color="mustard" variant={0} size="34px" />
+      </div>
+
+      {/* chalk doodles on the wall, like the desktop scene */}
+      <div className="m-exp-doodles" aria-hidden="true">
+        <ChalkMark type="arrowUp" size={40} className="m-doodle m-doodle-1" strokeWidth={3} />
+        <ChalkMark type="star" size={26} className="m-doodle m-doodle-2" strokeWidth={3} />
+        <ChalkMark type="squiggle" size={46} className="m-doodle m-doodle-3" strokeWidth={2.4} />
       </div>
 
       <header className="m-exp-head">
@@ -34,13 +45,16 @@ export default function ExperienceMobile() {
       </header>
 
       <ol className="m-route">
-        {ORDER.map((id) => {
+        {ORDER.map((id, i) => {
           const exp = EXPERIENCES[id];
           if (!exp) return null;
           const open = openId === id;
           return (
             <li key={id} className="m-route-item">
-              <span className="m-route-dot" aria-hidden="true" />
+              {/* a real blue route hold marks each stop, like the desktop wall */}
+              <span className="m-route-hold" aria-hidden="true">
+                <ClimbingHold color="blue" variant={i % 3} size="26px" route />
+              </span>
               <article className={`m-exp-card${open ? " is-open" : ""}`}>
                 <button
                   type="button"
