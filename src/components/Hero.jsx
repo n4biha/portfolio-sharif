@@ -235,7 +235,7 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
           variants={nameContainer}
           initial="hidden"
           animate={lettersIn ? "show" : "hidden"}
-          className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:gap-6"
+          className="mt-2 flex flex-nowrap items-center justify-center gap-[clamp(8px,1.8vw,24px)]"
         >
           {letters.map((l, i) => (
             <CutoutLetter key={i} {...l} />

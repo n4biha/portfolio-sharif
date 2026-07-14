@@ -47,6 +47,8 @@ export default function CutoutLetter({
       className="inline-block"
     >
       {showImage ? (
+        /* fluid height (not stepped breakpoints) so six letters + gaps always
+           fit one line — fixed 144px letters wrapped to two lines on iPads */
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={src}
@@ -54,7 +56,7 @@ export default function CutoutLetter({
           width={width}
           height={height}
           onError={() => setFailed(true)}
-          className="block h-12 w-auto select-none sm:h-28 md:h-36"
+          className="block w-auto select-none h-[clamp(48px,11vw,144px)]"
         />
       ) : (
         <span
