@@ -2834,6 +2834,9 @@ html[data-site-loading="true"] body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* trim the section's side padding so the torn paper can stretch wider */
+  padding-left: 8px;
+  padding-right: 8px;
 }
 .m-about-name {
   display: flex;
@@ -2852,49 +2855,24 @@ html[data-site-loading="true"] body {
 .m-about-card {
   position: relative;
   width: 100%;
-  max-width: 360px;
+  max-width: 460px;
   margin: 0 auto;
-  padding: 26px 22px 28px;
-  /* aged paper: warm base + a faint grain so it reads as stock, not a panel */
-  background-color: #f7f1e4;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.05'/%3E%3C/svg%3E");
-  border: 1px solid rgba(120, 96, 60, 0.16);
-  border-radius: 4px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    0 4px 10px -6px rgba(43, 38, 32, 0.3),
-    0 22px 44px -20px rgba(43, 38, 32, 0.55);
+  /* generous side padding so content clears the torn paper's ragged edges
+     (they intrude ~40-55px in places) — text was reaching them and clipping */
+  padding: 56px 60px 60px;
+  /* the real torn handmade paper (transparent ragged edges); the drop-shadow
+     filter follows the torn silhouette — a box-shadow would draw a rectangle */
+  background: url("/images/mobile-torn-paper.png");
+  background-size: 100% 100%;
+  filter:
+    drop-shadow(0 5px 9px rgba(43, 38, 32, 0.26))
+    drop-shadow(0 20px 32px rgba(43, 38, 32, 0.32));
   transform: rotate(-1.2deg);
 }
-/* a second sheet peeking out underneath — stacked-scrapbook depth */
-.m-about-card::before {
-  content: "";
-  position: absolute;
-  inset: 10px -7px -9px 9px;
-  background: #eadfc9;
-  border-radius: 4px;
-  transform: rotate(1.8deg);
-  box-shadow: 0 14px 30px -16px rgba(43, 38, 32, 0.5);
-  z-index: -1;
-}
-/* washi tape strips pinning the card, echoing the desktop torn-paper tapes */
-.m-tape {
-  position: absolute;
-  width: 86px;
-  height: 26px;
-  background:
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.16) 0 6px, transparent 6px 12px),
-    rgba(223, 160, 156, 0.72);
-  box-shadow: 0 1px 4px rgba(43, 38, 32, 0.22);
-  pointer-events: none;
-}
-.m-tape--tr { top: -11px; right: 10px; transform: rotate(38deg); }
-.m-tape--bl { bottom: -9px; left: 6px; transform: rotate(32deg); }
-
 /* relative anchor so the corner stickers ride the polaroid */
 .m-about-photo-wrap {
   position: relative;
-  width: 76%;
+  width: 72%;
   margin: 0 auto 22px;
 }
 .m-about-polaroid {
@@ -2930,8 +2908,8 @@ html[data-site-loading="true"] body {
 }
 .m-about-text {
   font-family: var(--font-climb), "Bricolage Grotesque", system-ui, sans-serif;
-  font-size: 15px;
-  line-height: 1.65;
+  font-size: 14px;
+  line-height: 1.6;
   text-align: center;
   color: #463f34;
 }

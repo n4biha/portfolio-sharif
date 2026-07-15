@@ -72,7 +72,7 @@ export const PROJECTS = [
     category: "Web App",
     year: "2026",
     coverImage: null,
-    coverStyle: { bg: "#234032", ink: "#eef6ec", accent: "#7fc98a", motif: "web" },
+    coverStyle: { bg: "#481f30", ink: "#f8e7ef", accent: "#e388ab", motif: "web" },
     linerNotes:
       "My creative take on a personal portfolio, built around the things I love. The About page is a scrapbook I'm piecing together about myself; since I'm a rock climber, you climb up the wall to explore my experiences; and because I love music, my projects live in a record room you can browse and play.",
     tools: ["Next.js", "React", "TypeScript", "Framer Motion", "GSAP", "Lenis", "Tailwind CSS"],
@@ -81,7 +81,7 @@ export const PROJECTS = [
     demoPreview: {
       title: "Nabiha",
       tagline: "Projects on repeat.",
-      accent: "#7fc98a",
+      accent: "#e388ab",
       kind: "site",
       screenshot: "/images/portfolio-preview.svg",
     },
