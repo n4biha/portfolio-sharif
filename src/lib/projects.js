@@ -23,7 +23,7 @@ export const PROJECTS = [
     fields: ["Data Science", "Computer Vision", "Full-Stack ML"],
     year: "2025",
     coverImage: null,
-    coverStyle: { bg: "#1f3a4d", ink: "#eaf2f5", accent: "#4da6ff", motif: "brain" },
+    coverStyle: { bg: "#1d3d2a", ink: "#e6f5ea", accent: "#52c07a", motif: "brain" },
     linerNotes:
       "An explainable machine learning web app that screens for Parkinson's-related risk patterns using both clinical questionnaire data and spiral drawing analysis. The app combines two model outputs into a clear risk interpretation for Parkinson's disease.",
     tools: ["Python", "Streamlit", "Scikit-learn", "PyTorch", "MobileNetV2", "OpenCV", "SHAP", "Pandas", "Plotly", "Gemini API"],
@@ -32,7 +32,7 @@ export const PROJECTS = [
     demoPreview: {
       title: "NeuroTrace",
       tagline: "Screen early. Understand the risk.",
-      accent: "#4da6ff",
+      accent: "#52c07a",
       kind: "dashboard",
       screenshot: "/images/neurotrace-preview.png",
     },
@@ -97,7 +97,7 @@ export const PROJECTS = [
     fields: ["Frontend Development", "Data Visualization"],
     year: "2025",
     coverImage: null,
-    coverStyle: { bg: "#173a44", ink: "#e7f3f4", accent: "#4fbdb0", motif: "chart" },
+    coverStyle: { bg: "#4a1e20", ink: "#fce6e4", accent: "#ec5a48", motif: "chart" },
     linerNotes:
       "During my internship, I was tasked with improving our product development coordinator dashboard. I redesigned the UI to make it cleaner and more consistent, reworked the charts so trends and drop-offs were easier to understand at a glance, and built a new Interview Analytics section that turns AI-parsed interview transcripts into structured insights around participant concerns, sentiment, and research-hypothesis alignment.",
     tools: ["React", "TypeScript", "Next.js", "Tailwind CSS", "Firestore", "Google Gemini API", "Recharts"],
@@ -106,7 +106,7 @@ export const PROJECTS = [
     demoPreview: {
       title: "MindClear",
       tagline: "Cleaner dashboard, clearer insight.",
-      accent: "#4fbdb0",
+      accent: "#ec5a48",
       kind: "dashboard",
       screenshot: "/images/mindclear-preview.jpg",
       note: "Not real data, just a project reference.",

@@ -71,9 +71,6 @@ function ProjectsScene({ active = true }) {
     <div ref={roomRef} className="record-room">
       <header data-parallax-layer="projhead" className="record-room-head">
         <h1 className="record-room-title hand">Projects on Repeat</h1>
-        <p className="record-room-sub">
-          Favorite builds, experiments, and ideas I keep coming back to.
-        </p>
       </header>
 
       <RecordShelf

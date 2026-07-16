@@ -46,7 +46,6 @@ export default function ProjectsMobile() {
           <h1 className="m-proj-title">Projects on Repeat</h1>
           <Vinyl className="m-proj-vinyl" />
         </div>
-        <p className="m-proj-sub">Favorite builds I keep coming back to.</p>
       </header>
 
       <nav className="m-chips m-proj-chips" aria-label="Filter projects">

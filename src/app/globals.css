@@ -493,16 +493,16 @@ html[data-site-loading="true"] body {
   height: 100vh;
   height: 100svh;
   overflow: hidden;
-  /* emerald jazz lounge: deep green wall under a warm brass spotlight, a soft
-     vignette, faint vertical wood paneling, and a subtle plaster texture so the
-     wall reads real rather than flat. */
-  background-color: #0e3327;
+  /* midnight-navy jazz lounge: near-black wall with a cool blue hue under a warm
+     brass spotlight, a soft vignette, faint vertical wood paneling, and a subtle
+     plaster texture so the wall reads real rather than flat. */
+  background-color: #101a30;
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.05'/%3E%3C/svg%3E"),
     radial-gradient(46% 42% at 50% 6%, rgba(255, 214, 140, 0.38), rgba(255, 214, 140, 0) 60%),
     radial-gradient(120% 120% at 50% 40%, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, 0.5) 100%),
-    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0 1px, rgba(0, 0, 0, 0) 1px 46px),
-    linear-gradient(180deg, #184c3c 0%, #103a2d 55%, #0a2a20 100%);
+    repeating-linear-gradient(90deg, rgba(160, 180, 220, 0.03) 0 1px, rgba(0, 0, 0, 0) 1px 46px),
+    linear-gradient(180deg, #16244a 0%, #101a30 55%, #0c1526 100%);
   background-size: 200px 200px, 100% 100%, 100% 100%, 46px 100%, 100% 100%;
   color: #f3e9cf;
   /* own GPU layer — see .experience-section note above */
@@ -1758,8 +1758,14 @@ html[data-site-loading="true"] body {
   font-size: clamp(26px, 4.4vw, 50px);
   line-height: 1.05;
   letter-spacing: 0.01em;
-  color: #e6c878;
-  text-shadow: 0 2px 18px rgba(255, 200, 110, 0.35);
+  color: #efe4cf;
+  /* realistic warm lamplight on the letters: a crisp contact shadow to seat them
+     against the wall, then two soft warm layers that bloom outward and fall off */
+  text-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.55),
+    0 3px 10px rgba(0, 0, 0, 0.45),
+    0 0 22px rgba(255, 198, 120, 0.22),
+    0 0 46px rgba(255, 186, 108, 0.1);
 }
 
 .record-room-sub {
@@ -1834,7 +1840,7 @@ html[data-site-loading="true"] body {
   background-size: auto, 400px 150px, auto, 100% 100%;
   background-blend-mode: overlay, overlay, normal, normal;
   border-radius: 6px;
-  box-shadow: inset 0 10px 18px rgba(0, 0, 0, 0.45), 0 16px 28px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 10px 18px rgba(0, 0, 0, 0.45), 0 16px 28px rgba(0, 0, 0, 0.45), 0 0 64px rgba(255, 200, 120, 0.06);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -1855,7 +1861,7 @@ html[data-site-loading="true"] body {
   background-size: 400px 40px, 100% 100%;
   background-blend-mode: overlay, normal;
   border-radius: 0 0 4px 4px;
-  box-shadow: 0 9px 14px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 9px 14px rgba(0, 0, 0, 0.5), 0 0 48px rgba(255, 200, 120, 0.05);
 }
 
 .shelf-empty {
@@ -2133,7 +2139,7 @@ html[data-site-loading="true"] body {
     linear-gradient(180deg, #533620, #2c1b10);
   background-size: auto, 300px 200px, 100% 100%;
   background-blend-mode: overlay, overlay, normal;
-  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.08), 0 16px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.08), 0 16px 30px rgba(0, 0, 0, 0.5), 0 0 64px rgba(255, 200, 120, 0.06);
 }
 
 .rec-vinyl {
@@ -2354,7 +2360,7 @@ html[data-site-loading="true"] body {
   border: 1px solid rgba(120, 78, 40, 0.18);
   border-radius: 3px;
   padding: clamp(16px, 1.8vw, 26px);
-  box-shadow: 0 18px 34px rgba(120, 78, 40, 0.3);
+  box-shadow: 0 18px 34px rgba(120, 78, 40, 0.3), 0 0 60px rgba(255, 200, 120, 0.06);
   transform: rotate(-0.6deg);
   overflow: visible;
 }
@@ -3153,11 +3159,11 @@ html[data-site-loading="true"] body {
 
 /* =================== PROJECTS (mobile) =================== */
 .m-proj {
-  background-color: #0e3327;
+  background-color: #101a30;
   background-image:
-    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0 1px, transparent 1px 44px),
+    repeating-linear-gradient(90deg, rgba(160, 180, 220, 0.03) 0 1px, transparent 1px 44px),
     radial-gradient(120% 80% at 50% 0%, rgba(255, 214, 140, 0.12), rgba(0, 0, 0, 0) 55%),
-    linear-gradient(180deg, #184c3c 0%, #103a2d 55%, #0a2a20 100%);
+    linear-gradient(180deg, #16244a 0%, #101a30 55%, #0c1526 100%);
   color: #f3e9cf;
 }
 .m-proj-head { margin-bottom: 18px; }
@@ -3169,9 +3175,13 @@ html[data-site-loading="true"] body {
   line-height: 1.05;
   letter-spacing: 0;
   margin: 0;
-  /* warm brass glow like the desktop room title */
-  color: #e6c878;
-  text-shadow: 0 2px 18px rgba(255, 200, 110, 0.35), 2px 3px 0 rgba(0, 0, 0, 0.28);
+  /* realistic warm lamplight like the desktop room title */
+  color: #efe4cf;
+  text-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    0 0 18px rgba(255, 198, 120, 0.2),
+    0 0 34px rgba(255, 186, 108, 0.1);
 }
 .m-proj-vinyl { width: 36px; height: 36px; flex: 0 0 auto; opacity: 0.95; }
 .m-proj-sub {
