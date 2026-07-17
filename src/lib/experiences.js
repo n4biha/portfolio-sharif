@@ -59,7 +59,7 @@ export const EXPERIENCES = {
     index: "03",
     company: "UC Berkeley - Data Science Education",
     roleName: "Podcast Operations Manager",
-    roleTag: "",
+    roleTag: "Manager",
     grade: "5.10a",
     date: "Feb 2026 – Present",
     location: "Berkeley, CA",
@@ -100,6 +100,24 @@ export const EXPERIENCES = {
       // wide logo on white → show it whole (no crop) on a matching white bg
       fit: "contain",
       bg: "#ffffff",
+      caption: null,
+    },
+  },
+  "frontier-pm": {
+    index: "05",
+    company: "Frontier Technology Institute",
+    roleName: "Project Manager",
+    roleTag: "Part-time",
+    grade: "5.11a",
+    // TODO: fill in from Nabiha — about, contributions, skills, highlight
+    date: "July 2026 – Present",
+    location: "",
+    employmentType: "Part-time",
+    about: "",
+    contributions: [],
+    skills: [],
+    highlight: {
+      photo: null,
       caption: null,
     },
   },

@@ -63,9 +63,11 @@ export default function ExperienceMobile() {
                   onClick={() => setOpenId(open ? null : id)}
                 >
                   <span className="m-exp-card-main">
-                    <span className="m-exp-role">{exp.roleName}</span>
+                    {/* company leads (header), role + date sit beneath — matches
+                        the desktop route board's company-first hierarchy */}
+                    <span className="m-exp-role">{exp.company}</span>
                     <span className="m-exp-org">
-                      {exp.company}
+                      {exp.roleName}
                       {exp.date ? ` · ${exp.date}` : ""}
                     </span>
                     {!open && exp.contributions?.[0] && (

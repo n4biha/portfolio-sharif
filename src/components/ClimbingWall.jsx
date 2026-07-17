@@ -13,10 +13,11 @@ import { ChalkDust } from "./ChalkMark";
 // The route — bottom "start" upward. x weaves around centre (50%). Spread to fill
 // the wall top-to-bottom so it doesn't sit low (more holds get added here later).
 const ROUTE = [
-  { id: "code-ninjas", x: 46, y: 78, size: 64, rot: -8 },
-  { id: "datastory", x: 58, y: 60, size: 60, rot: 7 },
-  { id: "behavioral", x: 44, y: 42, size: 66, rot: -5 },
-  { id: "pm-intern", x: 58, y: 25, size: 62, rot: 9 },
+  { id: "code-ninjas", x: 46, y: 82, size: 64, rot: -8 },
+  { id: "datastory", x: 58, y: 65, size: 60, rot: 7 },
+  { id: "behavioral", x: 44, y: 48, size: 66, rot: -5 },
+  { id: "pm-intern", x: 58, y: 32, size: 62, rot: 9 },
+  { id: "frontier-pm", x: 44, y: 18, size: 60, rot: -7 },
 ];
 
 // Muted scattered holds — mostly off to the sides of the route for ambiance.
