@@ -38,11 +38,11 @@ export const EXPERIENCES = {
     index: "02",
     company: "Morton Lab @ USC",
     roleName: "Computational Neuroscience Researcher",
-    roleTag: "Research",
+    roleTag: "Internship",
     grade: "5.9",
     date: "May 2024 – Aug 2024",
     location: "Los Angeles, CA",
-    employmentType: "Internship",
+    employmentType: "Part-time",
     about:
       "At the University of Southern California I conducted computational neuroscience research, using Drosophila as a model organism to study how neuronal dysfunction can contribute to movement and functional impairments. My work connected experimental neuroscience with computational analysis, including RNA-sequencing analyses and Gene Ontology workflows in R. Through this role, I gained experience applying programming, data analysis, and biological research methods to understand how changes at the molecular level can affect behavior.",
     contributions: [
@@ -59,11 +59,11 @@ export const EXPERIENCES = {
     index: "03",
     company: "UC Berkeley - Data Science Education",
     roleName: "Podcast Operations Manager",
-    roleTag: "Manager",
+    roleTag: "Work-Study",
     grade: "5.10a",
     date: "Feb 2026 – Present",
     location: "Berkeley, CA",
-    employmentType: "Work-Study",
+    employmentType: "Part-time",
     about:
       "The Data Science Education Podcast is a Berkeley Computing, Data Science, and Society project focused on making data science education more accessible to all. I manage episode production and operations by coordinating with guests, planning interviews, co-hosting conversations, editing episodes, and preparing launches across our media platforms. This role has strengthened my project management, organization, audience awareness, and content judgment. It has taught me how to shape interview flow and design clear, engaging episodes for viewers. On a personal level, it has also pushed me out of my comfort zone. As someone who used to feel nervous initiating conversations and speaking with new people, this role gave me a new lens on professional growth. I’ve had the chance to meet guests from different backgrounds, hear new perspectives, and build confidence in conversations that I’ll carry with me throughout my career.",
       contributions: [
@@ -83,16 +83,16 @@ export const EXPERIENCES = {
     index: "04",
     company: "Dabble Health",
     roleName: "Product Management & Data",
-    roleTag: "Intern",
+    roleTag: "Internship",
     grade: "5.10c",
     date: "May 2026 – August 2026",
     location: "",
-    employmentType: "Internship",
+    employmentType: "Part-time",
     about:
-      "Dabble Health is an early-stage digital health startup building MindClear, a cognitive health app for women in menopause. As a Product Management Intern, I helped build the product from the ground up. Our team recruited 80+ women through Meta ads and onboarded them into a 4-week product study. I conducted 20+ onboarding interviews to understand users' cognitive symptoms, routines, frustrations, and unmet needs. This was my first internship after starting college, and it showed me how impactful product work can be when it moves beyond planning and into real users’ hands. I worked closely with the CEO, engineering, and clinical teams, and it was exciting to see my work directly shape parts of the app that women are using today. I grew my technical skills, but more importantly, I learned how user research, design, data, and product decisions come together to build something useful.",
+      "Dabble Health is an early-stage digital health startup building MindClear, a cognitive health app for women navigating menopause. I joined as a Product Management Intern during the product's first build round, before MindClear had ever launched. Our team put it in front of its first real users, recruiting 80+ women through Meta ads into a 4-week study and personally running 20+ onboarding interviews to understand their cognitive symptoms, routines, and unmet needs. Working alongside the CEO, engineering, and clinical teams, I helped turn that early feedback into product decisions that shaped features women use today. Working with Dabble Health was my first internship after coming into college, and it taught me how user research, design, and data come together to get a product into real people's hands for the first time.",
     contributions: [
-      "Personally conducted 20+ user onboarding interviews to uncover pain points, validate assumptions, and guide feature development",
-      "Within my team, I served as Product Lead, where I helped design the coordinator dashboard and used user experiences, feedback, and data to guide the next round of features after the trial period."
+      "As Product Lead, designed the coordinator dashboard clinical staff used to monitor 80+ study participants' engagement and cognitive-symptom trends, turning raw trial data into an at-a-glance view that informed weekly product and care decisions.",
+      "Tracked onboarding-completion, retention, and feature-usage metrics across the 4-week trial to measure MVP performance and pinpoint where users dropped off, translating findings into concrete feature changes for the next build."
     ],
    skills: ["Product Strategy","User Research","Product Analytics","Dashboard Design","Feature Development","Cross-functional Collaboration","Data Analysis"],
     highlight: {
@@ -106,16 +106,20 @@ export const EXPERIENCES = {
   "frontier-pm": {
     index: "05",
     company: "Frontier Technology Institute",
-    roleName: "Project Manager",
-    roleTag: "Part-time",
+    roleName: "Technical Project Manager",
+    roleTag: "",
     grade: "5.11a",
-    // TODO: fill in from Nabiha — about, contributions, skills, highlight
+    // TODO: fill in from Nabiha — highlight photo
     date: "July 2026 – Present",
     location: "",
     employmentType: "Part-time",
-    about: "",
-    contributions: [],
-    skills: [],
+    about:
+      "Frontier Technology Institute runs a Department of Defense funded data science research program that opens real research opportunities to students from under-resourced communities. As a Project Manager, I led the student research teams through the program, from their first day of training to a finished technical project. I drove each team to their deadlines and mentored students directly so they could build the skills to carry the research themselves.",
+    contributions: [
+      "Led the program's technical training and onboarding, taking the full cohort through everything their projects required in depth, from data analysis and machine learning pipelines to predictive modeling and GitHub, so every student could independently run, build, and document a complete research project of their own.",
+      "Managed 20 concurrent research projects across health, economics, and sports, structuring the open-ended work into a repeatable 6-stage development cycle with daily check-ins to deliver 100% on time within a strict 3-week window, and built a progress dashboard that analyzed Google Doc activity to flag teams falling behind."
+    ],
+    skills: ["Project Management", "Curriculum Design", "Mentorship", "Process Design", "Python", "Machine Learning", "Data Analysis", "GitHub"],
     highlight: {
       photo: null,
       caption: null,
