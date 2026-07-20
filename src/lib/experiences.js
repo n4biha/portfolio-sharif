@@ -116,8 +116,9 @@ export const EXPERIENCES = {
     about:
       "Frontier Technology Institute runs a Department of Defense funded data science research program that opens real research opportunities to students from under-resourced communities. As a Project Manager, I led the student research teams through the program, from their first day of training to a finished technical project. I drove each team to their deadlines and mentored students directly so they could build the skills to carry the research themselves.",
     contributions: [
-      "Led the program's technical training and onboarding, taking the full cohort through everything their projects required in depth, from data analysis and machine learning pipelines to predictive modeling and GitHub, so every student could independently run, build, and document a complete research project of their own.",
-      "Managed 20 concurrent research projects across health, economics, and sports, structuring the open-ended work into a repeatable 6-stage development cycle with daily check-ins to deliver 100% on time within a strict 3-week window, and built a progress dashboard that analyzed Google Doc activity to flag teams falling behind."
+      "Led the program's technical training, taking the full cohort from data analysis and machine learning pipelines to predictive modeling and GitHub, so every student could run and document their own research.",
+      "Managed 20 concurrent research projects across health, economics, and sports, structuring the work into a defined 6-stage cycle to achieve 100% on-time project completion in 3 weeks.",
+      "Designed and built an HTML/JavaScript dashboard tracking 20 students across 4 mentors, ingesting their daily Google Doc logs to auto-derive status and blockers into one prioritized view, and cutting weekly review by over 80%."
     ],
     skills: ["Project Management", "Curriculum Design", "Mentorship", "Process Design", "Python", "Machine Learning", "Data Analysis", "GitHub"],
     highlight: {
