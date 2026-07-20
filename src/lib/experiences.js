@@ -109,7 +109,6 @@ export const EXPERIENCES = {
     roleName: "Technical Project Manager",
     roleTag: "",
     grade: "5.11a",
-    // TODO: fill in from Nabiha — highlight photo
     date: "July 2026 – Present",
     location: "",
     employmentType: "Part-time",
@@ -122,8 +121,12 @@ export const EXPERIENCES = {
     ],
     skills: ["Project Management", "Curriculum Design", "Mentorship", "Process Design", "Python", "Machine Learning", "Data Analysis", "GitHub"],
     highlight: {
-      photo: null,
-      caption: null,
+      photo: "/images/dsrp-class-pic.png",
+      // landscape Zoom screenshot on a dark background — show it whole on a
+      // matching dark bg so it doesn't get cropped
+      fit: "contain",
+      bg: "#121316",
+      caption: "A few of my students from the research cohort!",
     },
   },
 };
