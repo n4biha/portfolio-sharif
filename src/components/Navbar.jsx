@@ -32,12 +32,53 @@ export default function Navbar({ theme = "light", active = null, onNav, fixed = 
   // Active-tab marker: Experience keeps the hand-drawn circle; Projects gets the
   // doodle underline (with a subtle lift). It only renders while Projects is the
   // active tab — i.e. once you've reached the projects screen/page.
+  // Desktop links are hand-made & alive: each letter is its own span so the
+  // word hops in a wave on hover, and each link pops its scene prop — washi
+  // tape (About), a mini climbing hold + chalk puff (Experience), a spinning
+  // vinyl (Projects).
   const label = (link) => {
     const isActive = active === link.id;
     const underlined = isActive && link.id === "projects";
     return (
       <span className={`relative inline-block${underlined ? " nav-underlined" : ""}`}>
-        {link.label}
+        {link.label.split("").map((ch, i) => (
+          <span key={i} className="nav-L" style={{ transitionDelay: `${i * 35}ms` }}>
+            {ch}
+          </span>
+        ))}
+
+        {/* scene props — decorative, pop in on hover */}
+        {link.id === "about" && <span className="nav-tape" aria-hidden="true" />}
+        {link.id === "experience" && (
+          <span className="nav-prop" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path
+                d="M12 3 C17 4 21 9 19 15 C17 20 8 21 5 16 C2 11 6 4 12 3 Z"
+                fill="#4da6ff"
+                stroke="#2b6cb0"
+                strokeWidth="1"
+              />
+              <circle cx="12" cy="12" r="2.4" fill="#1a3550" />
+            </svg>
+            <span className="nav-chalk">
+              <span />
+              <span />
+              <span />
+            </span>
+          </span>
+        )}
+        {link.id === "projects" && (
+          <span className="nav-prop" aria-hidden="true">
+            <svg className="nav-vinyl" width="20" height="20" viewBox="0 0 40 40" style={{ display: "block" }}>
+              <circle cx="20" cy="20" r="18" fill="#15110f" />
+              <circle cx="20" cy="20" r="13" fill="none" stroke="rgba(255,255,255,0.25)" />
+              <circle cx="20" cy="20" r="9" fill="none" stroke="rgba(255,255,255,0.25)" />
+              <circle cx="20" cy="20" r="6" fill="#b04a30" />
+              <circle cx="20" cy="20" r="1.5" fill="#15110f" />
+            </svg>
+          </span>
+        )}
+
         {/* `arrived` holds the ring back until the glide to the wall has fully
             landed, so its stroke never starts drawing (and never shows its
             round-cap dot) mid-scroll. */}
@@ -59,7 +100,10 @@ export default function Navbar({ theme = "light", active = null, onNav, fixed = 
   };
 
   return (
-    <header className={`${fixed ? "fixed" : "absolute"} inset-x-0 top-0 z-50`}>
+    <header
+      className={`${fixed ? "fixed" : "absolute"} inset-x-0 top-0 z-50`}
+      style={{ "--nav-accent": dark ? "#e78a63" : "#b04a30" }}
+    >
       {/* paddingTop clears the browser's tab/URL bar (or a device notch) in
           full-screen/standalone modes by honouring the safe-area inset, while
           never dropping below the 1.5rem baseline. */}
@@ -83,8 +127,7 @@ export default function Navbar({ theme = "light", active = null, onNav, fixed = 
               <Link
                 href={link.href}
                 onClick={(e) => handleClick(link.id, e)}
-                style={serif}
-                className={`text-lg uppercase tracking-wide ${textColor} transition-[color,opacity] duration-300 hover:opacity-60`}
+                className={`nav-link ${textColor} transition-[color] duration-300`}
               >
                 {label(link)}
               </Link>
