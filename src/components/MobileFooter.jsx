@@ -74,6 +74,10 @@ export default function MobileFooter() {
           </ul>
         </nav>
 
+        <p className="m-mfooter-ps m-meta">
+          ps — a cooler version of this site is waiting on desktop :)
+        </p>
+
         <div className="m-mfooter-credit">
           <span className="m-meta">Designed &amp; built by Nabiha</span>
           <span className="m-meta">© 2026 Nabiha Sharif</span>

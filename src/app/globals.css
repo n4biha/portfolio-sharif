@@ -3266,6 +3266,11 @@ html[data-site-loading="true"] body {
   text-underline-offset: 3px;
 }
 .m-mfooter .m-about-socials { margin-top: 22px; }
+.m-mfooter-ps {
+  margin: 24px 0 0;
+  font-style: italic;
+  color: var(--m-ink-soft);
+}
 .m-mfooter-credit {
   display: flex;
   flex-direction: column;
