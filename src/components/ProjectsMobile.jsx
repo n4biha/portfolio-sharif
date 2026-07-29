@@ -6,46 +6,32 @@ import FieldIcon from "./FieldIcon";
 import { Motif } from "./AlbumCover";
 
 /*
-  Mobile Projects screen — keeps the "Projects on Repeat" vinyl vibe (deep green
-  wall, a small record accent) but simplifies the record room into a clean list:
-  filter chips → tappable project rows → one cream detail card for the selected
-  project. Data comes from the shared PROJECTS list.
+  Mobile Projects — the same clean beige accordion as Experience: filter chips,
+  then stacked cards (motif tile + title + subtitle + field tags collapsed;
+  liner notes, tools, technical highlights, and links expanded). Single-open;
+  switching category closes any open card.
 */
 
 const CHIPS = CATEGORIES;
 
-// small spinning-free vinyl mark for the header + row icons
-function Vinyl({ className, accent = "#e9c46a" }) {
-  return (
-    <svg viewBox="0 0 40 40" className={className} aria-hidden="true">
-      <circle cx="20" cy="20" r="19" fill="#15110f" />
-      <circle cx="20" cy="20" r="14" fill="none" stroke="rgba(255,255,255,0.12)" />
-      <circle cx="20" cy="20" r="10" fill="none" stroke="rgba(255,255,255,0.12)" />
-      <circle cx="20" cy="20" r="6.5" fill={accent} />
-      <circle cx="20" cy="20" r="1.6" fill="#15110f" />
-    </svg>
-  );
-}
-
 export default function ProjectsMobile() {
   const [category, setCategory] = useState("All");
+  const [openId, setOpenId] = useState(null);
   const list = useMemo(
     () => (category === "All" ? PROJECTS : PROJECTS.filter((p) => p.category === category)),
     [category]
   );
-  const [selectedId, setSelectedId] = useState(PROJECTS[0]?.id ?? null);
-  const selected = useMemo(
-    () => list.find((p) => p.id === selectedId) ?? list[0] ?? null,
-    [list, selectedId]
-  );
+
+  const pickCategory = (c) => {
+    setCategory(c);
+    setOpenId(null);
+  };
 
   return (
     <section id="projects" className="m-screen m-proj">
-      <header className="m-proj-head">
-        <div className="m-proj-titlewrap">
-          <h1 className="m-proj-title">Projects on Repeat</h1>
-          <Vinyl className="m-proj-vinyl" />
-        </div>
+      <header className="m-section-head m-reveal">
+        <p className="m-kicker">What I&rsquo;ve built</p>
+        <h1 className="m-heading">Projects on Repeat</h1>
       </header>
 
       <nav className="m-chips m-proj-chips" aria-label="Filter projects">
@@ -55,99 +41,103 @@ export default function ProjectsMobile() {
             type="button"
             className={`m-chip m-chip-btn${category === c ? " is-active" : ""}`}
             aria-pressed={category === c}
-            onClick={() => setCategory(c)}
+            onClick={() => pickCategory(c)}
           >
             {c}
           </button>
         ))}
       </nav>
 
-      {/* the record shelf: mini album covers standing on a walnut plank, like
-          the desktop record room — tap a cover to drop the needle on it */}
-      <div className="m-shelf">
-        <ul className="m-shelf-row">
-          {list.map((p) => {
-            const active = selected?.id === p.id;
-            return (
-              <li key={p.id}>
+      <ul className="m-cards" style={{ marginTop: 4 }}>
+        {list.map((p) => {
+          const open = openId === p.id;
+          const fields = p.fields ?? (p.category ? [p.category] : []);
+          return (
+            <li key={p.id}>
+              <article className={`m-card m-acc m-reveal${open ? " is-open" : ""}`}>
                 <button
                   type="button"
-                  className={`m-shelf-cover${active ? " is-active" : ""}`}
-                  aria-pressed={active}
-                  onClick={() => setSelectedId(p.id)}
-                  style={{ background: p.coverStyle?.bg, color: p.coverStyle?.ink }}
+                  className="m-acc-btn"
+                  aria-expanded={open}
+                  aria-controls={`proj-${p.id}`}
+                  onClick={() => setOpenId(open ? null : p.id)}
                 >
-                  <span className="m-shelf-art" aria-hidden="true">
-                    <span className="m-shelf-band" style={{ background: p.coverStyle?.accent }} />
-                    <Motif motif={p.coverStyle?.motif} ink={p.coverStyle?.ink} accent={p.coverStyle?.accent} />
+                  <span className="m-motif-tile" aria-hidden="true">
+                    <Motif motif={p.coverStyle?.motif} ink="#2b2620" accent="#b04a30" />
                   </span>
-                  <span className="m-shelf-title">{p.title}</span>
+                  <span className="m-acc-main">
+                    <span className="m-acc-title">{p.title}</span>
+                    {p.subtitle && <span className="m-meta">{p.subtitle}</span>}
+                    {fields.length > 0 && (
+                      <span className="m-proj-fields">
+                        {fields.map((f) => (
+                          <span key={f} className="m-proj-field-tag">
+                            <FieldIcon label={f} />
+                            {f}
+                          </span>
+                        ))}
+                      </span>
+                    )}
+                  </span>
                 </button>
-              </li>
-            );
-          })}
-        </ul>
-        <div className="m-shelf-lip" aria-hidden="true" />
-      </div>
 
-      {selected && (
-        <article className="m-proj-detail">
-          {/* liner-notes sheet dressing: tape at the top, now-playing vinyl */}
-          <span className="m-liner-tape" aria-hidden="true" />
-          <div className="m-proj-nowplaying" aria-hidden="true">
-            <Vinyl className="m-proj-nowplaying-vinyl" accent={selected.coverStyle?.accent} />
-            <span>Now Playing</span>
-          </div>
-          <h2 className="m-proj-detail-title">{selected.title}</h2>
-          {selected.subtitle && <p className="m-proj-detail-sub">{selected.subtitle}</p>}
-          <div className="m-proj-fields">
-            {(selected.fields ?? (selected.category ? [selected.category] : [])).map((f) => (
-              <span key={f} className="m-proj-field-tag">
-                <FieldIcon label={f} />
-                {f}
-              </span>
-            ))}
-          </div>
+                <div id={`proj-${p.id}`} className="m-acc-body">
+                  <div className="m-acc-body-inner">
+                    <p className="m-label">Liner Notes</p>
+                    <p className="m-body-text">{p.linerNotes}</p>
 
-          <p className="m-liner-label">Liner Notes</p>
-          <p className="m-proj-detail-text">{selected.linerNotes}</p>
+                    {p.tools?.length > 0 && (
+                      <>
+                        <p className="m-label">Tools Used</p>
+                        <ul className="m-chips">
+                          {p.tools.map((t, i) => (
+                            <li key={i} className="m-chip">{t}</li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
 
-          {selected.tools?.length > 0 && (
-            <>
-              <p className="m-liner-label">Tools Used</p>
-              <ul className="m-chips m-proj-tools">
-                {selected.tools.map((t, i) => (
-                  <li key={i} className="m-chip m-chip-tool">{t}</li>
-                ))}
-              </ul>
-            </>
-          )}
+                    {p.technicalHighlights && (
+                      <>
+                        <p className="m-label">Technical Highlights</p>
+                        <p className="m-body-text">{p.technicalHighlights}</p>
+                      </>
+                    )}
 
-          {selected.technicalHighlights && (
-            <>
-              <p className="m-liner-label">Technical Highlights</p>
-              <p className="m-proj-detail-text">{selected.technicalHighlights}</p>
-            </>
-          )}
-
-          <div className="m-proj-btns">
-            {selected.liveDemoUrl && (
-              <a className="m-btn m-btn--primary" href={selected.liveDemoUrl} target="_blank" rel="noopener noreferrer">
-                {selected.liveDemoLabel === "GitHub"
-                  ? "↗ GitHub"
-                  : `▶ ${selected.liveDemoLabel || "Demo"}`}
-              </a>
-            )}
-            {/* only render with a real URL — every project's caseStudyUrl is
-                still the "#" placeholder, which made this a dead link */}
-            {selected.caseStudyUrl && selected.caseStudyUrl !== "#" && (
-              <a className="m-btn m-btn--ghost" href={selected.caseStudyUrl} target="_blank" rel="noopener noreferrer">
-                Case Study
-              </a>
-            )}
-          </div>
-        </article>
-      )}
+                    {(p.liveDemoUrl || (p.caseStudyUrl && p.caseStudyUrl !== "#")) && (
+                      <div className="m-proj-btns">
+                        {p.liveDemoUrl && (
+                          <a
+                            className="m-btn m-btn--primary"
+                            href={p.liveDemoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {p.liveDemoLabel === "GitHub"
+                              ? "↗ GitHub"
+                              : `▶ ${p.liveDemoLabel || "Demo"}`}
+                          </a>
+                        )}
+                        {/* only render with a real URL — "#" placeholders stay hidden */}
+                        {p.caseStudyUrl && p.caseStudyUrl !== "#" && (
+                          <a
+                            className="m-btn m-btn--ghost"
+                            href={p.caseStudyUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Case Study
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </article>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }

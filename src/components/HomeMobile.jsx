@@ -5,13 +5,15 @@ import Navbar from "./Navbar";
 import AboutMobile from "./AboutMobile";
 import ExperienceMobile from "./ExperienceMobile";
 import ProjectsMobile from "./ProjectsMobile";
-import PortfolioFooter from "./PortfolioFooter";
+import MobileFooter from "./MobileFooter";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 /*
-  Mobile home flow — a simple, normal-scroll stack (no Lenis page-lock): the
-  scrapbook About, then the dark Experience list, then the green Projects list.
-  The nav menu jumps between sections; an IntersectionObserver keeps the navbar
-  theme (light on About, dark on the wall/green screens) and active link in sync.
+  Mobile home flow — one calm beige scrollable page: About, Experience,
+  Projects, and a simple sign-off footer, all on a continuous paper surface
+  (no per-section theme worlds; the desktop keeps its scenes). The nav menu
+  jumps between sections; an IntersectionObserver keeps the active link in
+  sync. The navbar stays light — every section is beige now.
 */
 
 // nav link id -> section element id
@@ -20,6 +22,7 @@ const SECTION_FOR = { home: "home", about: "home", fun: "home", experience: "exp
 export default function HomeMobile() {
   const [section, setSection] = useState("home");
   const containerRef = useRef(null);
+  useScrollReveal(containerRef);
 
   const goTo = (id) => {
     const el = document.getElementById(SECTION_FOR[id] ?? "home");
@@ -43,18 +46,17 @@ export default function HomeMobile() {
     return () => obs.disconnect();
   }, []);
 
-  const theme = section === "home" || section === "footer" ? "light" : "dark";
   const active = section === "experience" ? "experience" : section === "projects" ? "projects" : null;
 
   return (
     <div className="m-flow" ref={containerRef}>
-      <Navbar fixed theme={theme} active={active} arrived onNav={goTo} />
+      <Navbar fixed theme="light" active={active} arrived onNav={goTo} />
       <main>
         <AboutMobile />
         <ExperienceMobile />
         <ProjectsMobile />
       </main>
-      <PortfolioFooter />
+      <MobileFooter />
     </div>
   );
 }

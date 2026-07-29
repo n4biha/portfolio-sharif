@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import ClimbingHold, { ClimbingWallDefs } from "./ClimbingHold";
-import ChalkMark, { ChalkDefs } from "./ChalkMark";
 import { EXPERIENCES } from "@/lib/experiences";
 
 /*
-  Mobile Experience screen — keeps the climbing-wall theme (dark wall, faint
-  holds, a route line with hold-dots) but turns the experiences into a clean
-  vertical list of tappable cards instead of a scattered rock map. Tapping a card
-  expands it to the full write-up. Data comes from the shared EXPERIENCES map.
+  Mobile Experience — a clean beige accordion list. Each card leads with the
+  company, role · date, and the top skills (skills visible without tapping);
+  expanding reveals the full write-up: meta, about, contributions, all skills,
+  and the highlight photo(s). Single-open accordion; the body stays mounted so
+  collapse animates (CSS grid-template-rows).
 */
 
 // newest-first
@@ -20,92 +19,93 @@ export default function ExperienceMobile() {
 
   return (
     <section id="experience" className="m-screen m-exp">
-      <ClimbingWallDefs />
-      <ChalkDefs />
-
-      {/* a few faint decorative holds — purely thematic, not interactive */}
-      <div className="m-exp-holds" aria-hidden="true">
-        <ClimbingHold color="pine" variant={1} size="46px" />
-        <ClimbingHold color="kraft" variant={2} size="60px" />
-        <ClimbingHold color="denim" variant={0} size="38px" />
-        <ClimbingHold color="tomato" variant={2} size="30px" />
-        <ClimbingHold color="mustard" variant={0} size="34px" />
-      </div>
-
-      {/* chalk doodles on the wall, like the desktop scene */}
-      <div className="m-exp-doodles" aria-hidden="true">
-        <ChalkMark type="arrowUp" size={40} className="m-doodle m-doodle-1" strokeWidth={3} />
-        <ChalkMark type="star" size={26} className="m-doodle m-doodle-2" strokeWidth={3} />
-        <ChalkMark type="squiggle" size={46} className="m-doodle m-doodle-3" strokeWidth={2.4} />
-      </div>
-
-      <header className="m-exp-head">
-        <h1 className="m-exp-title">Experience</h1>
-        <p className="m-exp-sub">Climb through my work.</p>
+      <header className="m-section-head m-reveal">
+        <p className="m-kicker">Where I&rsquo;ve worked</p>
+        <h1 className="m-heading">Experience</h1>
       </header>
 
-      <ol className="m-route">
-        {ORDER.map((id, i) => {
+      <ol className="m-cards">
+        {ORDER.map((id) => {
           const exp = EXPERIENCES[id];
           if (!exp) return null;
           const open = openId === id;
+          const meta = [exp.date, exp.location, exp.employmentType]
+            .filter(Boolean)
+            .join(" · ");
+          const photos = exp.highlight?.photos ?? (exp.highlight?.photo ? [exp.highlight.photo] : []);
           return (
-            <li key={id} className="m-route-item">
-              {/* a real blue route hold marks each stop, like the desktop wall */}
-              <span className="m-route-hold" aria-hidden="true">
-                <ClimbingHold color="blue" variant={i % 3} size="26px" route />
-              </span>
-              <article className={`m-exp-card${open ? " is-open" : ""}`}>
+            <li key={id}>
+              <article className={`m-card m-acc m-reveal${open ? " is-open" : ""}`}>
                 <button
                   type="button"
-                  className="m-exp-card-btn"
+                  className="m-acc-btn"
                   aria-expanded={open}
+                  aria-controls={`exp-${id}`}
                   onClick={() => setOpenId(open ? null : id)}
                 >
-                  <span className="m-exp-card-main">
-                    {/* company leads (header), role + date sit beneath — matches
-                        the desktop route board's company-first hierarchy */}
-                    <span className="m-exp-role">{exp.company}</span>
-                    <span className="m-exp-org">
+                  <span className="m-acc-main">
+                    <span className="m-acc-title">{exp.company}</span>
+                    <span className="m-meta">
                       {exp.roleName}
                       {exp.date ? ` · ${exp.date}` : ""}
                     </span>
-                    {!open && exp.contributions?.[0] && (
-                      <span className="m-exp-blurb">{exp.contributions[0]}</span>
+                    {exp.skills?.length > 0 && (
+                      <span className="m-chips m-skills" aria-label="Top skills">
+                        {exp.skills.filter(Boolean).slice(0, 3).map((s, i) => (
+                          <span key={i} className="m-chip">{s}</span>
+                        ))}
+                      </span>
                     )}
                   </span>
-                  {exp.grade && <span className="m-grade">{exp.grade}</span>}
                 </button>
 
-                {open && (
-                  <div className="m-exp-detail">
-                    <p className="m-exp-about">{exp.about}</p>
+                <div id={`exp-${id}`} className="m-acc-body">
+                  <div className="m-acc-body-inner">
+                    {meta && <p className="m-meta" style={{ marginBottom: 8 }}>{meta}</p>}
+                    <p className="m-body-text">{exp.about}</p>
 
                     {exp.contributions?.length > 0 && (
-                      <ul className="m-exp-list">
-                        {exp.contributions.map((c, i) => (
-                          <li key={i}>{c}</li>
-                        ))}
-                      </ul>
+                      <>
+                        <p className="m-label">Key Contributions</p>
+                        <ul className="m-list">
+                          {exp.contributions.map((c, i) => (
+                            <li key={i}>{c}</li>
+                          ))}
+                        </ul>
+                      </>
                     )}
 
                     {exp.skills?.length > 0 && (
-                      <ul className="m-chips">
-                        {exp.skills.filter(Boolean).map((s, i) => (
-                          <li key={i} className="m-chip">{s}</li>
-                        ))}
-                      </ul>
+                      <>
+                        <p className="m-label">Skills</p>
+                        <ul className="m-chips">
+                          {exp.skills.filter(Boolean).map((s, i) => (
+                            <li key={i} className="m-chip">{s}</li>
+                          ))}
+                        </ul>
+                      </>
                     )}
 
-                    {(exp.highlight?.photos?.length || exp.highlight?.photo) && (
-                      <div className="m-exp-photos">
-                        {(exp.highlight.photos ?? [exp.highlight.photo]).map((src, i) => (
-                          <img key={i} src={src} alt={exp.highlight.caption || ""} className="m-exp-photo" />
-                        ))}
-                      </div>
-                    )}
+                    {photos.map((src, i) => (
+                      <figure key={i} className="m-photo-fig">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={src}
+                          alt={exp.highlight?.caption || `${exp.company} highlight`}
+                          className="m-photo"
+                          style={{
+                            objectFit: exp.highlight?.fit ?? "cover",
+                            objectPosition: exp.highlight?.focus ?? "center",
+                            background: exp.highlight?.bg ?? undefined,
+                          }}
+                        />
+                        {exp.highlight?.caption && (
+                          <figcaption className="m-meta">{exp.highlight.caption}</figcaption>
+                        )}
+                      </figure>
+                    ))}
                   </div>
-                )}
+                </div>
               </article>
             </li>
           );
