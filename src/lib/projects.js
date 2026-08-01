@@ -125,9 +125,9 @@ export const PROJECTS = [
     coverStyle: { bg: "#16333d", ink: "#e3f2f3", accent: "#4fc1d4", motif: "pause" },
     linerNotes:
       "Currently building. Tiny Pause is a cognitive health app that helps people take short, restorative breaks during screen time to reduce mental fatigue and build healthier digital habits.",
-    tools: ["Swift", "SwiftUI", "Combine", "Screen Time API", "Xcode", "Higgsfield"],
+    tools: ["Swift / SwiftUI", "Screen Time API", "Xcode", "Higgsfield"],
     technicalHighlights:
-      "A native iOS app built in SwiftUI with Combine-driven state, using Apple's Screen Time frameworks to notice long stretches of screen use and offer a gentle break. Everything runs on device with local storage and no backend, and the in-app art was generated with Higgsfield.",
+      "A native iOS app built in SwiftUI, using Apple's Screen Time frameworks to notice long stretches of screen use and offer a gentle break. Everything runs on device with local storage and no backend, and the in-app art was generated with Higgsfield.",
     demoPreview: {
       title: "Tiny Pause",
       tagline: "Take a tiny pause.",
