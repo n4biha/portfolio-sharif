@@ -439,10 +439,9 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
         </motion.div>
         </div>
 
-        {/* Campanile — stands on the ground just off the paper's right edge (the
-            left edge belongs to the contact badges). Anchored to the paper
-            wrapper so it tracks the sheet at every width; `left-full` puts it
-            outside, `bottom-0` sets it on the same baseline.
+        {/* Campanile — stands on the ground just off the paper's left edge.
+            Anchored to the paper wrapper so it tracks the sheet at every width;
+            `right-full` puts it outside, `bottom-0` sets it on the same baseline.
             Transforms are split across nested elements so they compose instead
             of overwriting each other: parallax (GSAP) → grow-in (Framer) →
             idle sway (CSS) → hover (Framer). */}
@@ -450,7 +449,7 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
           data-parallax-layer="campanile"
           /* explicit width: at `left:100%` the shrink-to-fit available space is
              zero, so an auto-width box would collapse */
-          className="pointer-events-none absolute bottom-0 left-full z-0 ml-[clamp(4px,1.6cqw,30px)] w-[clamp(42px,8.8cqw,84px)] max-[1000px]:hidden"
+          className="pointer-events-none absolute bottom-0 right-full z-0 mr-[clamp(4px,1.6cqw,30px)] w-[clamp(42px,8.8cqw,84px)] max-[1000px]:hidden"
         >
           <motion.div
             style={{ transformOrigin: "bottom center" }}
