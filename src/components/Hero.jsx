@@ -13,7 +13,6 @@ import photoPortrait from "../../public/images/photo-portrait.jpg";
 import starsSticker from "../../public/images/stars-sticker.png";
 import flowerSticker from "../../public/images/flower.png";
 import heartsSticker from "../../public/images/hearts.png";
-import campanileDoodle from "../../public/images/campanile-doodle.png";
 
 /*
   The "Nabiha" cut-out name.
@@ -109,7 +108,6 @@ const PARALLAX_LAYERS = [
   { layer: "paper", yPercent: 22 },   // backdrop sheet — lags down like a far plane
   { layer: "stars", yPercent: 16 },   // bottom-right accent — extra drift on the paper
   { layer: "contacts", yPercent: -12 }, // left-edge badges — pull the opposite way
-  { layer: "campanile", yPercent: 14 }, // stands behind/right of the sheet — farthest plane
 ];
 
 function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
@@ -439,41 +437,6 @@ function Hero({ onIntroDone, introDone = false, paused = false, play = true }) {
         </motion.div>
         </div>
 
-        {/* Campanile — stands on the ground just off the paper's left edge.
-            Anchored to the paper wrapper so it tracks the sheet at every width;
-            `right-full` puts it outside, `bottom-0` sets it on the same baseline.
-            Transforms are split across nested elements so they compose instead
-            of overwriting each other: parallax (GSAP) → grow-in (Framer) →
-            idle sway (CSS) → hover (Framer). */}
-        <div
-          data-parallax-layer="campanile"
-          /* explicit width: at `left:100%` the shrink-to-fit available space is
-             zero, so an auto-width box would collapse */
-          className="pointer-events-none absolute bottom-0 right-full z-0 mr-[clamp(4px,1.6cqw,30px)] w-[clamp(42px,8.8cqw,84px)] max-[1000px]:hidden"
-        >
-          <motion.div
-            style={{ transformOrigin: "bottom center" }}
-            initial={{ scaleY: 0, opacity: 0 }}
-            animate={starsIn ? { scaleY: 1, opacity: 1 } : { scaleY: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 220, damping: 15, mass: 0.8 }}
-          >
-            <div className={starsIn ? "campanile-sway" : undefined}>
-              <motion.div
-                className="pointer-events-auto"
-                whileHover={{ y: -7, rotate: -2.5, scale: 1.04 }}
-                transition={{ type: "spring", stiffness: 340, damping: 16 }}
-              >
-                <Image
-                  src={campanileDoodle}
-                  alt=""
-                  aria-hidden="true"
-                  sizes="(max-width: 1400px) 10vw, 130px"
-                  className="block h-auto w-full select-none"
-                />
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
       </div>
     </section>
   );

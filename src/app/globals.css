@@ -253,19 +253,6 @@ html[data-site-loading="true"] body {
   backface-visibility: hidden;
 }
 
-/* Campanile idle — a barely-there sway from the base, so the tower breathes
-   with the page instead of sitting frozen. Deliberately slow and tiny; it
-   should read as life, not motion. Delayed past the grow-in so the two don't
-   overlap. */
-@keyframes campanile-sway {
-  0%, 100% { transform: rotate(-0.8deg); }
-  50% { transform: rotate(0.8deg); }
-}
-.campanile-sway {
-  transform-origin: bottom center;
-  animation: campanile-sway 6s ease-in-out 0.9s infinite;
-  will-change: transform;
-}
 
 /* ---------------------------------------------------------------
    Pure-CSS washi tape — two translucent strips that "tape" the torn
@@ -1781,10 +1768,6 @@ html[data-site-loading="true"] body {
   }
 
   .caret {
-    animation: none;
-  }
-
-  .campanile-sway {
     animation: none;
   }
 
