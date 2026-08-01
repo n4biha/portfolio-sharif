@@ -2604,6 +2604,39 @@ html[data-site-loading="true"] body {
   box-shadow: 0 10px 16px rgba(0, 0, 0, 0.5);
 }
 
+/* phone frame — used instead of the laptop for mobile-app projects. Sized by
+   HEIGHT (the stage row is the tight axis) so the 9:19.5 body never squashes. */
+.phone {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  flex: 0 0 auto;
+}
+.phone-screen {
+  position: relative;
+  height: clamp(200px, 32vh, 320px);
+  aspect-ratio: 9 / 19.5;
+  width: auto;
+  background: #0e0e12;
+  border: 5px solid #1c1c22;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 16px 30px rgba(0, 0, 0, 0.55);
+}
+.phone-notch {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 38%;
+  height: 11px;
+  background: #1c1c22;
+  border-radius: 999px;
+  z-index: 2;
+}
+
 .mock-shot {
   display: block;
   width: 100%;

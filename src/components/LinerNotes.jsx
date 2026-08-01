@@ -34,15 +34,25 @@ export default function LinerNotes({ project }) {
         <p className="liner-label">Liner Notes</p>
         <p className="liner-text">{project.linerNotes}</p>
 
-        <p className="liner-label">Tools Used</p>
-        <ul className="liner-tools">
-          {project.tools.map((t) => (
-            <li key={t}>{t}</li>
-          ))}
-        </ul>
+        {/* in-development projects have no tools/highlights yet — omit the
+            whole section rather than leaving an orphan label */}
+        {project.tools?.length > 0 && (
+          <>
+            <p className="liner-label">Tools Used</p>
+            <ul className="liner-tools">
+              {project.tools.map((t) => (
+                <li key={t}>{t}</li>
+              ))}
+            </ul>
+          </>
+        )}
 
-        <p className="liner-label">Technical Highlights</p>
-        <p className="liner-text">{project.technicalHighlights}</p>
+        {project.technicalHighlights && (
+          <>
+            <p className="liner-label">Technical Highlights</p>
+            <p className="liner-text">{project.technicalHighlights}</p>
+          </>
+        )}
 
         {project.liveDemoUrl && (
           <div className="liner-buttons">

@@ -100,6 +100,22 @@ export function Motif({ motif, ink, accent }) {
           <path d="M50 54 V20" {...s} />
         </svg>
       );
+    case "pause": // a phone paused mid-scroll, breathing out calm waves
+      return (
+        <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">
+          <rect x="39" y="6" width="22" height="48" rx="5" fill={accent} fillOpacity="0.16" stroke={accent} strokeWidth="2" />
+          <rect x="46" y="10.4" width="8" height="1.8" rx="0.9" fill={ink} />
+          <rect x="44.5" y="23" width="3.6" height="14" rx="1.8" fill={accent} />
+          <rect x="51.9" y="23" width="3.6" height="14" rx="1.8" fill={accent} />
+          <rect x="45" y="47.6" width="10" height="1.8" rx="0.9" fill={ink} />
+          <g {...s} stroke={ink} strokeWidth="2.2">
+            <path d="M33 23 A10 10 0 0 0 33 37" />
+            <path d="M26 17 A17 17 0 0 0 26 43" opacity="0.6" />
+            <path d="M67 23 A10 10 0 0 1 67 37" />
+            <path d="M74 17 A17 17 0 0 1 74 43" opacity="0.6" />
+          </g>
+        </svg>
+      );
     case "shelf":
       return (
         <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">

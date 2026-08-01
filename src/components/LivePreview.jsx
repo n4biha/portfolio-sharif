@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 // Real screenshot on the laptop screen. Held at opacity 0 until the file has
 // actually loaded + decoded, then faded in — so a cold first visit never shows
 // the image popping in half-drawn (the source of the choppy first paint).
-function Shot({ src, alt }) {
+function Shot({ src, alt, onError }) {
   const [loaded, setLoaded] = useState(false);
   return (
     // eslint-disable-next-line @next/next/no-img-element
@@ -21,6 +21,7 @@ function Shot({ src, alt }) {
       className={`mock-shot${loaded ? " is-loaded" : ""}`}
       decoding="async"
       onLoad={() => setLoaded(true)}
+      onError={onError}
       // cached images can be complete before onLoad wires up — catch those too
       ref={(el) => {
         if (el?.complete && el.naturalWidth > 0) setLoaded(true);
@@ -31,10 +32,12 @@ function Shot({ src, alt }) {
 
 function MockScreen({ preview }) {
   const { title, tagline, accent, kind, screenshot } = preview;
+  // if the screenshot file isn't there (yet), quietly fall back to the CSS mock
+  const [shotFailed, setShotFailed] = useState(false);
 
-  // real screenshot fills the laptop screen instead of the CSS mock
-  if (screenshot) {
-    return <Shot src={screenshot} alt={`${title} preview`} />;
+  // real screenshot fills the screen instead of the CSS mock
+  if (screenshot && !shotFailed) {
+    return <Shot src={screenshot} alt={`${title} preview`} onError={() => setShotFailed(true)} />;
   }
 
   return (
@@ -93,24 +96,37 @@ function MockScreen({ preview }) {
 
 export default function LivePreview({ project }) {
   if (!project) return null;
+  // mobile projects get a phone frame instead of the laptop
+  const isPhone = project.demoPreview?.device === "phone";
+  const screen = (
+    <motion.div
+      key={project.id}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      style={{ height: "100%" }}
+    >
+      <MockScreen preview={project.demoPreview} />
+    </motion.div>
+  );
+
   return (
     <div className="live-preview">
       <span className="live-label hand">Live Preview</span>
 
-      <div className="laptop">
-        <div className="laptop-screen">
-          <motion.div
-            key={project.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            style={{ height: "100%" }}
-          >
-            <MockScreen preview={project.demoPreview} />
-          </motion.div>
+      {isPhone ? (
+        <div className="phone">
+          <div className="phone-screen">
+            <span className="phone-notch" aria-hidden="true" />
+            {screen}
+          </div>
         </div>
-        <div className="laptop-base" />
-      </div>
+      ) : (
+        <div className="laptop">
+          <div className="laptop-screen">{screen}</div>
+          <div className="laptop-base" />
+        </div>
+      )}
 
       {/* small disclaimer under the laptop — only for projects that set one */}
       {project.demoPreview.note && (
