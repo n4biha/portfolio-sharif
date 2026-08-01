@@ -112,8 +112,6 @@ export default function LivePreview({ project }) {
 
   return (
     <div className="live-preview">
-      <span className="live-label hand">Live Preview</span>
-
       {isPhone ? (
         <div className="phone">
           <div className="phone-screen">

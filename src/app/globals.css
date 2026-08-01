@@ -2596,14 +2596,6 @@ html[data-site-loading="true"] body {
   gap: 8px;
 }
 
-.live-label {
-  font-family: var(--font-retro), sans-serif;
-  align-self: flex-end;
-  font-size: clamp(13px, 1.5vw, 18px);
-  color: #e6c878;
-  transform: rotate(3deg);
-}
-
 .laptop {
   width: 100%;
   max-width: 360px;
