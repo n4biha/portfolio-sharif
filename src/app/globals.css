@@ -732,6 +732,40 @@ html[data-site-loading="true"] body {
 }
 
 /* ---------------------------------------------------------------
+   Desktop scale — the site renders at 80%, matching how it looks at
+   Chrome's 80% zoom (roomier, less cramped).
+
+   Deliberately NOT `zoom` on <html>: that also scales the section boxes,
+   which throws off the locked-paging scroll math (a section's offsetTop
+   stops matching its real scroll position, so each glide lands ~215px
+   short). Zooming each scene's INNER wrapper instead keeps every section
+   box at its native size, so scroll offsets stay exact.
+
+   Mobile is excluded — it was sized for comfortable reading on a phone.
+--------------------------------------------------------------- */
+@media (min-width: 769px) {
+  html {
+    zoom: 0.8;
+  }
+  /* Viewport units don't shrink with `zoom`, so a 100svh panel would only
+     cover 80% of the real screen. Dividing by the zoom (100 / 0.8 = 125)
+     keeps every full-screen section exactly one screen tall. */
+  #home,
+  .experience-section,
+  .projects-section {
+    height: 125svh;
+  }
+  .climb-wall {
+    min-height: 125svh;
+  }
+  /* element-qualified so it beats the later `.portfolio-footer` base rule
+     (the grid inherits this height, so it needs no rule of its own) */
+  footer.portfolio-footer {
+    min-height: 125svh;
+  }
+}
+
+/* ---------------------------------------------------------------
    Desktop nav links — hand-made & alive: Patrick Hand print
    handwriting; on hover the letters hop up in a wave and each link
    pops its scene prop (washi tape / climbing hold + chalk / vinyl).

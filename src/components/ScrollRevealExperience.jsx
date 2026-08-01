@@ -91,7 +91,11 @@ function HomeDesktop() {
     // --- locked section paging ---------------------------------------------
     const indexRef = { current: 0 };
     const animatingRef = { current: false };
-    const targetFor = (i) => (i === 0 ? 0 : i === 1 ? exp.current : i === 2 ? proj.current : footer.current);
+    // Every screen is exactly one viewport tall, so page by index rather than by
+    // element offset. That stays exact under the desktop `zoom` (which scales
+    // element offsets but NOT the scroll coordinate space, so offsetTop-based
+    // targets would overshoot), and is identical to the old maths without it.
+    const targetFor = (i) => i * window.innerHeight;
 
     const goTo = (i) => {
       const next = i < 0 ? 0 : i > LAST ? LAST : i;
