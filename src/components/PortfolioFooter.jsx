@@ -255,7 +255,14 @@ function FooterCursor({ containerRef }) {
 
     const pointFromEvent = (event) => {
       const rect = container.getBoundingClientRect();
-      return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      // Pointer coords are real screen pixels, but the dot is positioned in the
+      // container's own layout space — which the desktop page zoom makes larger
+      // than the screen. Convert between the two, or the dot trails the cursor.
+      const scale = container.offsetWidth ? rect.width / container.offsetWidth : 1;
+      return {
+        x: (event.clientX - rect.left) / scale,
+        y: (event.clientY - rect.top) / scale,
+      };
     };
     const show = () => {
       if (visibleRef.current) return;

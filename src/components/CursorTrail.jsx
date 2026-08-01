@@ -229,6 +229,9 @@ export default function CursorTrail({ variant = "confetti" }) {
         height: "100vh",
         pointerEvents: "none",
         zIndex: 80,
+        // cancel the desktop page zoom so this overlay maps 1:1 to the screen —
+        // particles are positioned from pointer coords, which are screen pixels
+        zoom: "var(--site-unscale, 1)",
       }}
     />
   );

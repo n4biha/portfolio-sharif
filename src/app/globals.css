@@ -744,9 +744,19 @@ html[data-site-loading="true"] body {
 
    Mobile is excluded — it was sized for comfortable reading on a phone.
 --------------------------------------------------------------- */
+/* Fixed full-screen overlays (the cursor-trail canvas) must opt OUT of the
+   scale below: they're driven by pointer coordinates, which arrive in true
+   screen pixels. Left scaled, such an overlay covers only 80% of the screen
+   and its drawing drifts further from the real cursor the further you move. */
+:root {
+  --site-unscale: 1;
+}
 @media (min-width: 769px) {
   html {
     zoom: 0.8;
+  }
+  :root {
+    --site-unscale: 1.25; /* 1 / 0.8 — cancels the zoom for overlays */
   }
   /* Viewport units don't shrink with `zoom`, so a 100svh panel would only
      cover 80% of the real screen. Dividing by the zoom (100 / 0.8 = 125)
