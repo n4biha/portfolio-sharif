@@ -46,9 +46,82 @@ export default function RecordShelf({
       el.scrollLeft += delta;
     };
 
+    /*
+      Click-and-drag the shelf sideways, like sliding real records along a
+      plank. Only bound for mouse/pen — touch already scrolls natively and
+      hijacking it would fight the momentum.
+    */
+    let dragging = false;
+    let startX = 0;
+    let startScroll = 0;
+    let moved = 0;
+
+    // the desktop page renders at 80% zoom, so pointer (screen) pixels and the
+    // shelf's own layout pixels differ; convert or the shelf lags the cursor
+    const pxRatio = () => {
+      const rect = el.getBoundingClientRect();
+      return el.offsetWidth ? rect.width / el.offsetWidth : 1;
+    };
+
+    const canScroll = () => el.scrollWidth - el.clientWidth > 1;
+
+    const onPointerDown = (e) => {
+      if (e.pointerType === "touch" || !canScroll()) return;
+      dragging = true;
+      moved = 0;
+      startX = e.clientX;
+      startScroll = el.scrollLeft;
+      el.setPointerCapture?.(e.pointerId);
+      el.classList.add("is-dragging");
+    };
+
+    const onPointerMove = (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      moved = Math.max(moved, Math.abs(dx));
+      el.scrollLeft = startScroll - dx / pxRatio();
+    };
+
+    const endDrag = (e) => {
+      if (!dragging) return;
+      dragging = false;
+      el.releasePointerCapture?.(e.pointerId);
+      el.classList.remove("is-dragging");
+    };
+
+    // a real drag shouldn't also select whichever record you released over,
+    // but a plain click still should
+    const onClickCapture = (e) => {
+      if (moved > 5) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      moved = 0;
+    };
+
+    // keep the grab cursor honest: only show it when there's overflow
+    const syncDraggable = () => el.classList.toggle("is-draggable", canScroll());
+    syncDraggable();
+    const ro = new ResizeObserver(syncDraggable);
+    ro.observe(el);
+
     el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, []);
+    el.addEventListener("pointerdown", onPointerDown);
+    el.addEventListener("pointermove", onPointerMove);
+    el.addEventListener("pointerup", endDrag);
+    el.addEventListener("pointercancel", endDrag);
+    el.addEventListener("click", onClickCapture, true);
+
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("pointerdown", onPointerDown);
+      el.removeEventListener("pointermove", onPointerMove);
+      el.removeEventListener("pointerup", endDrag);
+      el.removeEventListener("pointercancel", endDrag);
+      el.removeEventListener("click", onClickCapture, true);
+      ro.disconnect();
+    };
+  }, [projects.length]);
 
   return (
     <div className="record-shelf-area">

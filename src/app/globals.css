@@ -1898,7 +1898,9 @@ html[data-site-loading="true"] body {
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  width: min(980px, 100%);
+  /* wide enough for six records to sit on the plank without being clipped; the
+     row still scrolls past that, so a seventh just extends the shelf */
+  width: min(1120px, 100%);
   flex: 0 0 auto;
 }
 
@@ -1962,15 +1964,21 @@ html[data-site-loading="true"] body {
   background-blend-mode: overlay, overlay, normal, normal;
   border-radius: 6px;
   box-shadow: inset 0 10px 18px rgba(0, 0, 0, 0.45), 0 16px 28px rgba(0, 0, 0, 0.45), 0 0 64px rgba(255, 200, 120, 0.06);
-  /* more records than fit the plank: scroll the shelf sideways. The scrollbar
-     stays hidden (it would cut across the walnut); the part-visible cover at the
-     edge plus the .shelf-dots row are the affordance. `contain` stops a sideways
-     flick from chaining into the vertical section paging. */
+  /* more records than fit the plank: scroll/drag the shelf sideways. The
+     scrollbar stays hidden (it would cut across the walnut); the part-visible
+     cover at the edge plus the .shelf-dots row are the affordance. `contain`
+     stops a sideways flick from chaining into the vertical section paging.
+     Deliberately NO scroll-snap: the scroll range here is barely one cover
+     wide, so snapping quantises it to "start or end" and blocks ordinary
+     dragging. */
   overflow-x: auto;
   overscroll-behavior-x: contain;
-  scroll-snap-type: x proximity;
   scrollbar-width: none;
 }
+/* only advertise dragging when there's actually somewhere to drag to (the class
+   is set from RecordShelf once it measures an overflow) */
+.shelf-row.is-draggable { cursor: grab; }
+.shelf-row.is-dragging { cursor: grabbing; }
 
 .shelf-row::-webkit-scrollbar {
   display: none;
@@ -2106,8 +2114,9 @@ html[data-site-loading="true"] body {
 .album-cover {
   position: relative;
   flex: 0 0 auto;
-  scroll-snap-align: center;
-  width: clamp(82px, 10.2vw, 128px);
+  /* fixed, not viewport-derived: a vw width made the whole shelf composition
+     resize as the window changed, which read as covers randomly shrinking */
+  width: 124px;
   aspect-ratio: 1 / 1;
   border: 0;
   padding: 0;
