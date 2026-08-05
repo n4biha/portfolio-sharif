@@ -44,7 +44,7 @@ export const PROJECTS = [
     id: "marketmap",
     title: "MarketMap",
     subtitle: "AI-powered market research agent",
-    category: "Product / Data",
+    category: "ML / AI",
     fields: ["Agentic AI", "LLM Pipeline", "RAG"],
     year: "2024",
     coverImage: null,
