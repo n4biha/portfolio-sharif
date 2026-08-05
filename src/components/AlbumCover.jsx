@@ -116,6 +116,20 @@ export function Motif({ motif, ink, accent }) {
           </g>
         </svg>
       );
+    case "kiosk": // a check-in tablet on its stand, signed with a fingertip
+      return (
+        <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">
+          <rect x="26" y="4" width="48" height="38" rx="4" fill={accent} fillOpacity="0.16" stroke={accent} strokeWidth="2" />
+          {/* the signature scrawled across the screen */}
+          <path d="M33 30 C38 20, 42 34, 47 26 S 56 18, 61 29 C63 33, 66 30, 68 27" {...s} stroke={ink} strokeWidth="2.2" />
+          <line x1="33" y1="36" x2="67" y2="36" {...s} stroke={ink} strokeWidth="1.6" opacity="0.55" />
+          {/* signed-in tick */}
+          <path d="M31 12 L35 16 L42 9" {...s} stroke={accent} strokeWidth="2.6" />
+          {/* stand */}
+          <path d="M50 42 V50" {...s} stroke={ink} strokeWidth="2.4" />
+          <line x1="36" y1="52" x2="64" y2="52" {...s} stroke={ink} strokeWidth="2.8" />
+        </svg>
+      );
     case "shelf":
       return (
         <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">

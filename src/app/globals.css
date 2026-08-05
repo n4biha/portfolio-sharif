@@ -1945,7 +1945,10 @@ html[data-site-loading="true"] body {
 .shelf-row {
   display: flex;
   align-items: flex-end;
-  justify-content: center;
+  /* `safe` centres the covers while they fit, then falls back to flex-start once
+     they overflow — plain `center` would push the first cover past the scroll
+     origin and make it unreachable. */
+  justify-content: safe center;
   gap: clamp(14px, 2.1vw, 28px);
   padding: clamp(12px, 1.6vh, 18px) clamp(14px, 2vw, 22px);
   /* realistic walnut: a top sheen + horizontal wood grain (stretched turbulence)
@@ -1959,7 +1962,13 @@ html[data-site-loading="true"] body {
   background-blend-mode: overlay, overlay, normal, normal;
   border-radius: 6px;
   box-shadow: inset 0 10px 18px rgba(0, 0, 0, 0.45), 0 16px 28px rgba(0, 0, 0, 0.45), 0 0 64px rgba(255, 200, 120, 0.06);
+  /* more records than fit the plank: scroll the shelf sideways. The scrollbar
+     stays hidden (it would cut across the walnut); the part-visible cover at the
+     edge plus the .shelf-dots row are the affordance. `contain` stops a sideways
+     flick from chaining into the vertical section paging. */
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
 }
 
@@ -2097,6 +2106,7 @@ html[data-site-loading="true"] body {
 .album-cover {
   position: relative;
   flex: 0 0 auto;
+  scroll-snap-align: center;
   width: clamp(82px, 10.2vw, 128px);
   aspect-ratio: 1 / 1;
   border: 0;
@@ -2661,6 +2671,38 @@ html[data-site-loading="true"] body {
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.08),
     0 16px 30px rgba(0, 0, 0, 0.55);
+}
+/* tablet frame — the kiosk runs on an iPad, so it gets its own portrait body:
+   uniform bezel, no notch, just a small camera dot */
+.tablet {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  flex: 0 0 auto;
+}
+.tablet-screen {
+  position: relative;
+  height: clamp(200px, 32vh, 320px);
+  aspect-ratio: 3 / 4;
+  width: auto;
+  background: #0e0e12;
+  border: 7px solid #1c1c22;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 16px 30px rgba(0, 0, 0, 0.55);
+}
+.tablet-cam {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #2b2b33;
+  z-index: 2;
 }
 .phone-notch {
   position: absolute;

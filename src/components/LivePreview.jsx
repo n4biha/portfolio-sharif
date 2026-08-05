@@ -96,8 +96,10 @@ function MockScreen({ preview }) {
 
 export default function LivePreview({ project }) {
   if (!project) return null;
-  // mobile projects get a phone frame instead of the laptop
-  const isPhone = project.demoPreview?.device === "phone";
+  // mobile / kiosk projects get a phone or tablet frame instead of the laptop
+  const device = project.demoPreview?.device;
+  const isPhone = device === "phone";
+  const isTablet = device === "tablet";
   const screen = (
     <motion.div
       key={project.id}
@@ -112,7 +114,14 @@ export default function LivePreview({ project }) {
 
   return (
     <div className="live-preview">
-      {isPhone ? (
+      {isTablet ? (
+        <div className="tablet">
+          <div className="tablet-screen">
+            <span className="tablet-cam" aria-hidden="true" />
+            {screen}
+          </div>
+        </div>
+      ) : isPhone ? (
         <div className="phone">
           <div className="phone-screen">
             <span className="phone-notch" aria-hidden="true" />

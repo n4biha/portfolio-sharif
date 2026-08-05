@@ -140,6 +140,32 @@ export const PROJECTS = [
     liveDemoUrl: null,
     caseStudyUrl: "#",
   },
+  {
+    id: "kiosk",
+    title: "Sign-In Kiosk",
+    subtitle: "Code Ninjas front desk · in daily use",
+    category: "Product / Data",
+    fields: ["Product Design", "Full-Stack"],
+    year: "2026",
+    coverImage: null,
+    coverStyle: { bg: "#2f3540", ink: "#e8edf3", accent: "#8fa3bd", motif: "kiosk" },
+    linerNotes:
+      "I work at Code Ninjas, where part of my job is making sure parents can sign their kids in and out smoothly in the mornings and afternoons. Summer camps are our busiest time, and we have to make sure every student is signed in. The old sign-in sheet was slow and it lagged, so parents got annoyed and complained, especially when they were already in a rush, and during the busiest stretches staff usually ended up doing it for them. After identifying these pain points, I rebuilt the sign-in from scratch. We parse a CSV that carries the same student information we always collected, so parents have far less to fill in themselves. Instead of typing, they tap their child's name, which brings a sign-in down to about two taps and 15 seconds and reduces a 2 to 3 minute delay per student. Signing out is a signature on the screen. Staff also get an attendance log, a roster check that shows who hasn't shown up yet, and CSV exports. The tool is used by 50 to 75 parents daily, so easing this process for them was crucial.",
+    tools: ["JavaScript", "Tailwind CSS", "Express", "SQLite"],
+    technicalHighlights:
+      "Built with vanilla JavaScript and Tailwind CSS on the front end, with an Express server and a SQLite database. There is no demo or public code for this one since it holds sensitive student information.",
+    demoPreview: {
+      title: "Sign-In Kiosk",
+      tagline: "Tap your name to sign in.",
+      accent: "#8fa3bd",
+      kind: "app",
+      device: "tablet",
+      screenshot: "/images/kiosk-preview.png",
+      note: "No public demo or code, since the kiosk holds student data.",
+    },
+    liveDemoUrl: null,
+    caseStudyUrl: "#",
+  },
 ];
 
 // Filter tabs above the shelf — "All" plus each distinct category (in first-seen order).
