@@ -53,7 +53,7 @@ export const PROJECTS = [
       "AccessLens is an AI-powered accessibility auditor designed to help educators identify hidden barriers in assignments and digital learning materials before students encounter them. Instead of only checking traditional accessibility requirements like contrast or alt text, AccessLens looks at the cognitive demands of the learning experience itself. AccessLens analyzes assignments for issues such as excessive cognitive load, unclear multi-step instructions, executive-function demands, rigid time constraints, inaccessible participation requirements, visual dependencies, and other assumptions that may disproportionately affect students with ADHD, dyslexia, low vision, motor disabilities, or other accessibility needs.",
     tools: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Anthropic Claude (Opus 5)", "Zod", "pdfjs-dist", "axe-core"],
     technicalHighlights:
-      "Claude Opus 5 turns the assignment into a typed task graph, and a plain TypeScript engine does all the measuring, so the same graph always gives the same numbers. Quotes are checked against the source and citations come from a lookup table, so the model cannot invent either one.",
+      "AccessLens is built with Next.js 16 (App Router) and React 19 in TypeScript, using Zod for schema validation and Tailwind CSS 4 for styling. The AI layer runs on Claude Opus via the Anthropic SDK, with structured JSON output constrained to Zod schemas. It uses pdfjs-dist for client-side PDF text extraction and text-readability for reading-level scoring (Flesch-Kincaid/SMOG). It's deployed on Vercel.",
     demoPreview: {
       title: "AccessLens",
       tagline: "Can a student actually get through this?",
