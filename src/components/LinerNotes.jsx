@@ -31,8 +31,12 @@ export default function LinerNotes({ project }) {
           ))}
         </div>
 
-        <p className="liner-label">Liner Notes</p>
-        <p className="liner-text">{project.linerNotes}</p>
+        {project.linerNotes && (
+          <>
+            <p className="liner-label">Liner Notes</p>
+            <p className="liner-text">{project.linerNotes}</p>
+          </>
+        )}
 
         {/* in-development projects have no tools/highlights yet — omit the
             whole section rather than leaving an orphan label */}

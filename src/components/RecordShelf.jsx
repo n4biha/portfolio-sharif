@@ -51,10 +51,14 @@ export default function RecordShelf({
       plank. Only bound for mouse/pen — touch already scrolls natively and
       hijacking it would fight the momentum.
     */
-    let dragging = false;
+    let tracking = false; // pointer is down, but it may still turn out to be a click
+    let dragging = false; // it moved far enough to be a real drag
     let startX = 0;
     let startScroll = 0;
     let moved = 0;
+
+    // how far the pointer travels before we call it a drag instead of a click
+    const DRAG_SLOP = 5;
 
     // the desktop page renders at 80% zoom, so pointer (screen) pixels and the
     // shelf's own layout pixels differ; convert or the shelf lags the cursor
@@ -67,32 +71,45 @@ export default function RecordShelf({
 
     const onPointerDown = (e) => {
       if (e.pointerType === "touch" || !canScroll()) return;
-      dragging = true;
+      tracking = true;
+      dragging = false;
       moved = 0;
       startX = e.clientX;
       startScroll = el.scrollLeft;
-      el.setPointerCapture?.(e.pointerId);
-      el.classList.add("is-dragging");
     };
 
+    /*
+      Capture is claimed here rather than on pointerdown. Capturing retargets the
+      click that follows to this container, so grabbing it up front would stop
+      every plain click from ever reaching the album button underneath.
+    */
     const onPointerMove = (e) => {
-      if (!dragging) return;
+      if (!tracking) return;
       const dx = e.clientX - startX;
       moved = Math.max(moved, Math.abs(dx));
+      if (!dragging) {
+        if (moved <= DRAG_SLOP) return; // still just a click
+        dragging = true;
+        el.setPointerCapture?.(e.pointerId);
+        el.classList.add("is-dragging");
+      }
       el.scrollLeft = startScroll - dx / pxRatio();
     };
 
     const endDrag = (e) => {
-      if (!dragging) return;
-      dragging = false;
-      el.releasePointerCapture?.(e.pointerId);
-      el.classList.remove("is-dragging");
+      if (!tracking) return;
+      tracking = false;
+      if (dragging) {
+        dragging = false;
+        el.releasePointerCapture?.(e.pointerId);
+        el.classList.remove("is-dragging");
+      }
     };
 
     // a real drag shouldn't also select whichever record you released over,
     // but a plain click still should
     const onClickCapture = (e) => {
-      if (moved > 5) {
+      if (moved > DRAG_SLOP) {
         e.preventDefault();
         e.stopPropagation();
       }

@@ -83,8 +83,12 @@ export default function ProjectsMobile() {
 
                 <div id={`proj-${p.id}`} className="m-acc-body">
                   <div className="m-acc-body-inner">
-                    <p className="m-label">Liner Notes</p>
-                    <p className="m-body-text">{p.linerNotes}</p>
+                    {p.linerNotes && (
+                      <>
+                        <p className="m-label">Liner Notes</p>
+                        <p className="m-body-text">{p.linerNotes}</p>
+                      </>
+                    )}
 
                     {p.tools?.length > 0 && (
                       <>

@@ -139,6 +139,21 @@ export function Motif({ motif, ink, accent }) {
           ))}
         </svg>
       );
+    case "lens": // a magnifier over assignment instructions, one line flagged
+      return (
+        <svg viewBox="0 0 100 60" className="cover-motif" aria-hidden="true">
+          {/* the assignment: a short stack of instruction lines */}
+          <rect x="20" y="8" width="46" height="44" rx="3" fill={accent} fillOpacity="0.14" stroke={accent} strokeWidth="2" />
+          {[16, 23, 37, 44].map((y) => (
+            <line key={y} x1="27" y1={y} x2="59" y2={y} {...s} stroke={ink} strokeWidth="1.8" opacity="0.6" />
+          ))}
+          {/* the barrier the lens found */}
+          <line x1="27" y1="30" x2="52" y2="30" {...s} stroke={accent} strokeWidth="3.2" />
+          {/* the glass */}
+          <circle cx="60" cy="32" r="15" fill={ink} fillOpacity="0.12" stroke={ink} strokeWidth="2.6" />
+          <path d="M71 43 L82 53" {...s} stroke={ink} strokeWidth="3.4" />
+        </svg>
+      );
     case "book":
     default:
       return (

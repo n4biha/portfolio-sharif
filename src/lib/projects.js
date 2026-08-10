@@ -41,6 +41,31 @@ export const PROJECTS = [
     caseStudyUrl: "#",
   },
   {
+    id: "accesslens",
+    title: "AccessLens",
+    subtitle: "Task-level accessibility for assignments",
+    category: "ML / AI",
+    fields: ["Accessibility", "LLM Pipeline", "EdTech"],
+    year: "2026",
+    coverImage: null,
+    coverStyle: { bg: "#16233d", ink: "#e8eefc", accent: "#5b8def", motif: "lens" },
+    linerNotes:
+      "AccessLens is an AI-powered accessibility auditor designed to help educators identify hidden barriers in assignments and digital learning materials before students encounter them. Instead of only checking traditional accessibility requirements like contrast or alt text, AccessLens looks at the cognitive demands of the learning experience itself. AccessLens analyzes assignments for issues such as excessive cognitive load, unclear multi-step instructions, executive-function demands, rigid time constraints, inaccessible participation requirements, visual dependencies, and other assumptions that may disproportionately affect students with ADHD, dyslexia, low vision, motor disabilities, or other accessibility needs.",
+    tools: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Anthropic Claude (Opus 5)", "Zod", "pdfjs-dist", "axe-core"],
+    technicalHighlights:
+      "Claude Opus 5 turns the assignment into a typed task graph, and a plain TypeScript engine does all the measuring, so the same graph always gives the same numbers. Quotes are checked against the source and citations come from a lookup table, so the model cannot invent either one.",
+    demoPreview: {
+      title: "AccessLens",
+      tagline: "Can a student actually get through this?",
+      accent: "#5b8def",
+      kind: "dashboard",
+      screenshot: "/images/accesslens-preview.png",
+    },
+    liveDemoUrl: "https://accesslens-mauve.vercel.app",
+    liveDemoLabel: "Live Demo",
+    caseStudyUrl: "#",
+  },
+  {
     id: "marketmap",
     title: "MarketMap",
     subtitle: "AI-powered market research agent",
