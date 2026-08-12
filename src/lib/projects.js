@@ -43,14 +43,14 @@ export const PROJECTS = [
   {
     id: "accesslens",
     title: "AccessLens",
-    subtitle: "1st place - Grand Prize Winner",
+    subtitle: "Accessibility auditor · Global Builders Hackathon Grand Prize winner",
     category: "ML / AI",
     fields: ["Accessibility", "LLM Pipeline", "EdTech"],
     year: "2026",
     coverImage: null,
     coverStyle: { bg: "#16233d", ink: "#e8eefc", accent: "#5b8def", motif: "lens" },
     linerNotes:
-      "AccessLens is an AI-powered accessibility auditor designed to help educators identify hidden barriers in assignments and digital learning materials before students encounter them. Instead of only checking traditional accessibility requirements like contrast or alt text, AccessLens looks at the cognitive demands of the learning experience itself. AccessLens analyzes assignments for issues such as excessive cognitive load, unclear multi-step instructions, executive-function demands, rigid time constraints, inaccessible participation requirements, visual dependencies, and other assumptions that may disproportionately affect students with ADHD, dyslexia, low vision, motor disabilities, or other accessibility needs. I built this as a prototype for a hackathon, submitted it, and won 1st place and the Grand Prize.",
+      "AccessLens is an AI-powered accessibility auditor designed to help educators identify hidden barriers in assignments and digital learning materials before students encounter them. Instead of only checking traditional accessibility requirements like contrast or alt text, AccessLens looks at the cognitive demands of the learning experience itself. AccessLens analyzes assignments for issues such as excessive cognitive load, unclear multi-step instructions, executive-function demands, rigid time constraints, inaccessible participation requirements, visual dependencies, and other assumptions that may disproportionately affect students with ADHD, dyslexia, low vision, motor disabilities, or other accessibility needs. I built this project as a prototype for the Global Builders Hackathon: Code for Impact, where I earned 1st Place and was the Grand Prize Winner.",
     tools: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Anthropic Claude (Opus 5)", "Zod"],
     technicalHighlights:
       "AccessLens is built with Next.js 16 (App Router) and React 19 in TypeScript, using Zod for schema validation and Tailwind CSS 4 for styling. The AI layer runs on Claude Opus via the Anthropic SDK, with structured JSON output constrained to Zod schemas. It uses pdfjs-dist for client-side PDF text extraction and text-readability for reading-level scoring (Flesch-Kincaid/SMOG). It's deployed on Vercel.",
