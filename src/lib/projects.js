@@ -43,7 +43,7 @@ export const PROJECTS = [
   {
     id: "accesslens",
     title: "AccessLens",
-    subtitle: "Task-level accessibility for assignments",
+    subtitle: "Hackathon prototype · Grand Prize winner",
     category: "ML / AI",
     fields: ["Accessibility", "LLM Pipeline", "EdTech"],
     year: "2026",
