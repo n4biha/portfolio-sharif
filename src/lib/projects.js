@@ -61,8 +61,8 @@ export const PROJECTS = [
       kind: "dashboard",
       screenshot: "/images/accesslens-preview.png",
     },
-    liveDemoUrl: "https://accesslens-mauve.vercel.app",
-    liveDemoLabel: "Live Demo",
+    liveDemoUrl: "https://youtu.be/SNgsF-U1hW4",
+    liveDemoLabel: "Video Demo",
     caseStudyUrl: "#",
   },
   {
