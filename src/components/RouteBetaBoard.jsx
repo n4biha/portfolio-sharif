@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ExpandableText from "./ExpandableText";
+import { SIDE_HEADING } from "@/lib/experiences";
 
 
 // tiny line icons for the metadata row (date / location / employment type)
@@ -103,9 +104,19 @@ export default function RouteBetaBoard({ experience, onClose }) {
     }
   }, [experience]);
   const exp = shown;
+  // `compact` entries get the small card: header + role + metadata + a one-line
+  // brief, skipping the about / contributions / highlights / skills sections.
+  const compact = !!exp?.compact;
 
   return (
-    <div className={`beta-board${open ? " is-open" : ""}`} aria-hidden={!open}>
+    // inert while closed: the faded-out card stays mounted (so it can animate), and
+    // its ✕ is pointer-events:auto — without this an invisible, tabbable button
+    // would sit over the top-right of the wall, right where the logbook hangs.
+    <div
+      className={`beta-board${open ? " is-open" : ""}${compact ? " is-compact" : ""}`}
+      aria-hidden={!open}
+      inert={open ? undefined : true}
+    >
       {exp && (
         <div className="beta-inner">
           <button className="beta-close" type="button" onClick={onClose} aria-label="Close">
@@ -114,8 +125,8 @@ export default function RouteBetaBoard({ experience, onClose }) {
             </svg>
           </button>
 
-          {/* header */}
-          <p className="beta-eyebrow">Experience {exp.index}</p>
+          {/* header — route rocks are numbered; logbook entries name their tier */}
+          <p className="beta-eyebrow">{exp.side ? SIDE_HEADING : `Experience ${exp.index}`}</p>
           <h2 className="beta-title">{exp.company}</h2>
 
           {/* role lockup */}
@@ -143,42 +154,49 @@ export default function RouteBetaBoard({ experience, onClose }) {
 
           <div className="beta-divider" aria-hidden="true" />
 
-          {/* about — clamped to 3 lines with an inline show-more */}
-          <section className="beta-section">
-            <p className="beta-section-label">About</p>
-            <ExpandableText key={openSeq} text={exp.about} lines={3} className="beta-about-body" />
-          </section>
+          {compact ? (
+            /* small card — one sentence on what the role is, and that's it */
+            <p className="beta-brief">{exp.brief}</p>
+          ) : (
+            <>
+              {/* about — clamped to 3 lines with an inline show-more */}
+              <section className="beta-section">
+                <p className="beta-section-label">About</p>
+                <ExpandableText key={openSeq} text={exp.about} lines={3} className="beta-about-body" />
+              </section>
 
-          <div className="beta-divider" aria-hidden="true" />
+              <div className="beta-divider" aria-hidden="true" />
 
-          {/* two columns — key contributions / highlights */}
-          <div className="beta-columns">
-            <section className="beta-section">
-              <p className="beta-section-label">Key Contributions</p>
-              <ul className="beta-contrib">
-                {exp.contributions.map((c, i) => (
-                  <li key={i}>{c}</li>
-                ))}
-              </ul>
-            </section>
+              {/* two columns — key contributions / highlights */}
+              <div className="beta-columns">
+                <section className="beta-section">
+                  <p className="beta-section-label">Key Contributions</p>
+                  <ul className="beta-contrib">
+                    {exp.contributions.map((c, i) => (
+                      <li key={i}>{c}</li>
+                    ))}
+                  </ul>
+                </section>
 
-            <section className="beta-section">
-              <p className="beta-section-label">Highlights</p>
-              <Highlight photo={exp.highlight?.photo} photos={exp.highlight?.photos} caption={exp.highlight?.caption} focus={exp.highlight?.focus} fit={exp.highlight?.fit} bg={exp.highlight?.bg} />
-            </section>
-          </div>
+                <section className="beta-section">
+                  <p className="beta-section-label">Highlights</p>
+                  <Highlight photo={exp.highlight?.photo} photos={exp.highlight?.photos} caption={exp.highlight?.caption} focus={exp.highlight?.focus} fit={exp.highlight?.fit} bg={exp.highlight?.bg} />
+                </section>
+              </div>
 
-          <div className="beta-divider" aria-hidden="true" />
+              <div className="beta-divider" aria-hidden="true" />
 
-          {/* skills */}
-          <section className="beta-section">
-            <p className="beta-section-label">Skills</p>
-            <ul className="beta-skill-list">
-              {exp.skills.map((s, i) => (
-                <li key={i}>{s}</li>
-              ))}
-            </ul>
-          </section>
+              {/* skills */}
+              <section className="beta-section">
+                <p className="beta-section-label">Skills</p>
+                <ul className="beta-skill-list">
+                  {exp.skills.map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ul>
+              </section>
+            </>
+          )}
         </div>
       )}
     </div>

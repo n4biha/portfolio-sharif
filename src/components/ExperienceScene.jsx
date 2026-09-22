@@ -3,19 +3,23 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ClimbingWall from "./ClimbingWall";
 import RouteBetaBoard from "./RouteBetaBoard";
+import WallLogbook from "./WallLogbook";
 import ChalkMark, { ChalkDefs } from "./ChalkMark";
 import ExperienceMobile from "./ExperienceMobile";
-import { EXPERIENCES } from "@/lib/experiences";
+import { EXPERIENCES, SIDE_EXPERIENCES } from "@/lib/experiences";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useParallaxLayers } from "./ui/parallax-scrolling";
 
 // Same layered-drift as the Hero, tuned for the climbing wall. The interactive
-// holds stay put (they carry the zoom-pan on open); only the chalk title and
-// doodles ride separate planes, so they drift as this screen scrolls up toward
-// Projects. Exit mode → identity at rest, drift on the way out. Tunable.
+// holds stay put (they carry the zoom-pan on open); only the chalk title, the
+// doodles and the logbook ride separate planes, so they drift as this screen
+// scrolls up toward Projects. Exit mode → identity at rest, drift on the way out.
+// yPercent is a % of each layer's OWN height (the logbook's wrapper is full
+// height, so its small number is still a real drift). Tunable.
 const PARALLAX_LAYERS = [
   { layer: "exptitle", yPercent: -16 }, // chalk EXPERIENCE title — drifts up
   { layer: "expdeco", yPercent: 22 },   // chalk doodles — lag down, a far plane
+  { layer: "explog", yPercent: -7 },    // hanging logbook — a near plane, up
 ];
 
 function ExperienceScene({ active = true, arrived = true }) {
@@ -42,21 +46,45 @@ function ExperienceScene({ active = true, arrived = true }) {
   // first), then let the per-dot stagger draw it bottom → top. `arrived` flips
   // true once the page glide finishes (or immediately on the standalone route).
   const [tracing, setTracing] = useState(false);
+  // The logbook swings in with that first trace, then STAYS: `tracing` drops the
+  // instant a glide away begins (arrived → false), which is invisible for the 6px
+  // dots but would blink the whole sheet out mid-scroll. So this only latches on.
+  const [logbookIn, setLogbookIn] = useState(false);
   useEffect(() => {
     if (!arrived) {
       setTracing(false);
       return;
     }
-    const t = setTimeout(() => setTracing(true), 650);
+    const t = setTimeout(() => {
+      setTracing(true);
+      setLogbookIn(true);
+    }, 650);
     return () => clearTimeout(t);
   }, [arrived]);
 
+  // Closing via Esc or the card's ✕ hands focus back to whatever opened the card
+  // (a rock, or a logbook row). The logbook is inert while a card is open, so
+  // without this a keyboard user's focus falls to <body>. It's restored in an
+  // effect — i.e. after the commit that lifts `inert` — and with preventScroll,
+  // since a focus-scroll would desync the locked page glide.
+  const openerRef = useRef(null);
+  const restoreFocus = useRef(false);
+  const close = useCallback(() => {
+    restoreFocus.current = true;
+    setSelectedId(null);
+  }, []);
+  useEffect(() => {
+    if (open || !restoreFocus.current) return;
+    restoreFocus.current = false;
+    openerRef.current?.focus({ preventScroll: true });
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
-    const onKey = (e) => e.key === "Escape" && setSelectedId(null);
+    const onKey = (e) => e.key === "Escape" && close();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
+  }, [open, close]);
 
   // When we scroll away from the wall (no longer "on the page"), close any open
   // Route Beta Board so the info sidebar isn't left lingering.
@@ -69,8 +97,10 @@ function ExperienceScene({ active = true, arrived = true }) {
   const [hintDone, setHintDone] = useState(false);
   const hint = active && arrived && tracing && !open && !hintDone;
 
-  const select = useCallback((id) => {
+  // `el` = the rock / logbook row that was activated (see `close` above)
+  const select = useCallback((id, el) => {
     setHintDone(true);
+    openerRef.current = el ?? null;
     setSelectedId((cur) => (cur === id ? null : id));
   }, []);
 
@@ -80,20 +110,22 @@ function ExperienceScene({ active = true, arrived = true }) {
   );
 
   return (
-    <div ref={sceneRef} className={`climb-scene${open ? " is-open" : ""}${tracing ? " is-tracing" : ""}`}>
+    <div
+      ref={sceneRef}
+      className={`climb-scene${open ? " is-open" : ""}${experience?.compact ? " is-compact" : ""}${tracing ? " is-tracing" : ""}`}
+    >
       <ChalkDefs />
 
       <div className="climb-scene-wall">
         {wall}
 
-        {/* chalk doodles drawn on the wall (text removed — drawings only) */}
+        {/* chalk doodles drawn on the wall — left + centre only; the right side
+            belongs to the logbook */}
         <div data-parallax-layer="expdeco" className="wall-deco" aria-hidden="true">
           <ChalkMark type="arrowUp" size={52} className="deco deco-arrow1" strokeWidth={3.2} />
           <ChalkMark type="star" size={32} className="deco deco-star1" strokeWidth={3.2} />
-          <ChalkMark type="check" size={38} className="deco deco-check1" strokeWidth={3.4} />
           <ChalkMark type="x" size={26} className="deco deco-x1" strokeWidth={3.2} />
           <ChalkMark type="squiggle" size={58} className="deco deco-squig1" strokeWidth={2.6} />
-          <ChalkMark type="circle" size={30} className="deco deco-circ1" strokeWidth={2.8} />
         </div>
       </div>
 
@@ -117,7 +149,12 @@ function ExperienceScene({ active = true, arrived = true }) {
         </div>
       </div>
 
-      <RouteBetaBoard experience={experience} onClose={() => setSelectedId(null)} />
+      {/* the "where it started" logbook, hanging on the right — a sibling of the
+          wall layer (not inside it) so it neither pans nor dirties the wall's
+          cached texture. The card opens over this spot, so it fades while open. */}
+      <WallLogbook entries={SIDE_EXPERIENCES} onSelect={select} shown={logbookIn} covered={open} />
+
+      <RouteBetaBoard experience={experience} onClose={close} />
     </div>
   );
 }

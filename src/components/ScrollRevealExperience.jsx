@@ -186,6 +186,9 @@ function HomeDesktop() {
 
     const onKey = (e) => {
       if (animatingRef.current) return;
+      // Space on a focused control is "press it", not "next screen" — without this
+      // the rocks / logbook rows / nav links can't be activated by keyboard here.
+      if (e.key === " " && e.target?.closest?.("button, a, input, textarea, select")) return;
       if (["ArrowDown", "PageDown"].includes(e.key) || e.key === " ") {
         e.preventDefault();
         goTo(indexRef.current + 1);

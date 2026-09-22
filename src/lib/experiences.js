@@ -1,17 +1,34 @@
 /*
-  The five route holds → experiences on the wall. `id` matches ROUTE in
-  ClimbingWall.jsx (bottom "start" upward). Each entry drives the
-  editorial popup (RouteBetaBoard): an eyebrow index, the company title, a split
-  role (name + tag), a metadata row (date · location · type), an ABOUT paragraph
-  (clamped to 3 lines with an inline "Show more"), KEY CONTRIBUTIONS bullets, a
-  HIGHLIGHTS snapshot (photo + caption), and a skills row.
+  Every experience on the wall, oldest → newest. Two tiers:
+
+   • MAIN — the four most relevant roles. Each is a blue route hold in
+     ClimbingWall.jsx (`id` matches ROUTE there, bottom "start" upward) and is
+     numbered by `index` (the card's "Experience 0N" eyebrow).
+   • SIDE — `side: true`. Off the route; listed in the "where it started" logbook
+     clipped to the wall (WallLogbook.jsx). No `index`. To promote one to a rock,
+     drop `side`, give it an `index`, and add it to ROUTE (and the reverse).
+
+  Either way the entry drives the same editorial popup (RouteBetaBoard): an
+  eyebrow, the company title, a split role (name + tag), a metadata row
+  (date · location · type), an ABOUT paragraph (clamped to 3 lines with an inline
+  "Show more"), KEY CONTRIBUTIONS bullets, a HIGHLIGHTS snapshot (photo +
+  caption), and a skills row.
 
   `highlight.photo` is an image path (drop one into /public/images and point to
   it); until then the HIGHLIGHTS area shows a clean placeholder.
+
+  `compact: true` entries get the small card instead: just the company, role,
+  metadata row, and a one-sentence `brief` — no about / contributions /
+  highlight / skills. To grow one into a full card later, drop `compact` and
+  `brief` and fill in those fields.
+
+  Optional short display names, for the tight spots on the wall (each falls back
+  to the full field): `label` — the chalk name beside a rock / the logbook row
+  title (else `company`); `logRole` — the logbook's role line (else `roleName`).
 */
 export const EXPERIENCES = {
   "code-ninjas": {
-    index: "01",
+    side: true,
     company: "Code Ninjas",
     roleName: "Code Sensei",
     roleTag: "Instructor",
@@ -35,9 +52,10 @@ export const EXPERIENCES = {
     },
   },
   datastory: {
-    index: "02",
+    side: true,
     company: "Morton Lab @ USC",
     roleName: "Computational Neuroscience Researcher",
+    logRole: "Neuroscience Researcher",
     roleTag: "Internship",
     grade: "5.9",
     date: "May 2024 – Aug 2024",
@@ -56,8 +74,9 @@ export const EXPERIENCES = {
     },
   },
   behavioral: {
-    index: "03",
+    side: true,
     company: "UC Berkeley - Data Science Education",
+    label: "UC Berkeley · DS Ed Podcast",
     roleName: "Podcast Operations Manager",
     roleTag: "Work-Study",
     grade: "5.10a",
@@ -80,7 +99,7 @@ export const EXPERIENCES = {
     },
   },
   "pm-intern": {
-    index: "04",
+    index: "01",
     company: "Dabble Health",
     roleName: "Product Management & Data",
     roleTag: "Internship",
@@ -104,8 +123,9 @@ export const EXPERIENCES = {
     },
   },
   "frontier-pm": {
-    index: "05",
+    index: "02",
     company: "Frontier Technology Institute",
+    label: "Frontier Tech Institute",
     roleName: "Technical Project Manager",
     roleTag: "",
     grade: "5.11a",
@@ -129,4 +149,44 @@ export const EXPERIENCES = {
       caption: "A few of my students from the research cohort!",
     },
   },
+  "eko-health": {
+    index: "03",
+    compact: true,
+    company: "Eko Health",
+    roleName: "AI Product",
+    roleTag: "Internship",
+    grade: "5.11c",
+    date: "Aug 2026 – Present",
+    location: "Emeryville, CA",
+    employmentType: "",
+    brief:
+      "Product strategy and development for Eko’s clinical AI — digital cardiac and pulmonary health technology.",
+  },
+  ibm: {
+    index: "04",
+    compact: true,
+    company: "IBM",
+    roleName: "Applied AI Engineer",
+    roleTag: "Contract",
+    grade: "5.12a",
+    date: "Sep 2026 – Present",
+    location: "",
+    employmentType: "",
+    brief:
+      "Working on AI agent evals — testing and measuring how well AI agents actually perform.",
+  },
 };
+
+// The two tiers as ordered lists (file order = oldest → newest), each entry
+// carrying its `id`, so components never hard-code which role lives where.
+const pick = (test) =>
+  Object.entries(EXPERIENCES)
+    .filter(([, exp]) => test(exp))
+    .map(([id, exp]) => ({ id, ...exp }));
+
+export const MAIN_EXPERIENCES = pick((exp) => !exp.side);
+export const SIDE_EXPERIENCES = pick((exp) => exp.side);
+
+// One wording for the side tier everywhere it's named: the logbook heading, the
+// card eyebrow, and the mobile group label (each cases it in CSS).
+export const SIDE_HEADING = "Where it started";

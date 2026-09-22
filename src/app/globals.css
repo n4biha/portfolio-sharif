@@ -25,6 +25,19 @@
   /* deep-indigo recessed hole / vignette */
   --wall-ink: #e9e3d8;
   /* off-white text on the dark wall */
+
+  /* the dark panel the Route Beta Board pop-up AND the wall logbook are made of —
+     one material, declared once. Literal values match the pop-up's originals. */
+  --climb-card-bg: rgba(18, 18, 20, 0.9);
+  /* the same colour composited over the wall, for a panel with no blur behind it */
+  --climb-card-bg-solid: #171718;
+  --climb-card-border: rgba(255, 255, 255, 0.08);
+  --climb-card-radius: 18px;
+  --climb-text: #d4d4d1;
+  --climb-text-strong: #f5f5f4;
+  --climb-text-muted: #9a9a97;
+  --climb-rule: rgba(245, 245, 244, 0.12);
+  --climb-blue-soft: #8fa8d9;
 }
 
 @theme inline {
@@ -586,13 +599,15 @@ html[data-site-loading="true"] body {
   cursor: pointer;
 }
 
-.climb-hold--route:hover {
+/* keyed off the BUTTON, not the hold itself: the button also contains the rock's
+   chalk name (.hold-label), so hovering the name bounces the rock too */
+.climb-hold-btn:hover .climb-hold--route {
   transform: scale(1.12) translateY(-6%);
   filter: drop-shadow(3px 9px 11px rgba(0, 0, 0, 0.5));
 }
 
 /* Phones: thin out the wall so the portrait viewport isn't crowded — drop the
-   extra ambiance holds + a few chalk doodles. The 5 route holds + trail stay.
+   extra ambiance holds + a few chalk doodles. The route holds + trail stay.
    (The title-shrink + route-lift phone rules live AFTER the .wall-title/.wall-sub
    base rules below — media queries add no specificity, so they must come later in
    source order to win.) */
@@ -600,7 +615,6 @@ html[data-site-loading="true"] body {
 
   .climb-amb-extra,
   .deco-x1,
-  .deco-circ1,
   .deco-squig1 {
     display: none;
   }
@@ -944,6 +958,92 @@ html[data-site-loading="true"] body {
 }
 
 /* ---------------------------------------------------------------
+   Chalk name beside each route hold. It lives INSIDE the hold's <button>, so it
+   pans with the wall, shares the rock's hover + click, and adds no second tab
+   stop — but it's absolutely placed, so the button's own box is still just the
+   rock. The button is rotated inline; `--rot` undoes that so the lettering sits
+   level, then each side gets a slight handwritten tilt of its own. Names sit on
+   the OUTER side of the zigzag (ROUTE's `label`), clear of the dotted trail.
+--------------------------------------------------------------- */
+.hold-label {
+  position: absolute;
+  top: 50%;
+  width: max-content;
+  /* long names wrap to two balanced lines rather than reach across the wall (a
+     left-side name must also stay on-screen after the wall pans left on open) */
+  max-width: 9em;
+  /* the gap to the rock is PADDING, not margin, so rock → name is one continuous
+     hover/click area */
+  padding: 6px 12px;
+  font-family: var(--font-nav), "Patrick Hand", cursive;
+  /* Patrick Hand has a small x-height, so it needs a few px more than a sans
+     would to read at a glance (remember desktop renders at 80% — see html zoom) */
+  font-size: clamp(19px, 1.6vw, 26px);
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+  color: rgba(241, 239, 230, 0.92);
+  /* deliberately NO transition: this text is baked into the wall's cached layer
+     next to an SVG-filtered rock, so animating its colour would re-raster that
+     tile every frame. Instant swaps only (same reasoning as .climb-hold's filter). */
+}
+
+.hold-label--right {
+  left: 100%;
+  text-align: left;
+  transform-origin: 0 50%;
+  transform: translateY(-50%) rotate(calc(var(--rot, 0deg) * -1 - 2deg));
+}
+
+.hold-label--left {
+  right: 100%;
+  text-align: right;
+  transform-origin: 100% 50%;
+  transform: translateY(-50%) rotate(calc(var(--rot, 0deg) * -1 + 2deg));
+}
+
+.climb-hold-btn:hover .hold-label {
+  color: #fff;
+}
+
+.climb-hold-btn.is-selected .hold-label {
+  color: #cfe5ff;
+}
+
+/* the little dates under each name — typewriter, like the wall's subtitle, in a
+   quieter chalk. Same no-transition rule as the name (see .hold-label). */
+.hold-label-date {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-courier), "Courier New", monospace;
+  font-size: clamp(11px, 0.8vw, 13px);
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  color: rgba(241, 239, 230, 0.6);
+}
+
+.climb-hold-btn:hover .hold-label-date {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Narrow desktop windows + a FULL card open: the card is 53% wide and the wall
+   has panned 24% left, which squeezes the names — a right-hand one ends up a few
+   px from the card and a left-hand one slides off the screen edge. So they bow
+   out (the rocks stay, and still hop between cards). Compact cards are narrower
+   and pan less, so names stay for those. Opacity only — same cost as the ambient
+   holds' fade — and no pointer events, so there's no invisible click target. */
+.hold-label {
+  transition: opacity 0.4s ease;
+}
+
+@media (max-width: 1024px) {
+  .climb-scene.is-open:not(.is-compact) .hold-label {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* ---------------------------------------------------------------
    One-time "start here" sparkle hint on the first (bottom) route hold: a soft
    pulsing glow ring plus a handful of twinkling stars. Rendered only until the
    first hold is clicked (controlled in React), then it unmounts for good.
@@ -1234,6 +1334,49 @@ html[data-site-loading="true"] body {
   }
 }
 
+/* Short desktop windows (a squat browser or preview pane): the wall's positions
+   are % of its HEIGHT, but its lettering and doodles are fixed-size, so everything
+   crowds together vertically. Keep the title block compact and low so it stays
+   clear of the route's chalk names, then shed decoration on the squattest. Must
+   sit after the base .wall-title/.wall-sub rules (source order wins). */
+@media (min-width: 769px) and (max-height: 600px) {
+
+  /* The route-line marker is an SVG whose intrinsic height (~190px, from its
+     viewBox) props the whole block up — on a short wall that floats the title to
+     mid-height, into the chalk names. Take it out of flow so the block is only as
+     tall as its text, and let the line stretch to that instead. */
+  .wall-title-block {
+    bottom: 5%;
+    gap: 0;
+    padding-left: 43px;
+  }
+
+  .wall-title-marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+  }
+}
+
+@media (min-width: 769px) and (max-height: 480px) {
+  .wall-title-block {
+    padding-left: 0;
+  }
+
+  .wall-title {
+    font-size: min(clamp(40px, 5.2vw, 92px), 12vh);
+  }
+
+  .wall-title-marker,
+  .wall-sub,
+  .wall-deco,
+  .climb-amb-extra,
+  .hold-label-date {
+    display: none;
+  }
+}
+
 .chalk-note {
   position: absolute;
   font-size: clamp(13px, 1.55vw, 21px);
@@ -1297,35 +1440,220 @@ html[data-site-loading="true"] body {
   opacity: 0.85;
 }
 
+/* doodle spots are picked to stay clear of the route's chalk names (which are
+   fixed-size, so they reach further in % terms on narrow / short windows) */
 .deco-arrow1 {
-  left: 61%;
-  top: 43%;
+  left: 60%;
+  top: 24%;
   transform: rotate(20deg);
 }
 
 .deco-star1 {
-  left: 25%;
-  top: 20%;
-}
-
-.deco-check1 {
-  left: 71%;
-  top: 28%;
+  left: 17%;
+  top: 27%;
 }
 
 .deco-x1 {
-  left: 20%;
-  top: 64%;
+  left: 8%;
+  top: 36%;
 }
 
 .deco-squig1 {
-  left: 26%;
-  top: 47%;
+  left: 30%;
+  top: 36%;
 }
 
-.deco-circ1 {
-  left: 85%;
-  top: 47%;
+/* ===============================================================
+   "Where it started" logbook (WallLogbook.jsx) — a quiet dark panel on the right
+   of the wall listing the experiences that aren't rocks. Each row opens that
+   experience's normal card. Same panel material and type tokens as the Route
+   Beta Board it opens (--climb-card-* / --climb-text-* on :root) plus the rock
+   labels' chalk handwriting — and nothing else.
+
+   Two elements, on purpose:
+    • .wall-logbook  — positioned wrapper + the PARALLAX TARGET. GSAP writes inline
+      transforms onto it, so it carries no transform of its own and transitions
+      opacity/visibility ONLY (a transition on transform would ease — i.e. smear —
+      every scroll-driven write).
+    • .logbook-sheet — the panel itself: owns the fade-in entrance.
+   It sits OUTSIDE .climb-scene-wall, so none of its hover/entrance animation
+   touches the wall's cached, SVG-filtered texture. No backdrop blur here, unlike
+   the pop-up: this element is moved every scrubbed frame of the page glide, so a
+   blurred backdrop would have to re-sample the whole way — it's an opaque panel
+   in the card's colour instead (at rest the two are indistinguishable).
+   =============================================================== */
+.wall-logbook {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /* set in from the edge — a panel mid-wall, not flush to the screen's side like
+     the pop-up. Narrower screens pull it back toward the edge so it keeps clear
+     of the rock names (see the width breakpoints below). */
+  right: 6%;
+  width: 21%;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  /* keep the panel clear of the fixed navbar, which would eat its clicks */
+  padding: 120px 0 64px;
+  /* the wrapper spans the full height; only the rows take pointer input */
+  pointer-events: none;
+  transition: opacity 0.4s ease, visibility 0s;
+}
+
+/* a pop-up card opens right over the logbook, so it steps aside (the component
+   also marks it `inert`, so its invisible rows can't be tabbed to or clicked) */
+.climb-scene.is-open .wall-logbook {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0s linear 0.4s;
+}
+
+.logbook-sheet {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(20px, 1.6vw, 28px) clamp(18px, 1.5vw, 26px) clamp(12px, 1vw, 18px);
+  border: 1px solid var(--climb-card-border);
+  border-radius: var(--climb-card-radius);
+  font-family: var(--font-body), system-ui, sans-serif;
+  color: var(--climb-text);
+  background-color: var(--climb-card-bg-solid);
+  /* a step softer than the pop-up's shadows: this sits closer to the wall */
+  box-shadow:
+    0 16px 36px -18px rgba(0, 0, 0, 0.65),
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  /* hidden until the route has traced; .is-in fades it in */
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* The entrance: a plain fade with a few px of lift (no rotation — the panel hangs
+   straight). */
+.wall-logbook.is-in .logbook-sheet {
+  animation: logbook-in 0.6s ease-out 0.9s both;
+}
+
+@keyframes logbook-in {
+  0% {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+  }
+
+  1% {
+    visibility: visible;
+  }
+
+  100% {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+}
+
+/* the heading, chalk-handwritten like the rock names */
+.logbook-title {
+  margin: 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--climb-rule);
+  font-family: var(--font-nav), "Patrick Hand", cursive;
+  font-size: clamp(24px, 1.9vw, 31px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: lowercase;
+  color: rgba(241, 239, 230, 0.92);
+}
+
+.logbook-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+
+.logbook-list li + li {
+  border-top: 1px solid var(--climb-rule);
+}
+
+/* one entry: the name in chalk handwriting, one muted typed line beneath. The
+   whole row is the button; it bleeds a little past the text so the focus ring
+   has air. Hover only brightens the name. */
+.logbook-row {
+  display: block;
+  width: calc(100% + 16px);
+  margin: 0 -8px;
+  padding: 12px 8px 11px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.logbook-row:focus-visible {
+  outline: 2px solid var(--climb-blue);
+  outline-offset: 2px;
+}
+
+.logbook-name {
+  display: block;
+  font-family: var(--font-nav), "Patrick Hand", cursive;
+  font-size: clamp(18px, 1.45vw, 22px);
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  color: var(--climb-text-strong);
+  transition: color 0.2s ease;
+}
+
+.logbook-row:hover .logbook-name,
+.logbook-row:focus-visible .logbook-name {
+  color: #fff;
+}
+
+.logbook-meta {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-courier), "Courier New", monospace;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--climb-text-muted);
+}
+
+/* narrower screens: the panel takes a bigger share of the wall so its type stays
+   readable */
+@media (max-width: 1280px) {
+  .wall-logbook {
+    right: 4%;
+    width: 23%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .wall-logbook {
+    right: clamp(18px, 2.4vw, 40px);
+    width: 26%;
+  }
+}
+
+/* short windows: keep the panel clear of the bottom of the wall — tighter frame,
+   then drop the typed line so only the heading + names remain */
+@media (max-height: 720px) {
+  .wall-logbook {
+    padding: 104px 0 24px;
+  }
+}
+
+@media (max-height: 470px) {
+  .logbook-meta {
+    display: none;
+  }
 }
 
 /* ===============================================================
@@ -1371,7 +1699,7 @@ html[data-site-loading="true"] body {
      page (which would jump to the next/prev screen on overscroll). */
   overscroll-behavior: contain;
   scrollbar-width: none;
-  border-radius: 18px;
+  border-radius: var(--climb-card-radius);
   opacity: 0;
   transform: translateX(34px);
   /* CLOSE transition: the card's slide-out rides the SAME duration + easing as
@@ -1381,13 +1709,14 @@ html[data-site-loading="true"] body {
      fades a touch quicker so the card is gone before the wall fully rests. */
   transition: opacity 0.42s ease, transform 0.7s cubic-bezier(0.5, 0, 0.2, 1);
   font-family: var(--font-body), system-ui, sans-serif;
-  color: #d4d4d1;
+  color: var(--climb-text);
   /* a near-black editorial panel — solid (no gradient), slightly translucent with
      a soft blur so a hint of the wall texture shows through and it stays in-scene. */
-  background: rgba(18, 18, 20, 0.9);
+  background: var(--climb-card-bg);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  /* no hand-written -webkit- twin: Lightning CSS then emits ONLY the prefixed form,
+     which Chrome ignores (verified) — it adds any prefixes the targets need itself */
+  border: 1px solid var(--climb-card-border);
   box-shadow:
     0 28px 70px -16px rgba(0, 0, 0, 0.7),
     0 10px 28px rgba(0, 0, 0, 0.45),
@@ -1472,7 +1801,7 @@ html[data-site-loading="true"] body {
   line-height: 0.95;
   letter-spacing: 0.005em;
   text-transform: uppercase;
-  color: #f5f5f4;
+  color: var(--climb-text-strong);
 }
 
 /* shared section header — label + a short blue accent line beneath it */
@@ -1484,7 +1813,7 @@ html[data-site-loading="true"] body {
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #8fa8d9;
+  color: var(--climb-blue-soft);
 }
 .beta-section-label::after {
   content: "";
@@ -1492,7 +1821,7 @@ html[data-site-loading="true"] body {
   width: 36px;
   height: 1px;
   margin-top: 6px;
-  background: #8fa8d9;
+  background: var(--climb-blue-soft);
   opacity: 0.65;
 }
 
@@ -1520,7 +1849,7 @@ html[data-site-loading="true"] body {
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #8fa8d9;
+  color: var(--climb-blue-soft);
 }
 .beta-role-name-row {
   display: flex;
@@ -1534,7 +1863,7 @@ html[data-site-loading="true"] body {
   font-weight: 600;
   letter-spacing: -0.01em;
   text-transform: uppercase;
-  color: #f5f5f4;
+  color: var(--climb-text-strong);
 }
 .beta-role-pill {
   padding: 4px 11px;
@@ -1544,7 +1873,7 @@ html[data-site-loading="true"] body {
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #8fa8d9;
+  color: var(--climb-blue-soft);
   white-space: nowrap;
 }
 
@@ -1555,7 +1884,7 @@ html[data-site-loading="true"] body {
   gap: 18px;
   margin-top: 16px;
   font-size: 13px;
-  color: #9a9a97;
+  color: var(--climb-text-muted);
 }
 .beta-meta-item {
   display: inline-flex;
@@ -1571,7 +1900,7 @@ html[data-site-loading="true"] body {
 .beta-divider {
   height: 1px;
   margin: 18px 0;
-  background: rgba(245, 245, 244, 0.12);
+  background: var(--climb-rule);
 }
 
 .beta-section {
@@ -1584,7 +1913,7 @@ html[data-site-loading="true"] body {
   line-height: 1.7;
   --exp-lh: 1.7;
   letter-spacing: -0.01em;
-  color: #d4d4d1;
+  color: var(--climb-text);
 }
 
 /* reusable collapsible text: clamps to N lines + floats an inline toggle onto
@@ -1613,7 +1942,7 @@ html[data-site-loading="true"] body {
   background: none;
   /* inherit so it sits on the same size + baseline as the paragraph */
   font: inherit;
-  color: #8fa8d9;
+  color: var(--climb-blue-soft);
   cursor: pointer;
 }
 .expandable-toggle.is-less {
@@ -1677,7 +2006,7 @@ html[data-site-loading="true"] body {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 10;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--climb-card-border);
   border-radius: 12px;
   overflow: hidden;
   background: #1c1c1f;
@@ -1766,6 +2095,62 @@ html[data-site-loading="true"] body {
   }
 }
 
+/* ---------------------------------------------------------------
+   Compact card (`compact: true` experiences) — the same panel, just narrower
+   and short: header, role, timeline, then a one-line brief in place of the
+   about / contributions / highlights / skills sections. The title is cqw-based,
+   so it scales down with the narrower panel on its own. Widths track the full
+   card's breakpoints above (~80% of each).
+--------------------------------------------------------------- */
+.beta-board.is-compact {
+  width: 29%;
+}
+
+/* a narrower card needs less room: pan the wall less, so the gap between the
+   route and the card matches the full-card layout instead of stranding the small
+   card across an empty wall. (Desktop only — phones use ExperienceMobile.) */
+@media (min-width: 769px) {
+  .climb-scene.is-open.is-compact .climb-scene-wall {
+    transform: translateX(-16%);
+  }
+}
+
+.beta-board.is-compact .beta-role-name {
+  font-size: 19px;
+}
+
+/* a long role + its pill can't always share a line at this width — let it wrap */
+.beta-board.is-compact .beta-role-name-row {
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+
+.beta-brief {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+  letter-spacing: -0.01em;
+  color: #d4d4d1;
+}
+
+@media (max-width: 1280px) {
+  .beta-board.is-compact {
+    width: 35%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .beta-board.is-compact {
+    width: 43%;
+  }
+}
+
+@media (max-width: 768px) {
+  .beta-board.is-compact {
+    width: auto;
+  }
+}
+
 /* the route line illuminates blue while a route is open */
 .climb-scene.is-open .climb-dot {
   background: radial-gradient(circle, #eaf3ff 0%, #4da6ff 100%);
@@ -1782,6 +2167,18 @@ html[data-site-loading="true"] body {
   }
 
   .climb-scene-wall {
+    transition: none;
+  }
+
+  /* logbook: no swing-in — it's simply there, at its resting tilt */
+  .logbook-sheet,
+  .wall-logbook.is-in .logbook-sheet {
+    animation: none;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .logbook-name {
     transition: none;
   }
 
@@ -2917,18 +3314,6 @@ html[data-site-loading="true"] body {
    experience is untouched. Tuned for ~390px wide / iPhone 14–15.
    =============================================================== */
 
-/* let the standalone /experience + /projects wrappers grow + scroll on phones
-   (desktop, >768px, keeps its fixed full-screen panels) */
-@media (max-width: 768px) {
-  .experience-section,
-  .projects-section,
-  .climb-wall {
-    height: auto;
-    min-height: 100svh;
-    overflow: visible;
-  }
-}
-
 /* --- shared mobile scaffolding ---
    One calm beige system: a single continuous aged-paper page (same recipe as
    the desktop Hero's #home), cream cards, ink text, and ONE accent —
@@ -3068,6 +3453,18 @@ html[data-site-loading="true"] body {
   padding: 0 16px;
 }
 .m-acc.is-open .m-acc-body-inner { padding-bottom: 18px; }
+/* label between the two Experience groups (main roles / "where it started") */
+.m-group-label {
+  margin: 30px 0 12px;
+}
+/* compact experience card — static (no chevron, nothing to expand) */
+.m-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 16px;
+}
+.m-compact .m-body-text { margin-top: 5px; }
 .m-body-text {
   font-family: var(--font-body), system-ui, sans-serif;
   font-size: 14px;
@@ -3176,7 +3573,6 @@ html[data-site-loading="true"] body {
   background: rgba(22, 26, 24, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 .m-menu ul {
   list-style: none;
@@ -3292,6 +3688,14 @@ html[data-site-loading="true"] body {
 
 /* =================== PROJECTS (mobile) =================== */
 .m-proj { padding-top: 8px; }
+/* standalone routes on phones (StandalonePage's .m-flow--route shell): the route's
+   section is the FIRST thing under the fixed navbar, so it takes the About
+   section's top clearance (see .m-about), and fills the screen so the footer stays
+   down when a list is short. Written to outrank the .m-exp / .m-proj rules above. */
+.m-flow--route > main > .m-screen:first-child {
+  padding-top: calc(96px + env(safe-area-inset-top, 0px));
+  min-height: 100svh;
+}
 .m-proj-chips { margin: 14px 0 18px; }
 /* small cream motif tile — keeps each project's identity without the dark
    album-cover colors */
