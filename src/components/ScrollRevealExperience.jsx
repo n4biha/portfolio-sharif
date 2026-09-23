@@ -146,7 +146,7 @@ function HomeDesktop() {
 
     // let an open detail panel scroll natively; only page when it's at its edge
     const scrollablePanel = (target, dir) => {
-      const panel = target?.closest?.(".pc-inner, .beta-inner, .liner-sheet, .record-room");
+      const panel = target?.closest?.(".pc-inner, .beta-inner, .record-panel, .record-room");
       if (!panel) return false;
       // The experience card captures wheel whenever it's scrollable, so hitting
       // its top/bottom edge never pages to the next screen (matches touch).

@@ -1,17 +1,19 @@
 /*
   Projects as a record collection — "Projects on Repeat". Each project is an album:
-  browse them on the shelf, click one to "play" it (Now Playing record player +
-  liner-notes sheet + laptop live preview).
+  every one sits on the shelf; click one to "play" it (the turntable spins it and
+  the RecordPanel beside it shows the details + screenshot). On phones the same
+  data drives ProjectsMobile's list (which still filters by `category`).
 
   `coverStyle` drives the CSS-generated album art (no real images yet — drop a path
-  into `coverImage` later to override). `motif` picks a simple cover illustration;
-  `demoPreview.kind` picks the laptop mock UI.
+  into `coverImage` later to override). `motif` picks a simple cover illustration.
 
   Schema per project:
-    id, title, subtitle, category, year,
+    id, title, subtitle, category, fields[], year,
     coverImage (null for now), coverStyle { bg, ink, accent, motif },
     linerNotes, tools[], technicalHighlights,
-    demoPreview { title, tagline, accent, kind }, liveDemoUrl, caseStudyUrl
+    demoPreview { screenshot, device? ("phone" | "tablet" → shown whole, not
+                  cropped), note? (caption / disclaimer under the screenshot) },
+    liveDemoUrl (null = no link), liveDemoLabel ("GitHub" | "Video Demo" | …)
 */
 
 export const PROJECTS = [
@@ -30,15 +32,10 @@ export const PROJECTS = [
     technicalHighlights:
       "Multi-modal ML pipeline combining a Random Forest clinical model, MobileNetV2 spiral-drawing CNN, SHAP explainability, and late-fusion risk logic.",
     demoPreview: {
-      title: "NeuroTrace",
-      tagline: "Screen early. Understand the risk.",
-      accent: "#52c07a",
-      kind: "dashboard",
       screenshot: "/images/neurotrace-preview.png",
     },
     liveDemoUrl: "https://github.com/n4biha/parkinsons_model",
     liveDemoLabel: "GitHub",
-    caseStudyUrl: "#",
   },
   {
     id: "accesslens",
@@ -55,15 +52,10 @@ export const PROJECTS = [
     technicalHighlights:
       "AccessLens is built with Next.js 16 (App Router) and React 19 in TypeScript, using Zod for schema validation and Tailwind CSS 4 for styling. The AI layer runs on Claude Opus via the Anthropic SDK, with structured JSON output constrained to Zod schemas. It uses pdfjs-dist for client-side PDF text extraction and text-readability for reading-level scoring (Flesch-Kincaid/SMOG). It's deployed on Vercel.",
     demoPreview: {
-      title: "AccessLens",
-      tagline: "Can a student actually get through this?",
-      accent: "#5b8def",
-      kind: "dashboard",
       screenshot: "/images/accesslens-preview.png",
     },
     liveDemoUrl: "https://youtu.be/SNgsF-U1hW4",
     liveDemoLabel: "Video Demo",
-    caseStudyUrl: "#",
   },
   {
     id: "marketmap",
@@ -80,15 +72,10 @@ export const PROJECTS = [
     technicalHighlights:
       "Multi-agent LangGraph pipeline (Scout → Analyst → Strategist → Formatter) with conditional routing, a RAG layer over real-time scraped data (Tavily, App Store, Google Play, Hacker News, Product Hunt), LLM-based relevance filtering to ground competitor extraction in evidence, typed Pydantic schemas enforcing structured output at every stage, and a full-stack delivery layer (FastAPI + Next.js) connecting the pipeline to a live product UI.",
     demoPreview: {
-      title: "MarketMap",
-      tagline: "Any app idea into an opportunity brief.",
-      accent: "#c9a3ff",
-      kind: "dashboard",
       screenshot: "/images/marketmap-preview.jpg",
     },
     liveDemoUrl: "https://www.youtube.com/watch?v=nNAQZ_gS6GI",
     liveDemoLabel: "Video Demo",
-    caseStudyUrl: "#",
   },
   {
     id: "portfolio",
@@ -104,15 +91,10 @@ export const PROJECTS = [
     technicalHighlights:
       "Designed and built end to end in Next.js (App Router), React, and TypeScript, styled entirely with Tailwind CSS. I designed the full visual system myself, from the scrapbook and record-room scenes to the CSS-drawn art and album covers, plus a responsive layout with its own mobile experience. Motion comes from Framer Motion and GSAP with Lenis smooth scrolling, and the projects and experience sections are driven from typed data files.",
     demoPreview: {
-      title: "Nabiha",
-      tagline: "Projects on repeat.",
-      accent: "#e388ab",
-      kind: "site",
       screenshot: "/images/portfolio-preview.svg",
     },
     liveDemoUrl: "https://github.com/n4biha/portfolio-sharif",
     liveDemoLabel: "GitHub",
-    caseStudyUrl: "#",
   },
   {
     id: "mindclear",
@@ -129,15 +111,10 @@ export const PROJECTS = [
     technicalHighlights:
       "Improved the coordinator dashboard by rebuilding its UI into a reusable component system and restructuring the layout so the most important numbers are easy to scan. Designed and built a new Interview Analytics section end to end: Next.js API routes that aggregate Gemini-parsed interview transcripts across participants, a lightweight stats library (Wilson score intervals and chi-square) powering hypothesis-alignment confidence, and a searchable quote bank.",
     demoPreview: {
-      title: "MindClear",
-      tagline: "Cleaner dashboard, clearer insight.",
-      accent: "#ec5a48",
-      kind: "dashboard",
       screenshot: "/images/mindclear-preview.jpg",
       note: "Not real data, just a project reference.",
     },
     liveDemoUrl: null,
-    caseStudyUrl: "#",
   },
   {
     id: "tinypause",
@@ -154,16 +131,11 @@ export const PROJECTS = [
     technicalHighlights:
       "A native iOS app built in SwiftUI, using Apple's Screen Time frameworks to notice long stretches of screen use and offer a gentle break. Everything runs on device with local storage and no backend, and the in-app art was generated with Higgsfield.",
     demoPreview: {
-      title: "Tiny Pause",
-      tagline: "Take a tiny pause.",
-      accent: "#4fc1d4",
-      kind: "app",
       device: "phone",
       screenshot: "/images/tinypause-preview.png",
       note: "In development — an early look at the app.",
     },
     liveDemoUrl: null,
-    caseStudyUrl: "#",
   },
   {
     id: "kiosk",
@@ -180,20 +152,16 @@ export const PROJECTS = [
     technicalHighlights:
       "Built with vanilla JavaScript and Tailwind CSS on the front end, with an Express server and a SQLite database. There is no demo or public code for this one since it holds sensitive student information.",
     demoPreview: {
-      title: "Sign-In Kiosk",
-      tagline: "Tap your name to sign in.",
-      accent: "#8fa3bd",
-      kind: "app",
       device: "tablet",
       screenshot: "/images/kiosk-preview.png",
       note: "No public demo or code, since the kiosk holds student data.",
     },
     liveDemoUrl: null,
-    caseStudyUrl: "#",
   },
 ];
 
-// Filter tabs above the shelf — "All" plus each distinct category (in first-seen order).
+// "All" plus each distinct category (first-seen order) — the phone list's filter chips.
+// The desktop shelf shows every record, so it no longer uses these.
 export const CATEGORIES = [
   "All",
   ...PROJECTS.reduce((acc, p) => (acc.includes(p.category) ? acc : [...acc, p.category]), []),

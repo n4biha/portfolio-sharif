@@ -1,10 +1,9 @@
 "use client";
 
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import RecordShelf from "./RecordShelf";
 import RecordPlayer from "./RecordPlayer";
-import LinerNotes from "./LinerNotes";
-import LivePreview from "./LivePreview";
+import RecordPanel from "./RecordPanel";
 import ProjectsMobile from "./ProjectsMobile";
 import { PROJECTS } from "@/lib/projects";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -20,33 +19,16 @@ const PARALLAX_LAYERS = [
 ];
 
 /*
-  "Projects on Repeat" — a cozy vintage listening room. Browse project albums on
-  the shelf; click one to "play" it (Now Playing turntable + liner-notes sheet +
-  laptop live preview). `active` is false when this isn't the on-screen section of
-  the home flow, which rests the spinning vinyl.
+  "Projects on Repeat" — a vintage listening room, kept simple: every album on one
+  shelf; click one to "play" it — the turntable spins it and the one panel beside
+  it carries the record's details and screenshot (RecordPanel). `active` is false
+  when this isn't the on-screen section of the home flow, which rests the vinyl.
 */
 function ProjectsScene({ active = true }) {
-  const [category, setCategory] = useState("All");
-  // default to the first project so the player/sheet/laptop are populated on load
+  // default to the first record so the player + panel are populated on load
   const [selectedId, setSelectedId] = useState(PROJECTS[0]?.id ?? null);
-  const shelf = useMemo(
-    () => (category === "All" ? PROJECTS : PROJECTS.filter((p) => p.category === category)),
-    [category]
-  );
-
-  // resolve against the filtered shelf (not all PROJECTS) so switching to a
-  // category that excludes the current pick can't flash the stale project for a
-  // frame before the reconciling effect below moves selectedId onto the shelf
-  const selected =
-    shelf.find((p) => p.id === selectedId) ?? shelf[0] ?? null;
-
-  // when switching crates, keep the current pick if it's still on the shelf;
-  // otherwise drop the needle on the first record of the new crate.
-  useEffect(() => {
-    if (shelf.length && !shelf.some((p) => p.id === selectedId)) {
-      setSelectedId(shelf[0].id);
-    }
-  }, [shelf, selectedId]);
+  const index = Math.max(0, PROJECTS.findIndex((p) => p.id === selectedId));
+  const selected = PROJECTS[index] ?? null;
 
   const roomRef = useRef(null);
   useParallaxLayers(roomRef, {
@@ -56,8 +38,8 @@ function ProjectsScene({ active = true }) {
     end: "top top",
   });
 
-  // Warm every album's laptop screenshot into the browser cache on mount, so
-  // switching records swaps the preview instantly instead of fetching on demand.
+  // Warm every record's screenshot into the browser cache on mount, so switching
+  // records swaps the preview instantly instead of fetching on demand.
   useEffect(() => {
     PROJECTS.forEach((p) => {
       if (p.demoPreview?.screenshot) {
@@ -73,18 +55,12 @@ function ProjectsScene({ active = true }) {
         <h1 className="record-room-title hand">Projects on Repeat</h1>
       </header>
 
-      <RecordShelf
-        projects={shelf}
-        selectedId={selectedId}
-        onSelect={setSelectedId}
-        category={category}
-        onCategory={setCategory}
-      />
+      <RecordShelf projects={PROJECTS} selectedId={selectedId} onSelect={setSelectedId} />
 
+      {/* the stage is always rendered: the parallax hook queries its layer once on mount */}
       <div data-parallax-layer="projstage" className="record-stage">
         <RecordPlayer project={selected} spinning={active} />
-        <LinerNotes project={selected} />
-        <LivePreview project={selected} />
+        <RecordPanel project={selected} index={index} />
       </div>
     </div>
   );

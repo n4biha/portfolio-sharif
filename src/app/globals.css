@@ -2233,7 +2233,7 @@ html[data-site-loading="true"] body {
     transform: translate(-50%, -50%) scale(1);
   }
 
-  .rec-vinyl,
+  .rec-vinyl-disc,
   .rec-vinyl-label {
     animation: none;
   }
@@ -2247,7 +2247,7 @@ html[data-site-loading="true"] body {
 /* ===============================================================
    PROJECTS — "Projects on Repeat": a cozy vintage listening room. Warm wood +
    amber light (set on .projects-section). Shelf of album covers up top; a Now
-   Playing turntable, cream liner-notes sheet, and laptop live-preview below.
+   Playing turntable and the one dark detail panel (RecordPanel) below.
    =============================================================== */
 .record-room {
   position: absolute;
@@ -2283,13 +2283,7 @@ html[data-site-loading="true"] body {
     0 0 46px rgba(255, 186, 108, 0.1);
 }
 
-.record-room-sub {
-  margin: 6px 0 0;
-  font-size: clamp(12px, 1.5vw, 17px);
-  color: rgba(243, 233, 207, 0.75);
-}
-
-/* ---- category crate tabs ---- */
+/* ---- the shelf area ---- */
 .record-shelf-area {
   display: flex;
   flex-direction: column;
@@ -2299,39 +2293,6 @@ html[data-site-loading="true"] body {
      row still scrolls past that, so a seventh just extends the shelf */
   width: min(1120px, 100%);
   flex: 0 0 auto;
-}
-
-.crate-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-}
-
-.crate-tab {
-  font-family: var(--font-retro), sans-serif;
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: 1.5px solid rgba(243, 233, 207, 0.28);
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(243, 233, 207, 0.82);
-  font-size: clamp(11px, 1.2vw, 13.5px);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-}
-
-.crate-tab:hover {
-  border-color: #e6c878;
-  color: #f0d690;
-}
-
-.crate-tab.is-on {
-  background: #d9b25a;
-  border-color: #d9b25a;
-  color: #20180c;
-  font-weight: 700;
 }
 
 /* ---- the shelf ---- */
@@ -2363,7 +2324,7 @@ html[data-site-loading="true"] body {
   box-shadow: inset 0 10px 18px rgba(0, 0, 0, 0.45), 0 16px 28px rgba(0, 0, 0, 0.45), 0 0 64px rgba(255, 200, 120, 0.06);
   /* more records than fit the plank: scroll/drag the shelf sideways. The
      scrollbar stays hidden (it would cut across the walnut); the part-visible
-     cover at the edge plus the .shelf-dots row are the affordance. `contain`
+     cover at the edge is the affordance. `contain`
      stops a sideways flick from chaining into the vertical section paging.
      Deliberately NO scroll-snap: the scroll range here is barely one cover
      wide, so snapping quantises it to "start or end" and blocks ordinary
@@ -2394,12 +2355,6 @@ html[data-site-loading="true"] body {
   background-blend-mode: overlay, normal;
   border-radius: 0 0 4px 4px;
   box-shadow: 0 9px 14px rgba(0, 0, 0, 0.5), 0 0 48px rgba(255, 200, 120, 0.05);
-}
-
-.shelf-empty {
-  color: rgba(243, 233, 207, 0.6);
-  padding: 28px 10px;
-  font-size: 18px;
 }
 
 /* shelf decor */
@@ -2490,23 +2445,6 @@ html[data-site-loading="true"] body {
   transform: translateX(-50%) rotate(26deg);
 }
 
-/* shelf dots */
-.shelf-dots {
-  display: flex;
-  gap: 6px;
-}
-
-.shelf-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: rgba(74, 53, 38, 0.28);
-}
-
-.shelf-dot.is-on {
-  background: #d9b25a;
-}
-
 /* ---- album cover ---- */
 .album-cover {
   position: relative;
@@ -2593,31 +2531,6 @@ html[data-site-loading="true"] body {
   line-height: 1.02;
 }
 
-.cover-cat {
-  font-size: 8.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.82;
-  margin-top: 3px;
-}
-
-.cover-note {
-  position: absolute;
-  top: -24px;
-  left: 50%;
-  transform: translateX(-50%) rotate(-4deg);
-  white-space: nowrap;
-  font-size: 15px;
-  color: #ffe1ad;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  pointer-events: none;
-}
-
-.album-cover:hover .cover-note {
-  opacity: 1;
-}
-
 .cover-sticker {
   position: absolute;
   top: -8px;
@@ -2632,15 +2545,238 @@ html[data-site-loading="true"] body {
   z-index: 2;
 }
 
-/* ---- bottom stage: player / liner / preview ---- */
+/* ---- bottom stage: the turntable + the one detail panel ---- */
 .record-stage {
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.6fr) minmax(0, 0.92fr);
-  gap: clamp(12px, 2vw, 30px);
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: clamp(16px, 2vw, 32px);
   align-items: center;
   width: min(1340px, 100%);
   min-height: 0;
+}
+
+/* The detail panel — the record that's playing (RecordPanel.jsx). Same material
+   and section recipes as the Experience pop-up (--climb-card-* tokens, the .beta-*
+   styling), so the two sections read as one system. No backdrop blur: it rides
+   the parallax "projstage" layer, which GSAP moves (see .wall-logbook). */
+.record-panel {
+  min-width: 0;
+  border: 1px solid var(--climb-card-border);
+  border-radius: var(--climb-card-radius);
+  background: var(--climb-card-bg-solid);
+  box-shadow:
+    0 24px 60px -20px rgba(0, 0, 0, 0.7),
+    0 8px 22px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  color: var(--climb-text);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+/* text column | screenshot column. Two columns so the longest write-ups still
+   fit the stage at 1280×720. Keyed on the record → replays the fade/rise. */
+.record-panel-inner {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) min(520px, 46%);
+  gap: clamp(18px, 1.8vw, 28px);
+  padding: clamp(20px, 1.9vw, 30px) clamp(20px, 1.9vw, 30px) clamp(18px, 1.6vw, 26px);
+  animation: record-panel-in 0.4s ease-out both;
+}
+
+@keyframes record-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.record-panel-text {
+  min-width: 0;
+}
+
+.record-panel-eyebrow {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 244, 0.5);
+}
+
+.record-panel-title {
+  margin: 0;
+  font-family: var(--font-condensed), sans-serif;
+  font-weight: 700;
+  font-size: clamp(30px, 2.6vw, 44px);
+  line-height: 0.98;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--climb-text-strong);
+}
+
+.record-panel-subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--climb-text-muted);
+}
+
+.record-panel-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.record-panel-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid rgba(143, 168, 217, 0.5);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--climb-blue-soft);
+}
+
+.record-panel-tag svg {
+  width: 12px;
+  height: 12px;
+}
+
+.record-panel-section {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--climb-rule);
+}
+
+.record-panel-label {
+  display: block;
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--climb-blue-soft);
+}
+
+.record-panel-label::after {
+  content: "";
+  display: block;
+  width: 36px;
+  height: 1px;
+  margin-top: 6px;
+  background: var(--climb-blue-soft);
+  opacity: 0.65;
+}
+
+/* consumed by <ExpandableText> (clamp + inline "Show more"; needs --exp-lh) */
+.record-panel-desc {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.65;
+  --exp-lh: 1.65;
+  letter-spacing: -0.005em;
+  color: var(--climb-text);
+}
+
+.record-panel-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.record-panel-tools li {
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #d8d8d5;
+}
+
+.record-panel-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 9px 16px;
+  border-radius: 9px;
+  background: var(--climb-blue-soft);
+  color: #0f1a2a;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.record-panel-link:hover {
+  background: #afc4f2;
+  transform: translateY(-1px);
+}
+
+.record-panel-link:focus-visible {
+  outline: 2px solid var(--climb-blue);
+  outline-offset: 3px;
+}
+
+/* the screenshot: a plain framed image (same frame recipe as the card's
+   highlight photo); phone/tablet shots are portrait, so those show whole */
+.record-shot {
+  margin: 0;
+  min-width: 0;
+  align-self: start;
+}
+
+.record-shot-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #1c1c1f;
+}
+
+.record-shot-frame.is-contain {
+  aspect-ratio: 4 / 3;
+  background: #101114;
+}
+
+.record-shot-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.record-shot-img.is-contain {
+  object-fit: contain;
+}
+
+.record-shot-img.is-loaded {
+  opacity: 1;
+}
+
+.record-shot-cap {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: rgba(245, 245, 244, 0.62);
 }
 
 /* record player */
@@ -2800,40 +2936,6 @@ html[data-site-loading="true"] body {
   }
 }
 
-.player-sleeve {
-  position: relative;
-  width: clamp(96px, 12vw, 150px);
-  aspect-ratio: 1 / 1;
-  border-radius: 3px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 10px;
-  flex: 0 0 auto;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.55);
-}
-
-.player-sleeve-band {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-}
-
-.player-sleeve-title {
-  font-family: Georgia, serif;
-  font-size: clamp(12px, 1.3vw, 16px);
-  line-height: 1.05;
-}
-
-.player-sleeve-sub {
-  font-size: 10px;
-  opacity: 0.82;
-  margin-top: 2px;
-}
-
 /* tonearm: one rotated bar anchored at the back-right of the plinth, swinging the
    cartridge down onto the record's outer groove. Rotating the whole container keeps
    pivot + arm + head perfectly aligned; the head is counter-rotated so it hangs
@@ -2886,417 +2988,38 @@ html[data-site-loading="true"] body {
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
 }
 
-/* liner-notes sheet */
-.liner-sheet {
-  position: relative;
-  background: #fdf6e6;
-  color: #3a2e1f;
-  border: 1px solid rgba(120, 78, 40, 0.18);
-  border-radius: 3px;
-  padding: clamp(16px, 1.8vw, 26px);
-  box-shadow: 0 18px 34px rgba(120, 78, 40, 0.3), 0 0 60px rgba(255, 200, 120, 0.06);
-  transform: rotate(-0.6deg);
-  overflow: visible;
+/* responsive: the panel gives up width first, then the whole stage stacks —
+   turntable above, panel in one column with the screenshot under the text. The
+   room itself scrolls internally (.record-room) on short screens. */
+@media (max-width: 1280px) {
+  .record-stage {
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+
+  /* a touch tighter, so the longest write-up (AccessLens) fits a 720px-tall
+     window without the room growing a scrollbar */
+  .record-panel-inner {
+    grid-template-columns: minmax(300px, 1fr) min(440px, 44%);
+    padding: 22px 24px 20px;
+  }
+
+  .record-panel-section {
+    margin-top: 13px;
+    padding-top: 12px;
+  }
 }
 
-.liner-tape {
-  position: absolute;
-  top: -9px;
-  left: 50%;
-  transform: translateX(-50%) rotate(-3deg);
-  width: 62px;
-  height: 19px;
-  background: linear-gradient(110deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 45%), rgba(214, 224, 198, 0.75);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+@media (max-width: 1024px) {
+  .record-stage {
+    grid-template-columns: 210px minmax(0, 1fr);
+  }
+
+  .record-panel-inner {
+    grid-template-columns: minmax(280px, 1fr) min(380px, 44%);
+    padding: 20px;
+  }
 }
 
-.liner-title {
-  margin: 0;
-  font-family: var(--font-retro), sans-serif;
-  font-size: clamp(17px, 2vw, 26px);
-  line-height: 1.1;
-  color: #2c2114;
-}
-
-.liner-subtitle {
-  margin: 3px 0 12px;
-  font-size: clamp(12px, 1.4vw, 16px);
-  color: #8a6534;
-}
-
-.liner-fields {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 2px;
-}
-.liner-field-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border: 1px solid rgba(120, 78, 40, 0.28);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.4);
-  font-family: var(--font-body), sans-serif;
-  font-size: 12.5px;
-  color: #3a2e1f;
-  white-space: nowrap;
-}
-.liner-field-tag svg {
-  width: 14px;
-  height: 14px;
-  color: #7c6a4a;
-  flex: none;
-}
-
-.liner-label {
-  margin: 12px 0 4px;
-  font-family: var(--font-courier), monospace;
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #a37b46;
-}
-
-.liner-text {
-  margin: 0;
-  font-family: var(--font-courier), monospace;
-  font-size: clamp(12px, 1.3vw, 14px);
-  line-height: 1.5;
-  color: #4a3a26;
-}
-
-.liner-tools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.liner-tools li {
-  font-size: 11px;
-  padding: 2px 9px;
-  border: 1px solid #c9a96f;
-  border-radius: 12px;
-  color: #6b4f2c;
-}
-
-.liner-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.liner-btn {
-  font-size: 13px;
-  padding: 7px 15px;
-  border-radius: 6px;
-  border: 1.5px solid #8a6a3f;
-  color: #5a4127;
-  background: #efe1c6;
-  text-decoration: none;
-  transition: transform 0.15s ease, filter 0.15s ease;
-}
-
-.liner-btn:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.04);
-}
-
-.liner-btn--primary {
-  background: #c2453b;
-  border-color: #c2453b;
-  color: #fff;
-}
-
-/* laptop live preview */
-.live-preview {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.laptop {
-  width: 100%;
-  max-width: 360px;
-}
-
-/* small "not real data" disclaimer under the laptop (only shown for projects
-   whose demoPreview sets a `note`) */
-.live-note {
-  margin: 2px 0 0;
-  max-width: 360px;
-  text-align: center;
-  font-size: clamp(9px, 1.1vw, 11px);
-  font-style: italic;
-  line-height: 1.3;
-  color: rgba(243, 233, 207, 0.6);
-}
-
-.laptop-screen {
-  background: #0e0e12;
-  border: 6px solid #1c1c22;
-  border-radius: 10px 10px 0 0;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.5);
-}
-
-.laptop-base {
-  height: 11px;
-  width: 114%;
-  margin-left: -7%;
-  background: linear-gradient(180deg, #2a2a30, #141419);
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 10px 16px rgba(0, 0, 0, 0.5);
-}
-
-/* phone frame — used instead of the laptop for mobile-app projects. Sized by
-   HEIGHT (the stage row is the tight axis) so the 9:19.5 body never squashes. */
-.phone {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  flex: 0 0 auto;
-}
-.phone-screen {
-  position: relative;
-  height: clamp(200px, 32vh, 320px);
-  aspect-ratio: 9 / 19.5;
-  width: auto;
-  background: #0e0e12;
-  border: 5px solid #1c1c22;
-  border-radius: 28px;
-  overflow: hidden;
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 16px 30px rgba(0, 0, 0, 0.55);
-}
-/* tablet frame — the kiosk runs on an iPad, so it gets its own portrait body:
-   uniform bezel, no notch, just a small camera dot */
-.tablet {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  flex: 0 0 auto;
-}
-.tablet-screen {
-  position: relative;
-  height: clamp(200px, 32vh, 320px);
-  aspect-ratio: 3 / 4;
-  width: auto;
-  background: #0e0e12;
-  border: 7px solid #1c1c22;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 16px 30px rgba(0, 0, 0, 0.55);
-}
-.tablet-cam {
-  position: absolute;
-  top: 7px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #2b2b33;
-  z-index: 2;
-}
-.phone-notch {
-  position: absolute;
-  top: 7px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 38%;
-  height: 11px;
-  background: #1c1c22;
-  border-radius: 999px;
-  z-index: 2;
-}
-
-.mock-shot {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-  /* hidden until fully loaded + decoded, then eased in (see Shot in
-     LivePreview) — prevents the half-drawn pop-in on a cold first visit */
-  opacity: 0;
-  transition: opacity 0.35s ease;
-}
-
-.mock-shot.is-loaded {
-  opacity: 1;
-}
-
-.mock {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: #12131a;
-  color: #dfe6f0;
-}
-
-.mock-topbar {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 9px;
-  background: #1c1d26;
-}
-
-.mock-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #3a3b46;
-}
-
-.mock-url {
-  margin-left: 8px;
-  font-size: 9px;
-  color: #8a8ea0;
-}
-
-.mock-body {
-  flex: 1;
-  min-height: 0;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.mock-h {
-  margin: 0;
-  font-size: clamp(11px, 1.1vw, 14px);
-  font-weight: 700;
-  color: var(--mock-accent);
-}
-
-.mock-dash {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.mock-stats {
-  display: flex;
-  gap: 6px;
-}
-
-.mock-stats span {
-  flex: 1;
-  height: 22px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
-  border-left: 3px solid var(--mock-accent);
-}
-
-.mock-chart {
-  flex: 1;
-  min-height: 26px;
-  display: flex;
-  align-items: flex-end;
-  gap: 5px;
-}
-
-.mock-chart span {
-  flex: 1;
-  background: var(--mock-accent);
-  border-radius: 2px 2px 0 0;
-  opacity: 0.85;
-}
-
-.mock-site .mock-hero {
-  height: 44%;
-  min-height: 30px;
-  border-radius: 5px;
-  background: linear-gradient(120deg, var(--mock-accent), rgba(255, 255, 255, 0.05));
-}
-
-.mock-site .mock-cards {
-  display: flex;
-  gap: 6px;
-  margin-top: 8px;
-}
-
-.mock-site .mock-cards span {
-  flex: 1;
-  height: 32px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.07);
-}
-
-.mock-app {
-  display: flex;
-  gap: 8px;
-  height: 100%;
-}
-
-.mock-app-card {
-  width: 40%;
-  border-radius: 6px;
-  background: linear-gradient(160deg, var(--mock-accent), rgba(255, 255, 255, 0.04));
-}
-
-.mock-app-rows {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  justify-content: center;
-}
-
-.mock-app-rows span {
-  height: 14px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.matcha {
-  position: absolute;
-  right: -4px;
-  bottom: 0;
-  width: 30px;
-  height: 42px;
-  pointer-events: none;
-}
-
-.matcha-cup {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 30px;
-  height: 34px;
-  border-radius: 4px 4px 7px 7px;
-  background: linear-gradient(180deg, #cfe0a8, #9cc06a);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-}
-
-.matcha-straw {
-  position: absolute;
-  right: 7px;
-  top: -8px;
-  width: 4px;
-  height: 24px;
-  background: #e57ba0;
-  transform: rotate(12deg);
-  border-radius: 2px;
-}
-
-/* responsive: stack the stage; the room scrolls internally on short screens */
 @media (max-width: 920px) {
   .record-stage {
     grid-template-columns: 1fr;
@@ -3305,6 +3028,10 @@ html[data-site-loading="true"] body {
 
   .turntable {
     max-width: 360px;
+  }
+
+  .record-panel-inner {
+    grid-template-columns: 1fr;
   }
 }
 

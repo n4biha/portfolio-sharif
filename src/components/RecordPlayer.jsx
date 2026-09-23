@@ -4,7 +4,7 @@
   Lower-left "Now Playing" turntable: just the record on the player, spinning
   slowly (CSS) while a project is playing. `spinning` is false when the projects
   screen isn't active, so the record rests. The current pick's identity lives in
-  the liner-notes sheet + the shelf's "now playing" sticker.
+  the RecordPanel beside it + the shelf's "now playing" sticker.
 */
 export default function RecordPlayer({ project, spinning = true }) {
   if (!project) return null;

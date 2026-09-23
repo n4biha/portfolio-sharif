@@ -1,7 +1,7 @@
 /*
   Small line icon shown beside a project "field" tag (Data Science, Computer
   Vision, etc.). Keyed by the field label; falls back to a generic tag icon.
-  Shared by the desktop liner-notes and the mobile project card.
+  Shared by the desktop record panel and the mobile project card.
 */
 
 function Svg({ children }) {
