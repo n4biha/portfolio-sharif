@@ -16,11 +16,17 @@ export default function ProjectCarousel({ projects, selectedId, onSelect, onStep
   const rowRef = useRef(null);
 
   // keep the playing card in view (it also moves when a filter narrows the row;
-  // a beat later, so the measure happens after the layout animation settles)
+  // a beat later, so the measure happens after the layout animation settles).
+  // Scrolls ONLY the row: scrollIntoView would also scroll the window to reach
+  // the card, which on the home page dragged the whole site down toward the
+  // Projects screen on every load.
   useEffect(() => {
     const t = setTimeout(() => {
-      const el = rowRef.current?.querySelector(".proj-card.is-playing");
-      el?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+      const row = rowRef.current;
+      const el = row?.querySelector(".proj-card.is-playing");
+      if (!row || !el || row.scrollWidth - row.clientWidth <= 1) return;
+      const left = el.offsetLeft - (row.clientWidth - el.offsetWidth) / 2;
+      row.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
     }, 320);
     return () => clearTimeout(t);
   }, [selectedId, projects.length]);
