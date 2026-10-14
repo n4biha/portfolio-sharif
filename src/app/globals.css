@@ -2494,6 +2494,8 @@ html[data-site-loading="true"] body {
   align-items: start;
   width: min(1400px, 100%);
   min-height: 0;
+  /* clear air between the carousel and the stage (on top of the room's gap) */
+  margin-top: clamp(18px, 3.4vh, 44px);
 }
 
 /* a keyed motion wrapper per stage column (ProjectsScene): the card and the
@@ -3137,11 +3139,19 @@ html[data-site-loading="true"] body {
   }
 
   .proj-carousel-row {
-    padding: 8px 6px 10px;
+    padding: 8px 6px;
+  }
+
+  .record-stage {
+    margin-top: clamp(14px, 2.6vh, 24px);
+  }
+
+  .disc-transport {
+    margin-top: 12px;
   }
 
   .record-panel-inner {
-    padding: 18px 22px;
+    padding: 16px 20px;
   }
 
   .record-panel-desc {
