@@ -60,7 +60,7 @@ export default function SiteLoadGate({ children }) {
       await waitForWindowLoad();
       await document.fonts?.ready;
 
-      // Let viewport detection, restored-hash scrolling, and responsive tree
+      // Let viewport detection, the scroll-to-top, and responsive tree
       // selection settle before deciding which images are actually visible.
       await nextFrame();
       await nextFrame();

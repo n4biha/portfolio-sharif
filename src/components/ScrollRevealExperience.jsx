@@ -31,9 +31,6 @@ const PAGE_EASE = (t) =>
 const LAST = 3;
 // stable no-op so Hero's memo isn't broken by a fresh inline fn each render
 const NOOP = () => {};
-// section index → URL hash (0 = About = no hash). Lets a reload stay on the same
-// screen with the correct nav instead of snapping back to About.
-const SECTION_HASH = ["", "experience", "projects", "footer"];
 
 // On phones, swap the whole locked-paging desktop flow for the simple mobile
 // stack. HomeDesktop only mounts on desktop, so Lenis/ScrollTrigger never run on
@@ -58,8 +55,6 @@ function HomeDesktop() {
   // dark nav theme only while the dark wall sits behind the navbar
   const [onWall, setOnWall] = useState(false);
   const onWallRef = useRef(false);
-  // when a reload lands us on a non-About screen, keep Hero's intro silent + static
-  const [silentIntro, setSilentIntro] = useState(false);
 
   // "Experience" → screen 1, "Projects" → screen 2, "About"/wordmark → screen 0.
   // (Projects lives on this page now, so no route change.)
@@ -101,13 +96,6 @@ function HomeDesktop() {
       const next = i < 0 ? 0 : i > LAST ? LAST : i;
       if (next === indexRef.current || animatingRef.current) return;
       indexRef.current = next;
-      // reflect the screen in the URL so a reload restores it (no new history entry)
-      const hash = SECTION_HASH[next];
-      window.history.replaceState(
-        null,
-        "",
-        hash ? `#${hash}` : window.location.pathname + window.location.search
-      );
       startTransition(() => {
         setSection(next);
         // leaving the wall (or never on it) → reset so the trace re-arms
@@ -128,20 +116,15 @@ function HomeDesktop() {
     };
     goToRef.current = goTo;
 
-    // Restore the screen from the URL hash on (re)load: if we reloaded onto
-    // experience/projects, set the nav state + keep About silent, then jump the
-    // scroll there (done after ScrollTrigger.refresh below).
-    const startIndex = SECTION_HASH.indexOf(window.location.hash.replace("#", ""));
-    const start = startIndex > 0 ? startIndex : 0;
-    if (start > 0) {
-      indexRef.current = start;
-      onWallRef.current = start === 1;
-      setSection(start);
-      setSilentIntro(true);
-      if (start === 1) {
-        setOnWall(true);
-        setArrivedExp(true);
-      }
+    // Every load starts at About. The page used to mirror the screen into the
+    // URL hash (#experience / #projects) and restore it on reload, which meant
+    // the browser's autocomplete kept bringing people back mid-site — so a
+    // leftover hash is dropped here rather than honoured. The browser will
+    // already have anchor-jumped to that section's id before this runs, so the
+    // scroll is put back to the top too (again below, once Lenis owns it).
+    if (window.location.hash) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      window.scrollTo(0, 0);
     }
 
     // let an open detail panel scroll natively; only page when it's at its edge
@@ -237,10 +220,8 @@ function HomeDesktop() {
 
       ScrollTrigger.refresh();
 
-      // jump to the restored screen instantly (no glide) once positions are known
-      if (start > 0) {
-        lenis.scrollTo(targetFor(start), { immediate: true, force: true });
-      }
+      // pin the start at About (the browser may have anchor-jumped on a hashed URL)
+      lenis.scrollTo(0, { immediate: true, force: true });
     });
 
     return () => {
@@ -273,7 +254,7 @@ function HomeDesktop() {
       />
 
       {/* screen 0 — the scrapbook "about" (Hero is its own h-screen section) */}
-      <Hero introDone onIntroDone={NOOP} paused={section !== 0} play={!silentIntro} />
+      <Hero introDone onIntroDone={NOOP} paused={section !== 0} play />
 
       {/* screen 1 — the climbing wall */}
       <section ref={exp} className="experience-section climb-wall">
