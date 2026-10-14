@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { AnimatePresence } from "framer-motion";
 import ProjectCard from "./ProjectCard";
 
 /*
@@ -8,14 +9,20 @@ import ProjectCard from "./ProjectCard";
   sideways when there are more cards than fit; the playing card is kept in
   view. Prev/next (the chevrons, or ←/→ while the row has focus) step through
   `projects` and wrap — the scene owns the selection and does the stepping.
+  Filtering animates: leaving cards fade out in place (popLayout lifts them out
+  of the flow) while the rest slide together (each card's `layout`).
 */
 export default function ProjectCarousel({ projects, selectedId, onSelect, onStep }) {
   const rowRef = useRef(null);
 
-  // keep the playing card in view (it also moves when a filter narrows the row)
+  // keep the playing card in view (it also moves when a filter narrows the row;
+  // a beat later, so the measure happens after the layout animation settles)
   useEffect(() => {
-    const el = rowRef.current?.querySelector(".proj-card.is-playing");
-    el?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    const t = setTimeout(() => {
+      const el = rowRef.current?.querySelector(".proj-card.is-playing");
+      el?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    }, 320);
+    return () => clearTimeout(t);
   }, [selectedId, projects.length]);
 
   /*
@@ -160,9 +167,11 @@ export default function ProjectCarousel({ projects, selectedId, onSelect, onStep
       </button>
 
       <div className="proj-carousel-row" ref={rowRef}>
-        {projects.map((p) => (
-          <ProjectCard key={p.id} project={p} selected={p.id === selectedId} onSelect={onSelect} />
-        ))}
+        <AnimatePresence initial={false} mode="popLayout">
+          {projects.map((p) => (
+            <ProjectCard key={p.id} project={p} selected={p.id === selectedId} onSelect={onSelect} />
+          ))}
+        </AnimatePresence>
       </div>
 
       <button

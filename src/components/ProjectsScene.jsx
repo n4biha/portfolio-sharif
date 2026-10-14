@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import ProjectFilters from "./ProjectFilters";
 import ProjectCarousel from "./ProjectCarousel";
 import RecordPlayer from "./RecordPlayer";
@@ -20,17 +21,25 @@ const PARALLAX_LAYERS = [
   { layer: "projstage", yPercent: 16 },  // stage rises up into place
 ];
 
+// how a stage cell (the featured card, the screen frame) comes and goes when
+// the record changes: the old one fades up and out while the new one rises in
+const CELL_IN = { opacity: 1, y: 0 };
+
 /*
-  "Projects on Repeat" — a dark listening room, modern cut: title block, filter
+  "Projects on Repeat" — a dark listening room, modern cut: title, filter
   pills, a carousel of project cards, and the stage below — the Now Playing disc,
-  the featured-project card, and the screenshot in a browser frame. Pick a card
-  (or step with the chevrons / ← →) to "play" it. `active` is false when this
-  isn't the on-screen section of the home flow, which rests the disc.
+  the featured-project card, and the screenshot on its device. Pick a card (or
+  step with the chevrons / ← → / the transport under the disc) to "play" it.
+  `active` is false when this isn't the on-screen section of the home flow,
+  which rests the disc.
 */
 function ProjectsScene({ active = true }) {
   const [category, setCategory] = useState("All");
   // default to the first record so the stage is populated on load
   const [selectedId, setSelectedId] = useState(PROJECTS[0]?.id ?? null);
+  // the play/pause under the disc
+  const [playing, setPlaying] = useState(true);
+  const reduce = useReducedMotion();
 
   const visible = category === "All" ? PROJECTS : PROJECTS.filter((p) => p.category === category);
   const index = Math.max(0, visible.findIndex((p) => p.id === selectedId));
@@ -53,6 +62,8 @@ function ProjectsScene({ active = true }) {
     [visible, index],
   );
 
+  const togglePlay = useCallback(() => setPlaying((v) => !v), []);
+
   const roomRef = useRef(null);
   useParallaxLayers(roomRef, {
     layers: PARALLAX_LAYERS,
@@ -72,12 +83,17 @@ function ProjectsScene({ active = true }) {
     });
   }, []);
 
+  const cell = {
+    initial: reduce ? false : { opacity: 0, y: 12 },
+    animate: CELL_IN,
+    exit: reduce ? undefined : { opacity: 0, y: -8, transition: { duration: 0.18, ease: "easeIn" } },
+    transition: reduce ? { duration: 0 } : { duration: 0.36, ease: [0.22, 1, 0.36, 1] },
+  };
+
   return (
     <div ref={roomRef} className="record-room">
       <header data-parallax-layer="projhead" className="proj-head">
-        <p className="proj-head-eyebrow">Ideas. Tools. Impact.</p>
         <h1 className="proj-head-title">Projects on Repeat</h1>
-        <p className="proj-head-sub">Exploring ideas, building solutions, and turning curiosity into real-world impact.</p>
       </header>
 
       <ProjectFilters value={category} onChange={pickCategory} />
@@ -86,9 +102,29 @@ function ProjectsScene({ active = true }) {
 
       {/* the stage is always rendered: the parallax hook queries its layer once on mount */}
       <div data-parallax-layer="projstage" className="record-stage">
-        <RecordPlayer project={selected} index={index} total={visible.length} spinning={active} />
-        <RecordPanel project={selected} />
-        {selected && <ScreenFrame key={selected.id} project={selected} />}
+        <RecordPlayer
+          project={selected}
+          index={index}
+          total={visible.length}
+          spinning={active && playing}
+          playing={playing}
+          onTogglePlay={togglePlay}
+          onStep={step}
+        />
+        {/* popLayout lifts the leaving cells out of the grid so the new ones
+            take their slots at once and the two simply crossfade */}
+        <AnimatePresence initial={false} mode="popLayout">
+          {selected && (
+            <motion.div key={`panel-${selected.id}`} className="stage-cell" {...cell}>
+              <RecordPanel project={selected} />
+            </motion.div>
+          )}
+          {selected && (
+            <motion.div key={`frame-${selected.id}`} className="stage-cell stage-cell-frame" {...cell}>
+              <ScreenFrame project={selected} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

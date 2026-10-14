@@ -2232,9 +2232,7 @@ html[data-site-loading="true"] body {
 
   .disc-vinyl,
   .disc-label,
-  .disc-arc-dot,
-  .record-panel-inner,
-  .screen-frame {
+  .disc-arc-dot {
     animation: none;
   }
 
@@ -2290,15 +2288,6 @@ html[data-site-loading="true"] body {
   text-align: center;
 }
 
-.proj-head-eyebrow {
-  margin: 0 0 8px;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
-  color: var(--room-muted);
-}
-
 .proj-head-title {
   margin: 0;
   font-family: var(--font-serif-display), Georgia, serif;
@@ -2311,15 +2300,6 @@ html[data-site-loading="true"] body {
   text-shadow: 0 2px 28px rgba(0, 0, 0, 0.45);
 }
 
-.proj-head-sub {
-  margin: 10px 0 0;
-  font-family: var(--font-serif-display), Georgia, serif;
-  font-weight: 500;
-  font-size: clamp(16px, 2.5vh, 20px);
-  letter-spacing: 0.01em;
-  color: var(--room-muted);
-}
-
 /* ---- filter pills ---- */
 .proj-filters {
   display: flex;
@@ -2330,6 +2310,7 @@ html[data-site-loading="true"] body {
 }
 
 .proj-pill {
+  position: relative;
   padding: 8px 20px;
   border: 1px solid var(--glass-border);
   border-radius: 999px;
@@ -2354,10 +2335,22 @@ html[data-site-loading="true"] body {
 }
 
 .proj-pill.is-active {
-  background: var(--cream);
   border-color: var(--cream);
   color: var(--cream-ink);
+}
+
+/* the cream fill: a shared-layout span that glides to whichever pill is active */
+.proj-pill-bg {
+  position: absolute;
+  inset: -1px;
+  border-radius: 999px;
+  background: var(--cream);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.proj-pill-label {
+  position: relative;
+  z-index: 1;
 }
 
 /* ---- the carousel: chevron | scrolling row of cards | chevron ---- */
@@ -2406,6 +2399,7 @@ html[data-site-loading="true"] body {
      origin and make it unreachable. */
   justify-content: safe center;
   gap: clamp(12px, 1.4vw, 20px);
+  position: relative;
   min-width: 0;
   padding: 10px 6px 12px;
   /* more cards than fit: scroll/drag the row sideways. The scrollbar stays
@@ -2492,19 +2486,35 @@ html[data-site-loading="true"] body {
 
 /* ---- the stage: now playing | featured card | screen frame ---- */
 .record-stage {
+  position: relative; /* popLayout parks the leaving cells absolutely in here */
   flex: 1 1 auto;
   display: grid;
   grid-template-columns: minmax(220px, 3fr) minmax(380px, 5fr) minmax(300px, 4fr);
   gap: clamp(16px, 1.8vw, 30px);
-  align-items: center;
+  align-items: start;
   width: min(1400px, 100%);
   min-height: 0;
 }
 
+/* a keyed motion wrapper per stage column (ProjectsScene): the card and the
+   frame crossfade inside these when the record changes */
+.stage-cell {
+  min-width: 0;
+}
+
+.stage-cell-frame {
+  align-self: center;
+}
+
 /* ---- Now Playing (RecordPlayer.jsx) ---- */
 .now-playing {
+  position: relative; /* popLayout parks the leaving text block in here */
   display: flex;
   flex-direction: column;
+  min-width: 0;
+}
+
+.now-playing-text {
   min-width: 0;
 }
 
@@ -2588,6 +2598,7 @@ html[data-site-loading="true"] body {
   color: var(--accent);
   box-shadow: 0 0 0 4px #101114, 0 0 30px -6px var(--accent);
   animation: disc-label-pop 0.5s cubic-bezier(0.34, 1.5, 0.6, 1);
+  transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .disc-label svg {
@@ -2626,6 +2637,7 @@ html[data-site-loading="true"] body {
   stroke-width: 2;
   stroke-linecap: round;
   animation: disc-progress 40s linear infinite;
+  transition: stroke 0.4s ease;
 }
 
 .disc-arc-dot {
@@ -2636,6 +2648,7 @@ html[data-site-loading="true"] body {
 .disc-arc-dot circle {
   fill: var(--accent);
   filter: drop-shadow(0 0 4px var(--accent));
+  transition: fill 0.4s ease, filter 0.4s ease;
 }
 
 .disc-card.is-paused .disc-vinyl,
@@ -2656,6 +2669,64 @@ html[data-site-loading="true"] body {
   to { transform: rotate(360deg); }
 }
 
+/* transport under the disc: previous · play/pause · next */
+.disc-transport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.disc-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: var(--glass-bg);
+  color: var(--room-text);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+.disc-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.disc-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.disc-btn:active {
+  transform: scale(0.94);
+}
+
+.disc-btn:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 3px;
+}
+
+.disc-btn.is-play {
+  width: 42px;
+  height: 42px;
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 22%, #15171a);
+  color: var(--accent);
+}
+
+.disc-btn.is-play svg {
+  width: 18px;
+  height: 18px;
+}
+
+.disc-btn.is-play:hover {
+  background: color-mix(in srgb, var(--accent) 34%, #15171a);
+}
+
 /* ---- the featured-project card (RecordPanel.jsx): the cream sheet ----
    No backdrop blur: it rides the parallax "projstage" layer, which GSAP moves. */
 .record-panel {
@@ -2667,22 +2738,8 @@ html[data-site-loading="true"] body {
   font-family: var(--font-serif-body), Georgia, serif;
 }
 
-/* keyed on the record → replays the fade/rise */
 .record-panel-inner {
   padding: clamp(20px, 1.8vw, 30px) clamp(20px, 1.9vw, 32px) clamp(20px, 1.8vw, 28px);
-  animation: record-panel-in 0.4s ease-out both;
-}
-
-@keyframes record-panel-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
-  }
 }
 
 .record-panel-eyebrow {
@@ -2845,7 +2902,6 @@ html[data-site-loading="true"] body {
   background: var(--surface);
   overflow: hidden;
   box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.9);
-  animation: record-panel-in 0.4s ease-out both;
 }
 
 .screen-frame-bar {
@@ -2908,14 +2964,12 @@ html[data-site-loading="true"] body {
 }
 
 /* ---- device frames: the phone app on an iPhone, the kiosk on its stand ----
-   Same fade/rise + grid slot as the browser window (.screen-frame), but no
-   window chrome: the figure is transparent and the device draws itself. */
+   No window chrome: the figure is transparent and the device draws itself. */
 .screen-frame.is-device {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  justify-self: center;
   border: 0;
   border-radius: 0;
   background: none;
@@ -3078,10 +3132,6 @@ html[data-site-loading="true"] body {
     font-size: clamp(34px, 6.2vh, 52px);
   }
 
-  .proj-head-sub {
-    margin-top: 6px;
-  }
-
   .proj-card {
     aspect-ratio: 4 / 3;
   }
@@ -3130,7 +3180,7 @@ html[data-site-loading="true"] body {
     align-items: start;
   }
 
-  .screen-frame {
+  .stage-cell-frame {
     grid-column: 2;
   }
 }
@@ -3141,7 +3191,7 @@ html[data-site-loading="true"] body {
     gap: 18px;
   }
 
-  .screen-frame {
+  .stage-cell-frame {
     grid-column: auto;
   }
 

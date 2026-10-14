@@ -14,8 +14,8 @@ import { useState } from "react";
   The note (if any) sits in the window's footer bar, or as a caption under the
   device.
 
-  Keyed on the project by the scene, so switching records re-mounts it and
-  replays the fade/rise (.screen-frame in globals.css).
+  Switching records crossfades the frame (ProjectsScene wraps it in a keyed
+  motion cell).
 */
 
 // The image, held invisible until it has loaded + decoded, then faded in — so a

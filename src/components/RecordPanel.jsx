@@ -11,8 +11,8 @@ import FieldIcon from "./FieldIcon";
   pill button for the project's link (none when the project has no public
   link). The screenshot lives in the ScreenFrame to the right.
 
-  The inner wrapper is keyed on the project, so switching records re-mounts it
-  and replays a short CSS fade/rise (see .record-panel-inner in globals.css).
+  Switching records crossfades the whole card (ProjectsScene wraps it in a
+  keyed motion cell), so nothing in here needs its own entrance.
 */
 export default function RecordPanel({ project }) {
   if (!project) return null;
@@ -22,7 +22,7 @@ export default function RecordPanel({ project }) {
 
   return (
     <section className="record-panel" aria-label={`${project.title} details`}>
-      <div key={project.id} className="record-panel-inner">
+      <div className="record-panel-inner">
         <p className="record-panel-eyebrow">Featured Project</p>
         <h2 className="record-panel-title">{project.title}</h2>
         {project.subtitle && <p className="record-panel-subtitle">{project.subtitle}</p>}
