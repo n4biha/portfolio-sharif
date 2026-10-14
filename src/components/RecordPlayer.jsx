@@ -7,7 +7,7 @@ import ProjectIcon from "./ProjectIcon";
   playing project's title, then a dark card holding a flat vinyl disc — fine
   concentric grooves that turn, the project's accent label (static) in the
   middle with its icon, and a thin accent progress arc + dot that slowly sweep
-  round while it plays — with the project's one-line tagline as the caption.
+  round while it plays.
 
   `spinning` is false when the projects screen isn't on screen (home flow), so
   the disc and the arc rest. The label + arc are keyed on the project so a new
@@ -51,7 +51,6 @@ export default function RecordPlayer({ project, index = 0, total = 1, spinning =
           </svg>
         </div>
 
-        {project.tagline && <p className="disc-caption">{project.tagline}</p>}
       </div>
     </div>
   );

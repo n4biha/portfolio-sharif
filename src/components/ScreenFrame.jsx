@@ -3,11 +3,16 @@
 import { useState } from "react";
 
 /*
-  The screenshot, shown inside a dark browser-window mockup: three traffic
-  lights + the project's name in a title bar, the shot filling the body, and a
-  thin footer bar carrying the preview note (if any). Phone/tablet shots are
-  portrait, so those sit whole (contained) on the dark body instead of being
-  cropped to the window.
+  The project's screenshot, shown on the device it actually runs on:
+    - default: a dark browser window (three traffic lights + the project's name
+      in a title bar, the shot filling the body, a thin footer bar for the note)
+    - demoPreview.device === "phone": an iPhone — rounded black body, side
+      buttons, the shot filling the screen (the Tiny Pause capture already
+      carries simulator bezels, so the screen is cut a touch narrow to crop them)
+    - demoPreview.device === "tablet": a sign-in kiosk — a tablet in a thick
+      bezel standing on a neck + base plate, the shot filling the screen
+  The note (if any) sits in the window's footer bar, or as a caption under the
+  device.
 
   Keyed on the project by the scene, so switching records re-mounts it and
   replays the fade/rise (.screen-frame in globals.css).
@@ -15,14 +20,14 @@ import { useState } from "react";
 
 // The image, held invisible until it has loaded + decoded, then faded in — so a
 // cold first visit never shows it painting in half-drawn.
-function Shot({ src, alt, contain }) {
+function Shot({ src, alt }) {
   const [loaded, setLoaded] = useState(false);
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
       alt={alt}
-      className={`screen-frame-img${loaded ? " is-loaded" : ""}${contain ? " is-contain" : ""}`}
+      className={`screen-frame-img${loaded ? " is-loaded" : ""}`}
       decoding="async"
       onLoad={() => setLoaded(true)}
       // cached images can be complete before onLoad wires up — catch those too
@@ -36,9 +41,45 @@ function Shot({ src, alt, contain }) {
 export default function ScreenFrame({ project }) {
   const preview = project?.demoPreview;
   if (!preview?.screenshot) return null;
-  const contain = preview.device === "phone" || preview.device === "tablet";
+  const alt = `${project.title} preview`;
+
+  if (preview.device === "phone") {
+    return (
+      <figure className="screen-frame is-device device-phone" aria-label={alt}>
+        <div className="phone" aria-hidden="true">
+          <span className="phone-btn phone-btn-mute" />
+          <span className="phone-btn phone-btn-vol phone-btn-vol-up" />
+          <span className="phone-btn phone-btn-vol phone-btn-vol-down" />
+          <span className="phone-btn phone-btn-power" />
+          <div className="phone-screen">
+            <Shot src={preview.screenshot} alt={alt} />
+          </div>
+        </div>
+        {preview.note && <figcaption className="device-note">{preview.note}</figcaption>}
+      </figure>
+    );
+  }
+
+  if (preview.device === "tablet") {
+    return (
+      <figure className="screen-frame is-device device-kiosk" aria-label={alt}>
+        <div className="kiosk" aria-hidden="true">
+          <div className="kiosk-tablet">
+            <span className="kiosk-cam" />
+            <div className="kiosk-screen">
+              <Shot src={preview.screenshot} alt={alt} />
+            </div>
+          </div>
+          <span className="kiosk-neck" />
+          <span className="kiosk-base" />
+        </div>
+        {preview.note && <figcaption className="device-note">{preview.note}</figcaption>}
+      </figure>
+    );
+  }
+
   return (
-    <figure className="screen-frame" aria-label={`${project.title} preview`}>
+    <figure className="screen-frame" aria-label={alt}>
       <div className="screen-frame-bar">
         <span className="screen-frame-lights" aria-hidden="true">
           <i />
@@ -47,8 +88,8 @@ export default function ScreenFrame({ project }) {
         </span>
         <span className="screen-frame-name">{project.title}</span>
       </div>
-      <div className={`screen-frame-body${contain ? " is-contain" : ""}`}>
-        <Shot src={preview.screenshot} alt={`${project.title} preview`} contain={contain} />
+      <div className="screen-frame-body">
+        <Shot src={preview.screenshot} alt={alt} />
       </div>
       {preview.note && <figcaption className="screen-frame-note">{preview.note}</figcaption>}
     </figure>
