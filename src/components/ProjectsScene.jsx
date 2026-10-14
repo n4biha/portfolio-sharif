@@ -1,34 +1,57 @@
 "use client";
 
-import { memo, useEffect, useRef, useState } from "react";
-import RecordShelf from "./RecordShelf";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+import ProjectFilters from "./ProjectFilters";
+import ProjectCarousel from "./ProjectCarousel";
 import RecordPlayer from "./RecordPlayer";
 import RecordPanel from "./RecordPanel";
+import ScreenFrame from "./ScreenFrame";
 import ProjectsMobile from "./ProjectsMobile";
 import { PROJECTS } from "@/lib/projects";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useParallaxLayers } from "./ui/parallax-scrolling";
 
 // Projects is the last screen — it only ever glides UP into view, never out the
-// top — so this uses "enter" mode: the title and turntable stage start slightly
-// offset and settle into place (identity at rest) as the screen rises in. Paired
-// with the start/end below so rest lands exactly at identity. Tunable.
+// top — so this uses "enter" mode: the title and stage start slightly offset and
+// settle into place (identity at rest) as the screen rises in. Paired with the
+// start/end below so rest lands exactly at identity. Tunable.
 const PARALLAX_LAYERS = [
   { layer: "projhead", yPercent: -20 },  // title drops into place from above
-  { layer: "projstage", yPercent: 16 },  // turntable stage rises up into place
+  { layer: "projstage", yPercent: 16 },  // stage rises up into place
 ];
 
 /*
-  "Projects on Repeat" — a vintage listening room, kept simple: every album on one
-  shelf; click one to "play" it — the turntable spins it and the one panel beside
-  it carries the record's details and screenshot (RecordPanel). `active` is false
-  when this isn't the on-screen section of the home flow, which rests the vinyl.
+  "Projects on Repeat" — a dark listening room, modern cut: title block, filter
+  pills, a carousel of project cards, and the stage below — the Now Playing disc,
+  the featured-project card, and the screenshot in a browser frame. Pick a card
+  (or step with the chevrons / ← →) to "play" it. `active` is false when this
+  isn't the on-screen section of the home flow, which rests the disc.
 */
 function ProjectsScene({ active = true }) {
-  // default to the first record so the player + panel are populated on load
+  const [category, setCategory] = useState("All");
+  // default to the first record so the stage is populated on load
   const [selectedId, setSelectedId] = useState(PROJECTS[0]?.id ?? null);
-  const index = Math.max(0, PROJECTS.findIndex((p) => p.id === selectedId));
-  const selected = PROJECTS[index] ?? null;
+
+  const visible = category === "All" ? PROJECTS : PROJECTS.filter((p) => p.category === category);
+  const index = Math.max(0, visible.findIndex((p) => p.id === selectedId));
+  const selected = visible[index] ?? null;
+
+  // a filter that hides the playing record hands play to the first one showing
+  const pickCategory = useCallback((c) => {
+    setCategory(c);
+    const next = c === "All" ? PROJECTS : PROJECTS.filter((p) => p.category === c);
+    setSelectedId((id) => (next.some((p) => p.id === id) ? id : next[0]?.id ?? null));
+  }, []);
+
+  // prev / next, wrapping round the visible row
+  const step = useCallback(
+    (dir) => {
+      if (!visible.length) return;
+      const next = (index + dir + visible.length) % visible.length;
+      setSelectedId(visible[next].id);
+    },
+    [visible, index],
+  );
 
   const roomRef = useRef(null);
   useParallaxLayers(roomRef, {
@@ -51,16 +74,21 @@ function ProjectsScene({ active = true }) {
 
   return (
     <div ref={roomRef} className="record-room">
-      <header data-parallax-layer="projhead" className="record-room-head">
-        <h1 className="record-room-title hand">Projects on Repeat</h1>
+      <header data-parallax-layer="projhead" className="proj-head">
+        <p className="proj-head-eyebrow">Ideas. Tools. Impact.</p>
+        <h1 className="proj-head-title">Projects on Repeat</h1>
+        <p className="proj-head-sub">Exploring ideas, building solutions, and turning curiosity into real-world impact.</p>
       </header>
 
-      <RecordShelf projects={PROJECTS} selectedId={selectedId} onSelect={setSelectedId} />
+      <ProjectFilters value={category} onChange={pickCategory} />
+
+      <ProjectCarousel projects={visible} selectedId={selected?.id} onSelect={setSelectedId} onStep={step} />
 
       {/* the stage is always rendered: the parallax hook queries its layer once on mount */}
       <div data-parallax-layer="projstage" className="record-stage">
-        <RecordPlayer project={selected} spinning={active} />
-        <RecordPanel project={selected} index={index} />
+        <RecordPlayer project={selected} index={index} total={visible.length} spinning={active} />
+        <RecordPanel project={selected} />
+        {selected && <ScreenFrame key={selected.id} project={selected} />}
       </div>
     </div>
   );

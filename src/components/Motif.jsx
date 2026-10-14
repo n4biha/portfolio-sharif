@@ -1,16 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
-
 /*
-  One album cover on the shelf. The art is CSS/SVG-generated from the project's
-  `coverStyle` (bg + ink + accent + motif) until a real `coverImage` is dropped in.
-  Hover lifts it with a warm glow + a handwritten "play this one" note; the selected
-  album gets a "now playing" sticker and sits slightly forward.
+  Per-project cover illustration (CSS/SVG-generated album art), tinted with the
+  cover's accent/ink. Now used only by the phone Projects list (ProjectsMobile);
+  the desktop carousel draws the simpler monoline ProjectIcon instead.
 */
-
-// little per-project cover illustration, tinted with the cover's accent/ink
-// exported so the mobile shelf can reuse the real cover art at mini size
 export function Motif({ motif, ink, accent }) {
   const s = { stroke: ink, fill: "none", strokeWidth: 2.4, strokeLinecap: "round", strokeLinejoin: "round" };
   switch (motif) {
@@ -164,39 +158,4 @@ export function Motif({ motif, ink, accent }) {
         </svg>
       );
   }
-}
-
-export default function AlbumCover({ project, selected = false, onSelect }) {
-  const { bg, ink, accent, motif } = project.coverStyle;
-  return (
-    <motion.button
-      type="button"
-      className={`album-cover${selected ? " is-playing" : ""}`}
-      style={{ background: bg, color: ink, "--cover-accent": accent }}
-      onClick={() => onSelect?.(project.id)}
-      aria-label={`Play ${project.title}`}
-      aria-pressed={selected}
-      initial={false}
-      whileHover={{ y: -14, rotate: -1.5, transition: { type: "spring", stiffness: 320, damping: 18 } }}
-      whileTap={{ scale: 0.97 }}
-    >
-      {project.coverImage ? (
-        // real art later: object-fit cover fills the sleeve
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={project.coverImage} alt={project.title} className="cover-photo" />
-      ) : (
-        <span className="cover-art" aria-hidden="true">
-          <span className="cover-band" style={{ background: accent }} />
-          <Motif motif={motif} ink={ink} accent={accent} />
-        </span>
-      )}
-
-      <span className="cover-meta">
-        <span className="cover-title">{project.title}</span>
-      </span>
-
-      {/* now-playing sticker on the selected album */}
-      {selected && <span className="cover-sticker hand" aria-hidden="true">now playing</span>}
-    </motion.button>
-  );
 }

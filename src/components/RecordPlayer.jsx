@@ -1,42 +1,57 @@
 "use client";
 
+import ProjectIcon from "./ProjectIcon";
+
 /*
-  Lower-left "Now Playing" turntable: just the record on the player, spinning
-  slowly (CSS) while a project is playing. `spinning` is false when the projects
-  screen isn't active, so the record rests. The current pick's identity lives in
-  the RecordPanel beside it + the shelf's "now playing" sticker.
+  The "Now Playing" column on the left of the stage: the record counter, the
+  playing project's title, then a dark card holding a flat vinyl disc — fine
+  concentric grooves that turn, the project's accent label (static) in the
+  middle with its icon, and a thin accent progress arc + dot that slowly sweep
+  round while it plays — with the project's one-line tagline as the caption.
+
+  `spinning` is false when the projects screen isn't on screen (home flow), so
+  the disc and the arc rest. The label + arc are keyed on the project so a new
+  pick re-mounts them: the label scale-pops and the arc starts over.
 */
-export default function RecordPlayer({ project, spinning = true }) {
+
+const R = 46; // arc radius in the 100×100 disc viewBox (just outside the vinyl)
+const CIRC = Math.round(2 * Math.PI * R * 100) / 100;
+
+export default function RecordPlayer({ project, index = 0, total = 1, spinning = true }) {
   if (!project) return null;
-  const { accent } = project.coverStyle;
+  const { accent, motif } = project.coverStyle;
+  const pad = (n) => String(n).padStart(2, "0");
+
   return (
-    <div className="record-player">
-      <span className="now-playing-label hand">Now Playing</span>
+    <div className="now-playing" style={{ "--accent": accent }}>
+      <p className="now-playing-count">
+        {pad(index + 1)} <span aria-hidden="true">/</span> {pad(total)}
+      </p>
+      <p className="now-playing-eyebrow">Now Playing</p>
+      <h2 className="now-playing-title">{project.title}</h2>
+      <span className="now-playing-rule" aria-hidden="true" />
 
-      <div className="turntable">
-        <span className="rec-vinyl" aria-hidden="true">
-          {/* only the disc spins; grooves are CSS */}
-          <span className={`rec-vinyl-disc${spinning ? "" : " is-paused"}`}>
-            {/* key on the project so the label re-mounts + scale-pops on each change */}
-            <span key={project.id} className="rec-vinyl-label" style={{ background: accent }}>
-              <span className="rec-vinyl-hole" />
-            </span>
+      <div className={`disc-card${spinning ? "" : " is-paused"}`}>
+        <div className="disc" aria-hidden="true">
+          {/* the pressed vinyl: grooves are CSS; only this layer rotates */}
+          <span className="disc-vinyl" />
+          {/* the label sits on top and stays put, so the icon never turns */}
+          <span key={project.id} className="disc-label">
+            <ProjectIcon motif={motif} />
           </span>
-          {/* the light reflection stays fixed (doesn't rotate with the disc) */}
-          <span className="rec-vinyl-gloss" />
-          {/* accent glow pulse — re-mounts on each selection to replay */}
-          <span
-            key={project.id}
-            className="rec-vinyl-pulse"
-            style={{ "--accent": accent }}
-          />
-        </span>
 
-        <span className="tonearm" aria-hidden="true">
-          <span className="tonearm-pivot" />
-          <span className="tonearm-arm" />
-          <span className="tonearm-head" />
-        </span>
+          {/* progress arc (rotated -90° in CSS so it starts at 12 o'clock): a
+              faint full ring, then the accent sweep + the dot riding its tip */}
+          <svg key={`arc-${project.id}`} className="disc-arc" viewBox="0 0 100 100" style={{ "--circ": CIRC }}>
+            <circle className="disc-arc-track" cx="50" cy="50" r={R} />
+            <circle className="disc-arc-fill" cx="50" cy="50" r={R} strokeDasharray={CIRC} strokeDashoffset={CIRC} />
+            <g className="disc-arc-dot">
+              <circle cx={50 + R} cy="50" r="3" />
+            </g>
+          </svg>
+        </div>
+
+        {project.tagline && <p className="disc-caption">{project.tagline}</p>}
       </div>
     </div>
   );

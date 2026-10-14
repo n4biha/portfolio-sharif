@@ -500,25 +500,22 @@ html[data-site-loading="true"] body {
   backface-visibility: hidden;
 }
 
-/* the polaroid gallery as a full screen (home screen 2 + the /projects route).
-   Cream with a faint corkboard texture so it reads as a wall. */
+/* the Projects room as a full screen (home screen 2 + the /projects route).
+   Near-black charcoal under a soft white spotlight from the top, with a faint
+   vignette and a touch of grain so the wall reads real rather than flat. */
 .projects-section {
   position: relative;
   height: 100vh;
   height: 100svh;
   overflow: hidden;
-  /* midnight-navy jazz lounge: near-black wall with a cool blue hue under a warm
-     brass spotlight, a soft vignette, faint vertical wood paneling, and a subtle
-     plaster texture so the wall reads real rather than flat. */
-  background-color: #101a30;
+  background-color: #0e0f11;
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.05'/%3E%3C/svg%3E"),
-    radial-gradient(46% 42% at 50% 6%, rgba(255, 214, 140, 0.38), rgba(255, 214, 140, 0) 60%),
-    radial-gradient(120% 120% at 50% 40%, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, 0.5) 100%),
-    repeating-linear-gradient(90deg, rgba(160, 180, 220, 0.03) 0 1px, rgba(0, 0, 0, 0) 1px 46px),
-    linear-gradient(180deg, #16244a 0%, #101a30 55%, #0c1526 100%);
-  background-size: 200px 200px, 100% 100%, 100% 100%, 46px 100%, 100% 100%;
-  color: #f3e9cf;
+    radial-gradient(58% 44% at 50% -6%, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0) 62%),
+    radial-gradient(120% 120% at 50% 42%, rgba(0, 0, 0, 0) 48%, rgba(0, 0, 0, 0.55) 100%),
+    linear-gradient(180deg, #17181b 0%, #0f1012 55%, #0a0b0d 100%);
+  background-size: 200px 200px, 100% 100%, 100% 100%, 100% 100%;
+  color: #ece9e2;
   /* own GPU layer — see .experience-section note above */
   transform: translateZ(0);
   backface-visibility: hidden;
@@ -2233,353 +2230,454 @@ html[data-site-loading="true"] body {
     transform: translate(-50%, -50%) scale(1);
   }
 
-  .rec-vinyl-disc,
-  .rec-vinyl-label {
+  .disc-vinyl,
+  .disc-label,
+  .disc-arc-dot,
+  .record-panel-inner,
+  .screen-frame {
     animation: none;
   }
 
-  .rec-vinyl-pulse {
+  /* hold the progress arc part-way round instead of sweeping */
+  .disc-arc-fill {
     animation: none;
-    opacity: 0;
+    stroke-dashoffset: calc(var(--circ) * 0.3);
+  }
+
+  .disc-arc-dot {
+    transform: rotate(252deg);
   }
 }
 
 /* ===============================================================
-   PROJECTS — "Projects on Repeat": a cozy vintage listening room. Warm wood +
-   amber light (set on .projects-section). Shelf of album covers up top; a Now
-   Playing turntable and the one dark detail panel (RecordPanel) below.
+   PROJECTS — "Projects on Repeat": a dark listening room, modern cut.
+   Charcoal wall under a soft spotlight (set on .projects-section). Title
+   block, filter pills, the card carousel, then the stage: the Now Playing
+   disc | the featured-project card (cream) | the screenshot in a browser
+   frame. Desktop only — phones get ProjectsMobile.
    =============================================================== */
 .record-room {
+  /* room tokens */
+  --room-text: #ece9e2;
+  --room-muted: rgba(236, 233, 226, 0.55);
+  --room-faint: rgba(236, 233, 226, 0.3);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.035);
+  --surface: #121315;
+  --surface-border: rgba(255, 255, 255, 0.08);
+  /* the cream featured card */
+  --cream: #f3efe6;
+  --cream-ink: #1c1b19;
+  --cream-body: #2e2c28;
+  --cream-muted: #6b675f;
+  --cream-line: rgba(28, 27, 25, 0.2);
+
   position: absolute;
   inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(8px, 1.4vh, 18px);
-  padding: clamp(76px, 11vh, 112px) clamp(18px, 4vw, 56px) clamp(28px, 4.5vh, 52px);
+  gap: clamp(10px, 1.8vh, 22px);
+  padding: clamp(70px, 10vh, 104px) clamp(18px, 4vw, 56px) clamp(22px, 3.4vh, 40px);
   overflow-y: auto;
-  color: #f3e9cf;
+  color: var(--room-text);
+  font-family: var(--font-body), system-ui, sans-serif;
 }
 
-/* header */
-.record-room-head {
+/* ---- title block ---- */
+.proj-head {
+  flex: 0 0 auto;
   text-align: center;
-  flex: 0 0 auto;
 }
 
-.record-room-title {
+.proj-head-eyebrow {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--room-muted);
+}
+
+.proj-head-title {
   margin: 0;
-  font-family: var(--font-retro), sans-serif;
-  font-size: clamp(26px, 4.4vw, 50px);
-  line-height: 1.05;
-  letter-spacing: 0.01em;
-  color: #efe4cf;
-  /* realistic warm lamplight on the letters: a crisp contact shadow to seat them
-     against the wall, then two soft warm layers that bloom outward and fall off */
-  text-shadow:
-    0 1px 1px rgba(0, 0, 0, 0.55),
-    0 3px 10px rgba(0, 0, 0, 0.45),
-    0 0 22px rgba(255, 198, 120, 0.22),
-    0 0 46px rgba(255, 186, 108, 0.1);
+  font-family: var(--font-serif-display), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(38px, 7.2vh, 68px);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #f5f2eb;
+  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.45);
 }
 
-/* ---- the shelf area ---- */
-.record-shelf-area {
+.proj-head-sub {
+  margin: 10px 0 0;
+  font-family: var(--font-serif-display), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(16px, 2.5vh, 20px);
+  letter-spacing: 0.01em;
+  color: var(--room-muted);
+}
+
+/* ---- filter pills ---- */
+.proj-filters {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
-  /* wide enough for six records to sit on the plank without being clipped; the
-     row still scrolls past that, so a seventh just extends the shelf */
-  width: min(1120px, 100%);
   flex: 0 0 auto;
 }
 
-/* ---- the shelf ---- */
-.record-shelf {
-  position: relative;
-  width: 100%;
-  padding: 0 clamp(34px, 6vw, 80px);
+.proj-pill {
+  padding: 8px 20px;
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  background: var(--glass-bg);
+  color: var(--room-text);
+  font-family: var(--font-serif-display), Georgia, serif;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.shelf-row {
+.proj-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.proj-pill:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 3px;
+}
+
+.proj-pill.is-active {
+  background: var(--cream);
+  border-color: var(--cream);
+  color: var(--cream-ink);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* ---- the carousel: chevron | scrolling row of cards | chevron ---- */
+.proj-carousel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(10px, 1.4vw, 22px);
+  width: min(1240px, 100%);
+  flex: 0 0 auto;
+}
+
+.proj-carousel-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: var(--glass-bg);
+  color: var(--room-text);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.proj-carousel-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.proj-carousel-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.proj-carousel-btn:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 3px;
+}
+
+.proj-carousel-row {
   display: flex;
-  align-items: flex-end;
-  /* `safe` centres the covers while they fit, then falls back to flex-start once
-     they overflow — plain `center` would push the first cover past the scroll
+  align-items: center;
+  /* `safe` centres the cards while they fit, then falls back to flex-start once
+     they overflow — plain `center` would push the first card past the scroll
      origin and make it unreachable. */
   justify-content: safe center;
-  gap: clamp(14px, 2.1vw, 28px);
-  padding: clamp(12px, 1.6vh, 18px) clamp(14px, 2vw, 22px);
-  /* realistic walnut: a top sheen + horizontal wood grain (stretched turbulence)
-     + plank seams, blended over the walnut base. */
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 14%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='150'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.09' numOctaves='4' seed='7'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)' opacity='0.55'/%3E%3C/svg%3E"),
-    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.22) 0 2px, rgba(0, 0, 0, 0) 2px 4px, rgba(0, 0, 0, 0) 0 118px, rgba(0, 0, 0, 0.18) 118px 120px),
-    linear-gradient(180deg, #5a3a22, #38220f);
-  background-size: auto, 400px 150px, auto, 100% 100%;
-  background-blend-mode: overlay, overlay, normal, normal;
-  border-radius: 6px;
-  box-shadow: inset 0 10px 18px rgba(0, 0, 0, 0.45), 0 16px 28px rgba(0, 0, 0, 0.45), 0 0 64px rgba(255, 200, 120, 0.06);
-  /* more records than fit the plank: scroll/drag the shelf sideways. The
-     scrollbar stays hidden (it would cut across the walnut); the part-visible
-     cover at the edge is the affordance. `contain`
+  gap: clamp(12px, 1.4vw, 20px);
+  min-width: 0;
+  padding: 10px 6px 12px;
+  /* more cards than fit: scroll/drag the row sideways. The scrollbar stays
+     hidden; the part-visible card at the edge is the affordance. `contain`
      stops a sideways flick from chaining into the vertical section paging.
-     Deliberately NO scroll-snap: the scroll range here is barely one cover
-     wide, so snapping quantises it to "start or end" and blocks ordinary
-     dragging. */
+     Deliberately NO scroll-snap: the scroll range here is barely one card
+     wide, so snapping quantises it to "start or end" and blocks dragging. */
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
 }
-/* only advertise dragging when there's actually somewhere to drag to (the class
-   is set from RecordShelf once it measures an overflow) */
-.shelf-row.is-draggable { cursor: grab; }
-.shelf-row.is-dragging { cursor: grabbing; }
 
-.shelf-row::-webkit-scrollbar {
+/* only advertise dragging when there's actually somewhere to drag to (the class
+   is set from ProjectCarousel once it measures an overflow) */
+.proj-carousel-row.is-draggable { cursor: grab; }
+.proj-carousel-row.is-dragging { cursor: grabbing; }
+
+.proj-carousel-row::-webkit-scrollbar {
   display: none;
 }
 
-.shelf-lip {
-  position: absolute;
-  left: clamp(34px, 6vw, 80px);
-  right: clamp(34px, 6vw, 80px);
-  bottom: -7px;
-  height: 12px;
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='40'%3E%3Cfilter id='wl'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.01 0.14' numOctaves='3' seed='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23wl)' opacity='0.5'/%3E%3C/svg%3E"),
-    linear-gradient(180deg, #5a3a22, #2a1a0f);
-  background-size: 400px 40px, 100% 100%;
-  background-blend-mode: overlay, normal;
-  border-radius: 0 0 4px 4px;
-  box-shadow: 0 9px 14px rgba(0, 0, 0, 0.5), 0 0 48px rgba(255, 200, 120, 0.05);
-}
-
-/* shelf decor */
-.shelf-lamp {
-  position: absolute;
-  left: -2px;
-  bottom: 4px;
-  width: clamp(34px, 5vw, 58px);
-  height: clamp(80px, 13vh, 140px);
-  pointer-events: none;
-}
-
-.lamp-glow {
-  position: absolute;
-  top: -18px;
-  left: 50%;
-  width: 150px;
-  height: 150px;
-  transform: translateX(-50%);
-  background: radial-gradient(circle, rgba(255, 210, 130, 0.4), rgba(255, 210, 130, 0) 70%);
-}
-
-/* a warm brass lounge lamp glowing in the dim room */
-.lamp-shade {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 100%;
-  height: 34%;
-  transform: translateX(-50%);
-  background: linear-gradient(180deg, #f0c879, #c8902f);
-  border-radius: 40% 40% 12% 12%;
-  box-shadow: 0 4px 12px rgba(255, 200, 110, 0.35);
-}
-
-.lamp-stand {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 5px;
-  height: 66%;
-  transform: translateX(-50%);
-  background: linear-gradient(180deg, #caa15f, #6e5328);
-  border-radius: 3px;
-}
-
-.shelf-plant {
-  position: absolute;
-  right: 0;
-  bottom: 4px;
-  width: clamp(30px, 4.5vw, 52px);
-  height: clamp(60px, 10vh, 110px);
-  pointer-events: none;
-}
-
-.plant-pot {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 70%;
-  height: 36%;
-  transform: translateX(-50%);
-  background: linear-gradient(180deg, #b5703a, #834f25);
-  border-radius: 4px 4px 8px 8px;
-}
-
-.plant-leaf {
-  position: absolute;
-  bottom: 32%;
-  left: 50%;
-  width: 16px;
-  height: 40px;
-  background: linear-gradient(180deg, #5a8a4a, #2f5b2c);
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  transform-origin: bottom center;
-}
-
-.plant-leaf.l1 {
-  transform: translateX(-50%) rotate(-26deg);
-}
-
-.plant-leaf.l2 {
-  transform: translateX(-50%) rotate(2deg);
-  height: 48px;
-}
-
-.plant-leaf.l3 {
-  transform: translateX(-50%) rotate(26deg);
-}
-
-/* ---- album cover ---- */
-.album-cover {
+/* one card: a dark tile tinted from the cover colours, icon + serif title */
+.proj-card {
   position: relative;
   flex: 0 0 auto;
-  /* fixed, not viewport-derived: a vw width made the whole shelf composition
-     resize as the window changed, which read as covers randomly shrinking */
-  width: 124px;
-  aspect-ratio: 1 / 1;
-  border: 0;
-  padding: 0;
-  border-radius: 3px;
-  overflow: visible;
-  cursor: pointer;
-  color: inherit;
-  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.5);
-  -webkit-tap-highlight-color: transparent;
-  transition: box-shadow 0.25s ease;
-}
-
-.album-cover:hover {
-  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.55), 0 0 30px var(--cover-accent);
-}
-
-.album-cover:focus-visible {
-  outline: 2px solid #ffe1ad;
-  outline-offset: 4px;
-}
-
-.album-cover.is-playing {
-  box-shadow: 0 0 0 2px #ffe1ad, 0 14px 26px rgba(0, 0, 0, 0.55), 0 0 26px var(--cover-accent);
-}
-
-.cover-art,
-.cover-photo {
-  position: absolute;
-  inset: 0;
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.cover-art {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.cover-photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.cover-band {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  opacity: 0.9;
-}
-
-.cover-motif {
-  width: 72%;
-  height: 56%;
-  margin-bottom: 14%;
-}
-
-.cover-meta {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 8px 9px 9px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.55) 70%);
   display: flex;
   flex-direction: column;
-  text-align: left;
-  border-radius: 0 0 3px 3px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: clamp(132px, 9.6vw, 184px);
+  aspect-ratio: 5 / 4;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background:
+    radial-gradient(90% 70% at 50% 0%, color-mix(in srgb, var(--card-accent) 16%, transparent), transparent 72%),
+    linear-gradient(160deg, color-mix(in srgb, var(--card-bg) 72%, #0e0f11) 0%, color-mix(in srgb, var(--card-bg) 34%, #0b0c0e) 100%);
+  box-shadow: 0 12px 28px -14px rgba(0, 0, 0, 0.85);
+  color: var(--room-text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.cover-title {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(11px, 1.3vw, 15px);
-  line-height: 1.02;
+.proj-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 18px 34px -14px rgba(0, 0, 0, 0.9), 0 0 26px -8px var(--card-accent);
 }
 
-.cover-sticker {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  transform: rotate(7deg);
-  background: #d6485a;
-  color: #fff;
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 11px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
-  z-index: 2;
+.proj-card:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 3px;
 }
 
-/* ---- bottom stage: the turntable + the one detail panel ---- */
+/* the playing card: cream ring + soft cream glow */
+.proj-card.is-playing {
+  border-color: var(--cream);
+  box-shadow:
+    0 0 0 1px var(--cream),
+    0 0 30px -4px rgba(243, 239, 230, 0.35),
+    0 18px 34px -14px rgba(0, 0, 0, 0.9);
+}
+
+.proj-card-icon {
+  width: clamp(34px, 2.7vw, 46px);
+  height: clamp(34px, 2.7vw, 46px);
+  color: var(--card-accent);
+}
+
+.proj-card-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.proj-card-title {
+  font-family: var(--font-serif-display), Georgia, serif;
+  font-size: clamp(16px, 1.25vw, 20px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+/* ---- the stage: now playing | featured card | screen frame ---- */
 .record-stage {
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  gap: clamp(16px, 2vw, 32px);
+  grid-template-columns: minmax(220px, 3fr) minmax(380px, 5fr) minmax(300px, 4fr);
+  gap: clamp(16px, 1.8vw, 30px);
   align-items: center;
-  width: min(1340px, 100%);
+  width: min(1400px, 100%);
   min-height: 0;
 }
 
-/* The detail panel — the record that's playing (RecordPanel.jsx). Same material
-   and section recipes as the Experience pop-up (--climb-card-* tokens, the .beta-*
-   styling), so the two sections read as one system. No backdrop blur: it rides
-   the parallax "projstage" layer, which GSAP moves (see .wall-logbook). */
-.record-panel {
+/* ---- Now Playing (RecordPlayer.jsx) ---- */
+.now-playing {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
-  border: 1px solid var(--climb-card-border);
-  border-radius: var(--climb-card-radius);
-  background: var(--climb-card-bg-solid);
-  box-shadow:
-    0 24px 60px -20px rgba(0, 0, 0, 0.7),
-    0 8px 22px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  color: var(--climb-text);
-  font-family: var(--font-body), system-ui, sans-serif;
 }
 
-/* text column | screenshot column. Two columns so the longest write-ups still
-   fit the stage at 1280×720. Keyed on the record → replays the fade/rise. */
-.record-panel-inner {
+.now-playing-count {
+  margin: 0 0 14px;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  font-variant-numeric: tabular-nums;
+  color: var(--room-muted);
+}
+
+.now-playing-eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--room-text);
+}
+
+.now-playing-title {
+  margin: 0;
+  font-family: var(--font-serif-display), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(28px, 2.4vw, 40px);
+  line-height: 1.05;
+  color: #f5f2eb;
+}
+
+.now-playing-rule {
+  display: block;
+  width: 56px;
+  height: 1px;
+  margin: 12px 0 18px;
+  background: var(--room-faint);
+}
+
+.disc-card {
+  padding: clamp(16px, 1.4vw, 24px);
+  border: 1px solid var(--surface-border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.disc {
+  position: relative;
+  width: min(100%, 240px);
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+}
+
+/* the pressed vinyl: fine concentric grooves over a near-black disc. This is
+   the only layer that rotates. */
+.disc-vinyl {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  background:
+    radial-gradient(40% 30% at 70% 34%, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 60%),
+    repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.06) 0 1px, rgba(0, 0, 0, 0) 1px 3px),
+    radial-gradient(circle at 50% 50%, #1c1d21 0 28%, #111216 28% 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 10px 24px rgba(0, 0, 0, 0.55);
+  animation: disc-spin 8s linear infinite;
+}
+
+/* the accent label: stays put on top of the turning vinyl, holding the icon.
+   Re-mounts on each pick → scale-pops. */
+.disc-label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 36%;
+  aspect-ratio: 1 / 1;
+  translate: -50% -50%;
   display: grid;
-  grid-template-columns: minmax(320px, 1fr) min(520px, 46%);
-  gap: clamp(18px, 1.8vw, 28px);
-  padding: clamp(20px, 1.9vw, 30px) clamp(20px, 1.9vw, 30px) clamp(18px, 1.6vw, 26px);
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 26%, #15171a);
+  color: var(--accent);
+  box-shadow: 0 0 0 4px #101114, 0 0 30px -6px var(--accent);
+  animation: disc-label-pop 0.5s cubic-bezier(0.34, 1.5, 0.6, 1);
+}
+
+.disc-label svg {
+  width: 54%;
+  height: 54%;
+}
+
+@keyframes disc-label-pop {
+  0% { scale: 0.6; }
+  60% { scale: 1.12; }
+  100% { scale: 1; }
+}
+
+/* the progress arc rides just outside the vinyl: a faint full ring, the accent
+   sweep (stroke-dashoffset runs from the full circumference down to 0), and a
+   dot that turns about the centre in step with it. Rotated -90° so the sweep
+   starts at 12 o'clock. */
+.disc-arc {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.disc-arc-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1.5;
+}
+
+.disc-arc-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  animation: disc-progress 40s linear infinite;
+}
+
+.disc-arc-dot {
+  transform-origin: 50px 50px;
+  animation: disc-sweep 40s linear infinite;
+}
+
+.disc-arc-dot circle {
+  fill: var(--accent);
+  filter: drop-shadow(0 0 4px var(--accent));
+}
+
+.disc-card.is-paused .disc-vinyl,
+.disc-card.is-paused .disc-arc-fill,
+.disc-card.is-paused .disc-arc-dot {
+  animation-play-state: paused;
+}
+
+@keyframes disc-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes disc-progress {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes disc-sweep {
+  to { transform: rotate(360deg); }
+}
+
+.disc-caption {
+  margin: 16px 0 0;
+  font-family: var(--font-serif-body), Georgia, serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--room-muted);
+}
+
+/* ---- the featured-project card (RecordPanel.jsx): the cream sheet ----
+   No backdrop blur: it rides the parallax "projstage" layer, which GSAP moves. */
+.record-panel {
+  min-width: 0;
+  border-radius: 16px;
+  background: var(--cream);
+  color: var(--cream-ink);
+  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  font-family: var(--font-serif-body), Georgia, serif;
+}
+
+/* keyed on the record → replays the fade/rise */
+.record-panel-inner {
+  padding: clamp(20px, 1.8vw, 30px) clamp(20px, 1.9vw, 32px) clamp(20px, 1.8vw, 28px);
   animation: record-panel-in 0.4s ease-out both;
 }
 
@@ -2595,41 +2693,40 @@ html[data-site-loading="true"] body {
   }
 }
 
-.record-panel-text {
-  min-width: 0;
-}
-
 .record-panel-eyebrow {
   margin: 0 0 8px;
-  font-size: 11px;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 10.5px;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: rgba(245, 245, 244, 0.5);
+  color: var(--cream-muted);
 }
 
 .record-panel-title {
   margin: 0;
-  font-family: var(--font-condensed), sans-serif;
-  font-weight: 700;
-  font-size: clamp(30px, 2.6vw, 44px);
-  line-height: 0.98;
-  letter-spacing: 0.005em;
-  text-transform: uppercase;
-  color: var(--climb-text-strong);
+  font-family: var(--font-serif-display), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(30px, 2.7vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.005em;
+  color: var(--cream-ink);
 }
 
 .record-panel-subtitle {
   margin: 6px 0 0;
-  font-size: 14px;
-  color: var(--climb-text-muted);
+  font-family: var(--font-serif-display), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(17px, 1.3vw, 21px);
+  line-height: 1.2;
+  color: #3a3833;
 }
 
 .record-panel-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin: 12px 0 0;
+  gap: 8px;
+  margin: 14px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -2638,54 +2735,56 @@ html[data-site-loading="true"] body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
-  border: 1px solid rgba(143, 168, 217, 0.5);
+  padding: 5px 12px;
+  border: 1px solid var(--cream-line);
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--climb-blue-soft);
+  font-size: 13px;
+  color: var(--cream-ink);
 }
 
 .record-panel-tag svg {
   width: 12px;
   height: 12px;
-}
-
-.record-panel-section {
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--climb-rule);
-}
-
-.record-panel-label {
-  display: block;
-  margin: 0 0 8px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--climb-blue-soft);
-}
-
-.record-panel-label::after {
-  content: "";
-  display: block;
-  width: 36px;
-  height: 1px;
-  margin-top: 6px;
-  background: var(--climb-blue-soft);
-  opacity: 0.65;
+  color: var(--cream-muted);
 }
 
 /* consumed by <ExpandableText> (clamp + inline "Show more"; needs --exp-lh) */
 .record-panel-desc {
-  margin: 0;
-  font-size: 14.5px;
-  line-height: 1.65;
-  --exp-lh: 1.65;
-  letter-spacing: -0.005em;
-  color: var(--climb-text);
+  margin: 16px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  --exp-lh: 1.6;
+  color: var(--cream-body);
+}
+
+.record-panel-desc.is-tight {
+  margin-top: 0;
+  font-size: 13.5px;
+}
+
+/* "Show more" on cream */
+.record-panel .expandable-toggle {
+  color: var(--cream-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.record-panel .expandable-toggle:hover {
+  color: var(--cream-ink);
+}
+
+.record-panel-section {
+  margin-top: 16px;
+}
+
+.record-panel-label {
+  margin: 0 0 8px;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--cream-muted);
 }
 
 .record-panel-tools {
@@ -2698,325 +2797,195 @@ html[data-site-loading="true"] body {
 }
 
 .record-panel-tools li {
-  padding: 5px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.04);
+  padding: 4px 11px;
+  border: 1px solid rgba(28, 27, 25, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
   font-size: 12.5px;
-  font-weight: 500;
-  color: #d8d8d5;
+  color: var(--cream-body);
 }
 
 .record-panel-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 16px;
-  padding: 9px 16px;
-  border-radius: 9px;
-  background: var(--climb-blue-soft);
-  color: #0f1a2a;
-  font-size: 13px;
-  font-weight: 700;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  background: var(--cream-ink);
+  color: var(--cream);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
   text-decoration: none;
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
+.record-panel-link svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.record-panel-link-arrow {
+  width: 14px !important;
+  height: 14px !important;
+  margin-left: 2px;
+  opacity: 0.8;
+}
+
 .record-panel-link:hover {
-  background: #afc4f2;
+  background: #000;
   transform: translateY(-1px);
 }
 
 .record-panel-link:focus-visible {
-  outline: 2px solid var(--climb-blue);
+  outline: 2px solid var(--cream-ink);
   outline-offset: 3px;
 }
 
-/* the screenshot: a plain framed image (same frame recipe as the card's
-   highlight photo); phone/tablet shots are portrait, so those show whole */
-.record-shot {
+/* ---- the screenshot in a browser window (ScreenFrame.jsx) ---- */
+.screen-frame {
   margin: 0;
   min-width: 0;
-  align-self: start;
-}
-
-.record-shot-frame {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--surface-border);
   border-radius: 12px;
+  background: var(--surface);
   overflow: hidden;
-  background: #1c1c1f;
+  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.9);
+  animation: record-panel-in 0.4s ease-out both;
 }
 
-.record-shot-frame.is-contain {
+.screen-frame-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--surface-border);
+  background: #0f1012;
+}
+
+.screen-frame-lights {
+  display: flex;
+  gap: 6px;
+}
+
+.screen-frame-lights i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff5f57;
+}
+
+.screen-frame-lights i:nth-child(2) { background: #febc2e; }
+.screen-frame-lights i:nth-child(3) { background: #28c840; }
+
+.screen-frame-name {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--room-muted);
+}
+
+.screen-frame-body {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: #15161a;
+}
+
+/* phone/tablet shots are portrait — show them whole on the dark body */
+.screen-frame-body.is-contain {
   aspect-ratio: 4 / 3;
-  background: #101114;
+  background: #0f1012;
 }
 
-.record-shot-img {
+.screen-frame-img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: top;
   opacity: 0;
   transition: opacity 0.25s ease;
 }
 
-.record-shot-img.is-contain {
+.screen-frame-img.is-contain {
   object-fit: contain;
+  object-position: center;
+  padding: 10px;
 }
 
-.record-shot-img.is-loaded {
+.screen-frame-img.is-loaded {
   opacity: 1;
 }
 
-.record-shot-cap {
-  margin: 8px 0 0;
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: rgba(245, 245, 244, 0.62);
+.screen-frame-note {
+  padding: 9px 14px;
+  border-top: 1px solid var(--surface-border);
+  background: #0f1012;
+  font-size: 11.5px;
+  color: var(--room-muted);
 }
 
-/* record player */
-.record-player {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.now-playing-label {
-  font-family: var(--font-retro), sans-serif;
-  font-size: clamp(13px, 1.5vw, 18px);
-  color: #e6c878;
-  transform: rotate(-3deg);
-  align-self: flex-start;
-}
-
-.turntable {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(6px, 1vw, 14px);
-  padding: clamp(12px, 1.6vw, 20px);
-  border-radius: 9px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 16%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Cfilter id='wt'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.08' numOctaves='4' seed='9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23wt)' opacity='0.5'/%3E%3C/svg%3E"),
-    linear-gradient(180deg, #533620, #2c1b10);
-  background-size: auto, 300px 200px, 100% 100%;
-  background-blend-mode: overlay, overlay, normal;
-  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.08), 0 16px 30px rgba(0, 0, 0, 0.5), 0 0 64px rgba(255, 200, 120, 0.06);
-}
-
-.rec-vinyl {
-  position: relative;
-  /* explicit equal width + height (not just aspect-ratio) so the flex turntable
-     can never squish it into an ellipse — always a true circle. */
-  width: clamp(150px, 20vw, 240px);
-  height: clamp(150px, 20vw, 240px);
-  flex: 0 0 auto;
-  align-self: center;
-  border-radius: 50%;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.55);
-}
-
-/* the spinning disc: deep pressed vinyl + fine concentric grooves. The faint
-   off-centre highlight (first layer) rotates with the disc so the spin reads. */
-.rec-vinyl-disc {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background:
-    /* two off-centre sheens that ROTATE with the disc so the spin is clearly
-       visible (the fixed room glare lives on .rec-vinyl-gloss instead) */
-    radial-gradient(40% 30% at 73% 36%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 60%),
-    radial-gradient(34% 26% at 24% 70%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 60%),
-    repeating-radial-gradient(circle at 50% 50%,
-      rgba(255, 255, 255, 0.05) 0 1px,
-      rgba(0, 0, 0, 0) 1px 2px,
-      rgba(0, 0, 0, 0.5) 2px 3.5px),
-    radial-gradient(circle at 50% 50%, #2b2b30 0 29%, #141417 29% 72%, #0a0a0c 100%);
-  animation: rec-vinyl-spin 3s linear infinite;
-}
-
-.rec-vinyl-disc.is-paused {
-  animation-play-state: paused;
-}
-
-.rec-vinyl-label {
-  position: absolute;
-  inset: 35%;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.35);
-  /* scale-pops each time it re-mounts (i.e. on selecting a new record) */
-  animation: label-pop 0.5s cubic-bezier(0.34, 1.5, 0.6, 1);
-}
-
-@keyframes label-pop {
-  0% {
-    transform: scale(0.6);
+/* short windows (a 720px-tall laptop at the site's 80% zoom): pull the
+   spacing in so the longest write-up still fits without the room scrolling */
+@media (max-height: 780px) {
+  .record-room {
+    gap: clamp(8px, 1.3vh, 14px);
+    padding-top: clamp(64px, 9vh, 80px);
+    padding-bottom: 16px;
   }
 
-  60% {
-    transform: scale(1.12);
+  .proj-head-title {
+    font-size: clamp(34px, 6.2vh, 52px);
   }
 
-  100% {
-    transform: scale(1);
-  }
-}
-
-/* accent glow pulse over the record on each new selection (re-mounts to replay) */
-.rec-vinyl-pulse {
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 3;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0) 60%, var(--accent) 72%, rgba(255, 255, 255, 0) 82%);
-  box-shadow: 0 0 32px 6px var(--accent);
-  opacity: 0;
-  animation: vinyl-pulse 0.75s ease-out;
-}
-
-@keyframes vinyl-pulse {
-  0% {
-    opacity: 0;
-    transform: scale(0.9);
+  .proj-head-sub {
+    margin-top: 6px;
   }
 
-  25% {
-    opacity: 0.85;
+  .proj-card {
+    aspect-ratio: 4 / 3;
   }
 
-  100% {
-    opacity: 0;
-    transform: scale(1.14);
-  }
-}
-
-.rec-vinyl-hole {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #1c1410;
-  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.85);
-}
-
-/* fixed light reflection: a top-left specular + two soft opposing sweeps. Sits
-   OUTSIDE the spinning disc so the glare stays put while the record turns. */
-.rec-vinyl-gloss {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  pointer-events: none;
-  background:
-    radial-gradient(42% 32% at 32% 24%, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0) 72%),
-    conic-gradient(from 200deg at 50% 50%,
-      rgba(255, 255, 255, 0) 0deg,
-      rgba(255, 255, 255, 0.14) 26deg,
-      rgba(255, 255, 255, 0) 72deg,
-      rgba(255, 255, 255, 0) 182deg,
-      rgba(255, 255, 255, 0.1) 208deg,
-      rgba(255, 255, 255, 0) 252deg,
-      rgba(255, 255, 255, 0) 360deg);
-  mix-blend-mode: screen;
-}
-
-@keyframes rec-vinyl-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* tonearm: one rotated bar anchored at the back-right of the plinth, swinging the
-   cartridge down onto the record's outer groove. Rotating the whole container keeps
-   pivot + arm + head perfectly aligned; the head is counter-rotated so it hangs
-   straight onto the disc. */
-.tonearm {
-  position: absolute;
-  top: 26.5%;
-  right: 9%;
-  width: 46%;
-  height: 16px;
-  transform-origin: right center;
-  transform: rotate(-20deg);
-  pointer-events: none;
-  z-index: 4;
-}
-
-.tonearm-pivot {
-  position: absolute;
-  right: -5px;
-  top: 50%;
-  width: 18px;
-  height: 18px;
-  transform: translateY(-50%);
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #e8d9ba, #a98a55);
-  box-shadow: 0 2px 5px rgba(120, 78, 40, 0.45);
-}
-
-.tonearm-arm {
-  position: absolute;
-  right: 9px;
-  top: 50%;
-  width: calc(100% - 18px);
-  height: 4px;
-  transform: translateY(-50%);
-  background: linear-gradient(180deg, #dccba6, #b59a68);
-  border-radius: 2px;
-  box-shadow: 0 1px 2px rgba(120, 78, 40, 0.4);
-}
-
-.tonearm-head {
-  position: absolute;
-  left: -3px;
-  top: 50%;
-  width: 13px;
-  height: 10px;
-  transform: translateY(-50%) rotate(20deg);
-  background: #5b4a2e;
-  border-radius: 2px;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
-}
-
-/* responsive: the panel gives up width first, then the whole stage stacks —
-   turntable above, panel in one column with the screenshot under the text. The
-   room itself scrolls internally (.record-room) on short screens. */
-@media (max-width: 1280px) {
-  .record-stage {
-    grid-template-columns: 240px minmax(0, 1fr);
+  .proj-carousel-row {
+    padding: 8px 6px 10px;
   }
 
-  /* a touch tighter, so the longest write-up (AccessLens) fits a 720px-tall
-     window without the room growing a scrollbar */
   .record-panel-inner {
-    grid-template-columns: minmax(300px, 1fr) min(440px, 44%);
-    padding: 22px 24px 20px;
+    padding: 18px 22px;
+  }
+
+  .record-panel-desc {
+    margin-top: 12px;
   }
 
   .record-panel-section {
-    margin-top: 13px;
-    padding-top: 12px;
+    margin-top: 12px;
+  }
+
+  .record-panel-link {
+    margin-top: 14px;
+  }
+}
+
+/* responsive: the stage columns tighten, then the frame drops under the card,
+   then everything stacks. The room itself scrolls internally (.record-room) on
+   short screens. */
+@media (max-width: 1280px) {
+  .record-stage {
+    grid-template-columns: minmax(200px, 3fr) minmax(340px, 5fr) minmax(260px, 4fr);
   }
 }
 
 @media (max-width: 1024px) {
   .record-stage {
-    grid-template-columns: 210px minmax(0, 1fr);
+    grid-template-columns: minmax(200px, 1fr) minmax(0, 2fr);
+    align-items: start;
   }
 
-  .record-panel-inner {
-    grid-template-columns: minmax(280px, 1fr) min(380px, 44%);
-    padding: 20px;
+  .screen-frame {
+    grid-column: 2;
   }
 }
 
@@ -3026,12 +2995,12 @@ html[data-site-loading="true"] body {
     gap: 18px;
   }
 
-  .turntable {
-    max-width: 360px;
+  .screen-frame {
+    grid-column: auto;
   }
 
-  .record-panel-inner {
-    grid-template-columns: 1fr;
+  .disc {
+    max-width: 200px;
   }
 }
 

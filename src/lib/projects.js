@@ -1,14 +1,17 @@
 /*
-  Projects as a record collection — "Projects on Repeat". Each project is an album:
-  every one sits on the shelf; click one to "play" it (the turntable spins it and
-  the RecordPanel beside it shows the details + screenshot). On phones the same
-  data drives ProjectsMobile's list (which still filters by `category`).
+  Projects as a record collection — "Projects on Repeat". Each project is a card in
+  the carousel; pick one to "play" it (the disc spins it, the featured card beside
+  it carries the details, and the screen frame shows its screenshot). On phones
+  the same data drives ProjectsMobile's list. `category` powers the filter pills
+  on both.
 
-  `coverStyle` drives the CSS-generated album art (no real images yet — drop a path
-  into `coverImage` later to override). `motif` picks a simple cover illustration.
+  `coverStyle` tints the carousel card (bg + accent) and the phone list's Motif
+  art (bg + ink + accent); `motif` picks both the desktop ProjectIcon and the
+  phone Motif illustration. `coverImage` is unused for now.
 
   Schema per project:
-    id, title, subtitle, category, fields[], year,
+    id, title, subtitle, tagline (one line under the Now Playing disc),
+    category, fields[], year,
     coverImage (null for now), coverStyle { bg, ink, accent, motif },
     linerNotes, tools[], technicalHighlights,
     demoPreview { screenshot, device? ("phone" | "tablet" → shown whole, not
@@ -21,6 +24,7 @@ export const PROJECTS = [
     id: "neurotrace",
     title: "NeuroTrace",
     subtitle: "Parkinson's Risk Classifier",
+    tagline: "Turning movement into meaning.",
     category: "ML / AI",
     fields: ["Data Science", "Computer Vision", "Full-Stack ML"],
     year: "2025",
@@ -41,6 +45,7 @@ export const PROJECTS = [
     id: "accesslens",
     title: "AccessLens",
     subtitle: "Accessibility auditor · Global Builders Hackathon Grand Prize winner",
+    tagline: "Finding the barriers before students do.",
     category: "ML / AI",
     fields: ["Accessibility", "LLM Pipeline", "EdTech"],
     year: "2026",
@@ -61,6 +66,7 @@ export const PROJECTS = [
     id: "marketmap",
     title: "MarketMap",
     subtitle: "AI-powered market research agent",
+    tagline: "From app idea to opportunity brief.",
     category: "ML / AI",
     fields: ["Agentic AI", "LLM Pipeline", "RAG"],
     year: "2024",
@@ -81,7 +87,9 @@ export const PROJECTS = [
     id: "portfolio",
     title: "Nabiha's Portfolio",
     subtitle: "My website portfolio",
+    tagline: "A scrapbook, a wall, and a record room.",
     category: "Web App",
+    fields: ["Frontend", "Motion Design", "Creative Coding"],
     year: "2026",
     coverImage: null,
     coverStyle: { bg: "#481f30", ink: "#f8e7ef", accent: "#e388ab", motif: "web" },
@@ -100,6 +108,7 @@ export const PROJECTS = [
     id: "mindclear",
     title: "MindClear Dashboard",
     subtitle: "UI redesign + interview analytics",
+    tagline: "Interview transcripts, turned into insight.",
     category: "Product / Data",
     fields: ["Frontend Development", "Data Visualization"],
     year: "2025",
@@ -120,6 +129,7 @@ export const PROJECTS = [
     id: "tinypause",
     title: "Tiny Pause",
     subtitle: "Currently building · iOS app",
+    tagline: "Small breaks for a clearer mind.",
     category: "Product / Data",
     fields: ["Health AI", "iOS Development"],
     year: "2026",
@@ -141,6 +151,7 @@ export const PROJECTS = [
     id: "kiosk",
     title: "Sign-In Kiosk",
     subtitle: "Code Ninjas front desk · in daily use",
+    tagline: "Two taps, fifteen seconds, signed in.",
     category: "Product / Data",
     fields: ["Product Design", "Full-Stack"],
     year: "2026",
@@ -160,8 +171,8 @@ export const PROJECTS = [
   },
 ];
 
-// "All" plus each distinct category (first-seen order) — the phone list's filter chips.
-// The desktop shelf shows every record, so it no longer uses these.
+// "All" plus each distinct category (first-seen order) — the filter pills on both
+// the desktop carousel and the phone list.
 export const CATEGORIES = [
   "All",
   ...PROJECTS.reduce((acc, p) => (acc.includes(p.category) ? acc : [...acc, p.category]), []),

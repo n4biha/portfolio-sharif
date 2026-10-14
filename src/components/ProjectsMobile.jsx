@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { PROJECTS, CATEGORIES } from "@/lib/projects";
 import FieldIcon from "./FieldIcon";
-import { Motif } from "./AlbumCover";
+import { Motif } from "./Motif";
 
 /*
   Mobile Projects — the same clean beige accordion as Experience: filter chips,
